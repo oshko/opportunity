@@ -1,0 +1,32 @@
+<html>
+	<head>
+	    <title>Dashboard</title>
+	</head>
+	<body>
+    	<h1>Job Seeker's dashboard </h1>
+		<fieldset>
+		<legend>add:</legend>
+		<form action="/newactivity/">
+			<select name="activity">
+{% for activity in activity_list %}
+			<option value="{{ activity }}">{{ activity }}</option>
+{% endfor %}
+			</select>
+			<input type="submit" value="Submit">
+		</form>
+		</fieldset>
+
+		<h2>Prospective employer's</h2> 
+			<ul>
+{% for company in company_list %}
+    			<li><a href="{{ company.website }}">{{ company.name }}</a></li>
+{% endfor %}
+			</ul>
+		<h2>Activities</h2> 
+			<ul>
+{% for conversation in conversation_list %}
+    			<li> Spoke with {{ conversation.person.name }} via {{ conversation.via }} on {{ conversation.when }}. Comments: {{ conversation.comment }}. </li>
+{% endfor %}
+			</ul>
+	</body>
+</html>

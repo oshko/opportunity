@@ -1,0 +1,37 @@
+body {
+	background: #006600;
+}
+
+header { 
+   width: 720px;
+   margin: 0 auto;
+}
+
+
+header h1 {
+	padding-left: 15px;
+	margin: 0;
+}
+
+header h2 {
+	padding-left: 40px;
+	padding-right: 15px;
+	margin:0;
+}
+
+hgroup {
+	background: lightgreen; 
+}
+
+nav {
+	padding-right: 25px;
+}
+
+nav li {
+	display:inline;
+}
+
+section { 
+	background: lightgreen;
+	padding-left: 10px;
+}
