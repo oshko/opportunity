@@ -1,23 +1,40 @@
 <html>
-<head>
-    <title>{{ title }}</title>
-</head>
-<body>
-    <h1>{{ title }}</h1>
+	<head>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" href="/static/css/index.css" />
+	    <title>{{ title }}</title>
+	</head>
+	<body>
+		<header>
+			<hgroup>
+				<h1>Opportunity</h1>
+				<h2>a site for active job seekers.</h2>
+				<nav>
+					<ul>
+						<li><a href="/dashboard/">dashboard</a></li> |
+						<li><a href="/books/">books</a></li> |
+						<li><a href="/">about</a></li>
+					</ul>
+				</nav>
+			</hgroup>
+		</header>
+		<section>
+			<h1>{{ title }}</h1>
 
-	{{ desc }} 
+			{{ desc }} 
 
-    {% if form.errors %}
-        <p style="color: red;">
-            Please correct the error{{ form.errors|pluralize }} below.
-        </p>
-    {% endif %}
+			{% if form.errors %}
+				<p style="color: red;">
+				    Please correct the error{{ form.errors|pluralize }} below.
+				</p>
+			{% endif %}
 
-    <form action="" method="post">
-        <table>
-            {{ form.as_table }}
-        </table>
-        <input type="submit" value="Submit">
-    </form>
-</body>
+			<form action="" method="post">
+				<table>
+				    {{ form.as_table }}
+				</table>
+				<input type="submit" value="Submit">
+			</form>
+		</section>
+	</body>
 </html>

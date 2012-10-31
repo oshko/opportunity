@@ -12,6 +12,9 @@ class Company(models.Model):
     def __unicode__(self):
         return self.name
 
+    class Meta:
+        ordering = ['name'];
+
 
 # A JobSeekerProfile is a person which uses our system. 
 # see http://www.turnkeylinux.org/blog/django-profile
@@ -28,6 +31,7 @@ class JobSeekerProfile(models.Model):
 class Person(models.Model):
     first_name = models.CharField(max_length=16)
     last_name = models.CharField(max_length=16)
+    title = models.CharField(max_length=64)
     company = models.ForeignKey(Company, unique=True)
 
     def __unicode__(self):
@@ -37,6 +41,7 @@ class Position(models.Model):
     company = models.ForeignKey(Company, unique=True)
     title = models.CharField(max_length=64)
     website = models.URLField()
+    comment = models.CharField(max_length=256)
 
     def __unicode__(self):
         return  u'%s at %s' % (self.title, self.company)
@@ -49,6 +54,7 @@ class Activity(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['when']
 
 # job interview 
 class Interview(Activity):

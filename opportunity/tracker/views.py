@@ -25,8 +25,12 @@ from models import Gratitude
 from forms import ConversationForm
 from models import Conversation 
 
+# The prettyNames are displayed to the user. 
 prettyNames = ["Company","Person","Position","Interview","Applying","Networking","Gratitude","Conversation"]
-mapNameToFunction = {"Company" : "company",
+
+# The prettyNames are keys this hash array which returns 
+#   the url for the object or activity you want to enter. 
+mapNameToFunction = {"Company" : "prospect",
                      "Person" : "contact",
                      "Position" : "position",
                      "Interview" : "interview",
@@ -34,9 +38,14 @@ mapNameToFunction = {"Company" : "company",
                      "Networking" : "networking",
                      "Gratitude" : "gratitude",
                      "Conversation" : "conversation"}
+
 # welcome page 
 def hello(request):
     return render_to_response('about.html')
+
+# reference which may help the job seeker
+def books(request):
+    return render_to_response('books.html')
 
 # dashboard - initially just display the companies
 def dashboard(request):

@@ -22,8 +22,9 @@ urlpatterns = patterns('',
     (r'^apply/', 'opportunity.tracker.views.applyFor'), # activity
     (r'^networking/', 'opportunity.tracker.views.networking'), # activity
     (r'^conversation/', 'opportunity.tracker.views.conversation'), # activity
-	(r'^dashboard/', 'opportunity.tracker.views.dashboard'),
+    (r'^dashboard/', 'opportunity.tracker.views.dashboard'),
     (r'^$','opportunity.tracker.views.hello'),
+    (r'^books/$','opportunity.tracker.views.books'),
 )
 
 # newactivity
