@@ -23,11 +23,15 @@ This dashboard offer's the job seeker an aggregated view of your job hunt.
 
 			<div id="positions" >
 				<h2>Positions</h2> 
-				<ul>
-	{% for company in company_list %}
-					<li><a href="{{ company.website }}">{{ company.name }}</a></li>
-	{% endfor %}
-				</ul>
+	{% if position_list %}
+					<ul>
+		{% for position in position_list %}
+						<li><a href="{{ position.website }}">{{ position.title }}</a> at {{ position.company.name }} </li>
+		{% endfor %}
+					</ul>
+	{% else %} 
+		There are no positions at this time. You can add them below. 
+	{% endif %} 
 			</div>
 
 			<div id="activities" >

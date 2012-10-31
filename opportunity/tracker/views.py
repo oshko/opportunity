@@ -49,10 +49,10 @@ def books(request):
 
 # dashboard - initially just display the companies
 def dashboard(request):
-    c = Company.objects.all()
+    positions = Position.objects.all()
     conversation = Conversation.objects.all()
     return render_to_response('dashboard.html', 
-                             {'company_list' : c, 
+                             {'position_list' : positions, 
                               'activity_list' : prettyNames,
                               'conversation_list' : conversation })
 

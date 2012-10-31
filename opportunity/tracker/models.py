@@ -46,6 +46,9 @@ class Position(models.Model):
     def __unicode__(self):
         return  u'%s at %s' % (self.title, self.company)
 
+    class Meta:
+        ordering = ['title']
+
 # The job seeker can record activities. When is the interview? 
 # Apply for a job? Sent thank to interviewer? 
 class Activity(models.Model):
