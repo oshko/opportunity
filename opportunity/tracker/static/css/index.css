@@ -1,5 +1,5 @@
 body {
-    font: Verdana,sans-serif;
+    font: medium Verdana,sans-serif;
 	background: #006600;
 }
 
@@ -40,3 +40,13 @@ section {
 	background: lightgreen;
 	padding-left: 10px;
 }
+
+#positions,#activities, #add-something {
+	background: #99CC00;
+	border: 1px solid darkslategray;
+	padding-left: 10px;
+	padding-right: 10px;
+	margin: 10px;
+}
+
+

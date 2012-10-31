@@ -20,30 +20,39 @@
 		<section>
 			<h1>Dashboard</h1>
 This dashboard offer's the job seeker an aggregated view of your job hunt. 
-			<fieldset>
-				<legend>add:</legend>
-				<form action="/newactivity/">
-					<select name="activity">
-		{% for activity in activity_list %}
-					<option value="{{ activity }}">{{ activity }}</option>
-		{% endfor %}
-					</select>
-					<input type="submit" value="Submit">
-				</form>
-			</fieldset>
 
-			<h2>Prospective employer's</h2> 
+			<div id="positions" >
+				<h2>Positions</h2> 
 				<ul>
 	{% for company in company_list %}
 					<li><a href="{{ company.website }}">{{ company.name }}</a></li>
 	{% endfor %}
 				</ul>
-			<h2>Activities</h2> 
+			</div>
+
+			<div id="activities" >
+				<h2>Activities</h2> 
 				<ul>
 	{% for conversation in conversation_list %}
 					<li> Spoke with {{ conversation.person.name }} via {{ conversation.via }} on {{ conversation.when }}. Comments: {{ conversation.comment }}. </li>
 	{% endfor %}
 				</ul>
+			</div>
+
+            <div id="add-something">
+To add move information about your job hunt, select the activity and click submit. This will take you to a page which you can enter pertinent details about it. 
+				<fieldset>
+					<legend>add:</legend>
+					<form action="/newactivity/">
+						<select name="activity">
+			{% for activity in activity_list %}
+						<option value="{{ activity }}">{{ activity }}</option>
+			{% endfor %}
+						</select>
+						<input type="submit" value="Submit">
+					</form>
+				</fieldset>
+            </div>
 		</section>
 	</body>
 </html>
