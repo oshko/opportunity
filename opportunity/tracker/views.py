@@ -1,5 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.contrib.auth.models import User
 
 from forms import CompanyForm
 from models import Company
@@ -25,6 +27,9 @@ from models import Gratitude
 from forms import ConversationForm
 from models import Conversation 
 
+from forms import RegistrationForm
+from models import UserProfile
+
 # The prettyNames are displayed to the user. 
 prettyNames = ["Company","Person","Position","Interview","Applying","Networking","Gratitude","Conversation"]
 
@@ -39,16 +44,26 @@ mapNameToFunction = {"Company" : "prospect",
                      "Gratitude" : "gratitude",
                      "Conversation" : "conversation"}
 
-# welcome page 
 def hello(request):
+    """ welcome page """
     return render_to_response('about.html')
 
-# reference which may help the job seeker
 def books(request):
+    """ references to books which may help the job seeker """ 
     return render_to_response('books.html')
 
-# dashboard - initially just display the companies
+def profile(request):
+    """ 
+    This is a profile page. It contains the elevator pitch and responses to 
+    behavioral interview questions. 
+    """
+    return render_to_response('profile.html')
+
 def dashboard(request):
+    """
+    This is the dashboard page.  Aggregates information about prosepctive
+    employers and activities in which the job hunter is engaged. 
+    """
     positions = Position.objects.all()
     conversation = Conversation.objects.all()
     return render_to_response('dashboard.html', 
@@ -56,8 +71,10 @@ def dashboard(request):
                               'activity_list' : prettyNames,
                               'conversation_list' : conversation })
 
-# form to enter company 
 def company(request):
+    """
+    A form to enter information about the company.
+    """
     if request.method == 'POST':
         form = CompanyForm(request.POST)
         if form.is_valid():
@@ -70,8 +87,10 @@ def company(request):
                            'desc': "Record information about a prospective employer.", 
                            'form': form})
 
-# form to enter a person
 def person(request):
+    """
+    A form to enter information about a person of interest. 
+    """
     if request.method == 'POST':
         form = PersonForm(request.POST)
         if form.is_valid():
@@ -84,8 +103,10 @@ def person(request):
                            'desc': "Record a contact you met on the job hunt.", 
                            'form': form})
 
-# form to enter a position
 def position(request):
+    """
+    A form to enter information about a position
+    """
     if request.method == 'POST':
         form = PositionForm(request.POST)
         if form.is_valid():
@@ -98,13 +119,17 @@ def position(request):
                            'desc': "Record a position in which you are interested..", 
                            'form': form})
 
-# display to create a new activity.
 def newactivity(request):
+    """
+    Display to create a new activity.
+    """
     newURL = '/' + mapNameToFunction[request.GET['activity']] + '/'
     return HttpResponseRedirect(newURL)    
 
-# form to enter an interview
 def interview(request):
+    """
+    form to enter information about an interview
+    """
     if request.method == 'POST':
         form = InterviewForm(request.POST)
         if form.is_valid():
@@ -117,8 +142,10 @@ def interview(request):
                            'desc': "Record a pertinent interview.", 
                            'form': form})
 
-# form to enter for submitting an apply
 def applyFor(request):
+    """
+    A form to enter for submitting an apply
+    """
     if request.method == 'POST':
         form = ApplyForm(request.POST)
         if form.is_valid():
@@ -130,8 +157,10 @@ def applyFor(request):
                            'desc': "Record information about a job for which you applied.", 
                            'form': form})
 
-# form to document a networking event 
 def networking(request):
+    """
+    A form to document a networking event 
+    """
     if request.method == 'POST':
         form = NetworkingForm(request.POST)
         if form.is_valid():
@@ -143,8 +172,10 @@ def networking(request):
                            'desc': "Record information about a networking event.", 
                            'form': form})
 
-# form - remember to thank people  
 def gratitude(request):
+    """
+    A form to setup a reminder to thank someone.
+    """
     if request.method == 'POST':
         form = GratitudeForm(request.POST)
         if form.is_valid():
@@ -156,8 +187,10 @@ def gratitude(request):
                            'desc': "Remember to thank those people who've helped you along the way.", 
                            'form': form})
 
-# form to enter a conversation
 def conversation(request):
+    """
+    A form to document a pertinent conversation
+    """
     if request.method == 'POST':
         form = ConversationForm(request.POST)
         if form.is_valid():
@@ -169,4 +202,43 @@ def conversation(request):
                            {'title': "Conversation", 
                            'desc': "Record a pertinent conversation.", 
                            'form': form})
+# TODO: need a user profile with which to associate the pitch 
+def pitch(request):
+    """
+    Record the elevator pitch.   
+    """
+    if request.method == 'POST':
+        return HttpResponseRedirect('/pitch/')
+    else:
+        return render_to_response('pitch_form.html')
 
+
+# TODO: need a user profile with which to associate this story.
+def story(request): 
+    """
+    Record stories for behaviorial interviews. 
+    """
+    pass 
+
+def registration(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect('/profile/')
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid(): 
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                email = form.cleaned_data['email'],
+                password = form.cleaned_data['password'])
+            user.save()
+            profile = user.get_profile()
+            profile.url = form.cleaned_data['url']
+            profile.title = form.cleaned_data['title'] 
+            profile.save()
+            return HttpResponseRedirect('/profile/')
+        else:
+            return render_to_response("register.html", {'form': form }, context_instance=RequestContext(request))
+    else:
+        ''' Show user blank registration form '''
+        form = RegistrationForm()
+        return render_to_response("register.html",{'form': form }, context_instance=RequestContext(request))

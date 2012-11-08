@@ -25,6 +25,9 @@ urlpatterns = patterns('',
     (r'^dashboard/', 'opportunity.tracker.views.dashboard'),
     (r'^$','opportunity.tracker.views.hello'),
     (r'^books/$','opportunity.tracker.views.books'),
+    (r'^profile/$','opportunity.tracker.views.profile'),
+    (r'^pitch/$', 'opportunity.tracker.views.profile'),
+    (r'^register/$','opportunity.tracker.views.registration'),
 )
 
 # newactivity

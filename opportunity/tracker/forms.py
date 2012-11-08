@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 
 from models import Apply
 from models import Company
@@ -8,6 +9,7 @@ from models import Interview
 from models import Networking
 from models import Gratitude
 from models import Conversation
+from models import UserProfile
 
 class CompanyForm(forms.ModelForm):
     class Meta:
@@ -42,3 +44,40 @@ class ConversationForm(forms.ModelForm):
         model = Conversation
 
 
+class RegistrationForm(forms.ModelForm):
+    username = forms.CharField(label=(u'User Name'))
+    email = forms.EmailField(label=(u'Email Address'))
+    password = forms.CharField(label=(u'Password'), 
+				widget =forms.PasswordInput(render_value=False))
+    password_verify = forms.CharField(label=(u'Verify password'), 
+				widget =forms.PasswordInput(render_value=False))
+    class Meta:
+        model = UserProfile
+        exclude = ('user',)
+
+    def clean_username(self):
+        ''' 
+        Methods prefixed with 'clean_' and concatenated 
+        with a variable name are used to valid that variable.
+        This method makes sure there isn't a user by this 
+        name already in the database. 
+        '''
+        username = self.cleaned_data['username']
+        try:
+            User.objects.get(username=username)
+        except User.DoesNotExist:
+            return username
+        raise forms.ValidationError('That user name is take. Please, select anthor')
+
+
+    def clean(self):
+        ''' 
+        To validate the password, we need two fields. clean is called
+        with all. 
+        '''
+        password = self.cleaned_data['password']
+        password_verify = self.cleaned_data['password_verify']
+        if password != password_verify:
+            raise forms.ValidationError('The passwords did not match')
+        # import pdb; pdb.set_trace()
+        return self.cleaned_data       

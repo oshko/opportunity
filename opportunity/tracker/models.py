@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 class Company(models.Model):
     name = models.CharField(max_length=32)
@@ -15,20 +16,10 @@ class Company(models.Model):
     class Meta:
         ordering = ['name'];
 
-
-# A JobSeekerProfile is a person which uses our system. 
-# see http://www.turnkeylinux.org/blog/django-profile
-# 
-class JobSeekerProfile(models.Model):
-    user = models.ForeignKey(User, unique=True)
-    url = models.URLField("Website", blank=True)
-    company = models.ForeignKey(Company, unique=True)
-
-    def __unicode__(self):
-        return self.user
-
-# People a job seeker has met along the way. 
 class Person(models.Model):
+    '''
+    People a job seeker has met along the way. 
+    '''
     first_name = models.CharField(max_length=16)
     last_name = models.CharField(max_length=16)
     title = models.CharField(max_length=64)
@@ -49,9 +40,11 @@ class Position(models.Model):
     class Meta:
         ordering = ['title']
 
-# The job seeker can record activities. When is the interview? 
-# Apply for a job? Sent thank to interviewer? 
 class Activity(models.Model):
+    '''
+    The job seeker can record activities. When is the interview? 
+	Apply for a job? Sent thank to interviewer? 
+    '''
     when = models.DateField()
     comment = models.CharField(max_length=256)
 
@@ -59,7 +52,6 @@ class Activity(models.Model):
         abstract = True
         ordering = ['when']
 
-# job interview 
 class Interview(Activity):
     position = models.ForeignKey(Position, unique=True)
     company = models.ForeignKey(Company, unique=True)
@@ -68,30 +60,38 @@ class Interview(Activity):
     def __unicode__(self):
         return  u'interviewing with %s for %s' % (self.company.name, self.Position.title)
 
-# applied for job
 class Apply(Activity): 
+    '''
+    applied for job
+    '''
     position = models.ForeignKey(Position, unique=True)
     company = models.ForeignKey(Company, unique=True)
 
     def __unicode__(self):
         return  u'Applied for %s at %s' % (self.Position.title, self.company.name)
-
-# networking at professional event. Company.name is the venue. 
+ 
 class Networking(Activity):
+    '''
+    networking at professional event. Company.name is the venue.
+    '''
     venue = models.ForeignKey(Company, unique=True)
 
     def __unicode__(self):
         return  u'Networking at %s' % (self.company.name)
 
-# sent thank you letters. 
 class Gratitude(Activity):
+    '''
+    send thank you letters.
+    '''
     person = models.ForeignKey(Person, unique=True)
 
     def __unicode__(self):
         return  u'Thank %s' % (self.person.name)
 
-# Conversation can be via email, phone, in-person, etc.
 class Conversation(Activity):
+    '''
+    Conversation can be via email, phone, in-person, etc.
+    '''
     METHOD_OF_COMMUNICATION = (
         ("email","E-mail"),
         ("phone","Phone"),
@@ -102,4 +102,27 @@ class Conversation(Activity):
 
     def __unicode__(self):
         return  u'Spoke %s via ' % (self.person.name,self.via)
+
+# A UserProfile is a person which uses our system. 
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    title = models.CharField(max_length=32) 
+    url = models.URLField("Website", blank=True)
+
+    def __unicode__(self):
+        return self.user.username
+
+# UserProfile is associated with the User table. Listen for the post_save 
+# signal. Create a profile when new User added.
+
+def create_user_profile(sender, instance, created, **kwargs):
+    """
+    This is the callback associated with the post_save signal on User. 	
+    """ 
+    if created:
+        UserProfile.objects.create(user=instance)
+
+# register for post_save signal on User 
+post_save.connect(create_user_profile, sender=User)
 
