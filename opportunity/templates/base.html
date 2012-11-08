@@ -1,0 +1,30 @@
+<!doctype html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" href="/static/css/index.css" />
+		<title>Opportunity</title>
+	</head>
+	<body>
+		<header>
+			<hgroup>
+				<h1>Opportunity</h1>
+				<h2>a site for active job seekers.</h2>
+				<nav>
+					<ul>
+						<li><a href="/dashboard/">dashboard</a></li> |
+						<li><a href="/books/">books</a></li> | 
+						<li><a href="/">about</a></li>
+					</ul>
+				</nav>
+			</hgroup>
+		</header>
+
+		{% block content %}{% endblock %}
+		{% block footer %}
+		<hr/>
+		<p>Thanks for visiting my site.</p>
+		{% endblock %}
+	</body>
+</html>
