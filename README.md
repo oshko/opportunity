@@ -1,4 +1,4 @@
 opportunity
 ===========
 
-a web application dedicated to helping people find jobs
+a web application dedicated to help people find jobs
