@@ -1,26 +1,6 @@
-<!doctype html>
+{% extends "base.html" %}
+{% block content %}
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="stylesheet" href="/static/css/index.css" />
-		<title>Books</title>
-	</head>
-	<body>
-		<header>
-			<hgroup>
-				<h1>Opportunity</h1>
-				<h2>a site for active job seekers.</h2>
-				<nav>
-					<ul>
-						<li><a href="/dashboard/">dashboard</a></li> |
-						<li><a href="/">about</a></li>
-
-					</ul>
-				</nav>
-			</hgroup>
-		</header>
-		<section>
 			<h1>Books</h1>
 <p>
 	<table border="1">
@@ -49,6 +29,5 @@
 		</tr>
 	</table>
 </p>
-		</section>
-	</body>
-</html>
+
+{% endblock %}

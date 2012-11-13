@@ -81,3 +81,8 @@ class RegistrationForm(forms.ModelForm):
             raise forms.ValidationError('The passwords did not match')
         # import pdb; pdb.set_trace()
         return self.cleaned_data       
+
+class LoginForm(forms.Form):
+    username = forms.CharField(label=(u'User Name'))
+    password = forms.CharField(label=(u'Password'), 
+				widget =forms.PasswordInput(render_value=False))

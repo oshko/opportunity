@@ -1,32 +1,10 @@
-<!doctype html>
+{% extends "base.html" %}
+{% block content %}
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="stylesheet" href="/static/css/index.css" />
-		<title>Opportunity - elevator pitch</title>
-	</head>
-	<body>
-		<header>
-			<hgroup>
-				<h1>Opportunity</h1>
-				<h2>a site for active job seekers.</h2>
-				<nav>
-					<ul>
-						<li><a href="/dashboard/">dashboard</a></li> |
-						<li><a href="/books/">books</a></li> |
-						<li><a href="/profile/">profile</a> </li>
-					</ul>
-				</nav>
-			</hgroup>
-		</header>
-
-		<section>
 The elevator pitch allows you to convey your value proposition when you meet new people in person.
     <form action="/pitch/" method="get">
         <input type="textarea" name="pitch">
-        <input type="submit" value="Search">
+        <input type="submit" value="submit">
     </form>
-		</section>
-	</body>
-</html>
+
+{% endblock %}

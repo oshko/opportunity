@@ -23,10 +23,12 @@ urlpatterns = patterns('',
     (r'^networking/', 'opportunity.tracker.views.networking'), # activity
     (r'^conversation/', 'opportunity.tracker.views.conversation'), # activity
     (r'^dashboard/', 'opportunity.tracker.views.dashboard'),
-    (r'^$','opportunity.tracker.views.hello'),
+    (r'^$','opportunity.tracker.views.about'),
     (r'^books/$','opportunity.tracker.views.books'),
     (r'^profile/$','opportunity.tracker.views.profile'),
-    (r'^pitch/$', 'opportunity.tracker.views.profile'),
+    (r'^pitch/$', 'opportunity.tracker.views.pitch'),
+    (r'^login/$', 'opportunity.tracker.views.loginRequest'),
+    (r'^logout/$', 'opportunity.tracker.views.logoutRequest'),
     (r'^register/$','opportunity.tracker.views.registration'),
 )
 

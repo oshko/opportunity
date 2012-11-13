@@ -2,6 +2,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout 
+from django.contrib.auth.decorators import login_required
 
 from forms import CompanyForm
 from models import Company
@@ -30,6 +32,8 @@ from models import Conversation
 from forms import RegistrationForm
 from models import UserProfile
 
+from forms import LoginForm
+
 # The prettyNames are displayed to the user. 
 prettyNames = ["Company","Person","Position","Interview","Applying","Networking","Gratitude","Conversation"]
 
@@ -44,21 +48,26 @@ mapNameToFunction = {"Company" : "prospect",
                      "Gratitude" : "gratitude",
                      "Conversation" : "conversation"}
 
-def hello(request):
+def about(request):
     """ welcome page """
-    return render_to_response('about.html')
+    return render_to_response('about.html', 
+		    context_instance=RequestContext(request))
 
 def books(request):
     """ references to books which may help the job seeker """ 
-    return render_to_response('books.html')
+    return render_to_response('books.html', 
+		    context_instance=RequestContext(request))
 
+@login_required
 def profile(request):
     """ 
     This is a profile page. It contains the elevator pitch and responses to 
     behavioral interview questions. 
     """
-    return render_to_response('profile.html')
+    return render_to_response('profile.html', 
+		    context_instance=RequestContext(request))
 
+@login_required
 def dashboard(request):
     """
     This is the dashboard page.  Aggregates information about prosepctive
@@ -69,8 +78,10 @@ def dashboard(request):
     return render_to_response('dashboard.html', 
                              {'position_list' : positions, 
                               'activity_list' : prettyNames,
-                              'conversation_list' : conversation })
+                              'conversation_list' : conversation }, 
+		                      context_instance=RequestContext(request))
 
+@login_required
 def company(request):
     """
     A form to enter information about the company.
@@ -85,8 +96,9 @@ def company(request):
     return render_to_response('tracker_form.html',
                            {'title': "Company", 
                            'desc': "Record information about a prospective employer.", 
-                           'form': form})
-
+                           'form': form}, 
+		                   context_instance=RequestContext(request))
+@login_required
 def person(request):
     """
     A form to enter information about a person of interest. 
@@ -101,8 +113,9 @@ def person(request):
     return render_to_response('tracker_form.html', 
                            {'title': "Person", 
                            'desc': "Record a contact you met on the job hunt.", 
-                           'form': form})
-
+                           'form': form}, 
+		                   context_instance=RequestContext(request))
+@login_required
 def position(request):
     """
     A form to enter information about a position
@@ -117,8 +130,9 @@ def position(request):
     return render_to_response('tracker_form.html', 
                            {'title': "position", 
                            'desc': "Record a position in which you are interested..", 
-                           'form': form})
-
+                           'form': form}, 
+		                   context_instance=RequestContext(request))
+@login_required
 def newactivity(request):
     """
     Display to create a new activity.
@@ -126,6 +140,7 @@ def newactivity(request):
     newURL = '/' + mapNameToFunction[request.GET['activity']] + '/'
     return HttpResponseRedirect(newURL)    
 
+@login_required
 def interview(request):
     """
     form to enter information about an interview
@@ -140,8 +155,10 @@ def interview(request):
     return render_to_response('tracker_form.html', 
                           {'title': "Interview", 
                            'desc': "Record a pertinent interview.", 
-                           'form': form})
+                           'form': form}, 
+			               context_instance=RequestContext(request))
 
+@login_required
 def applyFor(request):
     """
     A form to enter for submitting an apply
@@ -155,8 +172,10 @@ def applyFor(request):
         form = ApplyForm()
     return render_to_response('tracker_form.html', {'title': "Apply", 
                            'desc': "Record information about a job for which you applied.", 
-                           'form': form})
+                           'form': form}, 
+		                   context_instance=RequestContext(request))
 
+@login_required
 def networking(request):
     """
     A form to document a networking event 
@@ -170,8 +189,10 @@ def networking(request):
         form = NetworkingForm()
     return render_to_response('tracker_form.html', {'title': "Networking", 
                            'desc': "Record information about a networking event.", 
-                           'form': form})
+                           'form': form}, 
+		                   context_instance=RequestContext(request))
 
+@login_required
 def gratitude(request):
     """
     A form to setup a reminder to thank someone.
@@ -185,8 +206,10 @@ def gratitude(request):
         form = GratitudeForm()
     return render_to_response('tracker_form.html', {'title': "Gratitude", 
                            'desc': "Remember to thank those people who've helped you along the way.", 
-                           'form': form})
+                           'form': form}, 
+		                   context_instance=RequestContext(request))
 
+@login_required
 def conversation(request):
     """
     A form to document a pertinent conversation
@@ -201,8 +224,11 @@ def conversation(request):
     return render_to_response('tracker_form.html', 
                            {'title': "Conversation", 
                            'desc': "Record a pertinent conversation.", 
-                           'form': form})
+                           'form': form}, 
+		                   context_instance=RequestContext(request))
+
 # TODO: need a user profile with which to associate the pitch 
+@login_required
 def pitch(request):
     """
     Record the elevator pitch.   
@@ -210,10 +236,12 @@ def pitch(request):
     if request.method == 'POST':
         return HttpResponseRedirect('/pitch/')
     else:
-        return render_to_response('pitch_form.html')
+        return render_to_response('pitch_form.html', 
+		    context_instance=RequestContext(request))
 
 
 # TODO: need a user profile with which to associate this story.
+@login_required
 def story(request): 
     """
     Record stories for behaviorial interviews. 
@@ -237,8 +265,38 @@ def registration(request):
             profile.save()
             return HttpResponseRedirect('/profile/')
         else:
-            return render_to_response("register.html", {'form': form }, context_instance=RequestContext(request))
+            return render_to_response("register.html", {'form': form },
+                context_instance=RequestContext(request))
     else:
         ''' Show user blank registration form '''
         form = RegistrationForm()
-        return render_to_response("register.html",{'form': form }, context_instance=RequestContext(request))
+        return render_to_response("register.html",{'form': form }, 
+		    context_instance=RequestContext(request))
+
+def loginRequest(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect('/profile/')
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            userprofile = authenticate(username=username, password=password); 
+            if userprofile is not None:
+                login(request, userprofile)
+                return HttpResponseRedirect('/profile/')
+            else: 
+                return render_to_response("login.html", {'form' : form}, 
+                    context_instance=RequestContext(request))
+        else: 
+            return render_to_response("login.html", {'form' : form}, 
+                context_instance=RequestContext(request))
+    else:
+        ''' show login form ''' 
+        form = LoginForm()
+        return render_to_response("login.html", {'form' : form}, 
+		    context_instance=RequestContext(request))
+
+def logoutRequest(request):
+    logout(request)
+    return HttpResponseRedirect('/')

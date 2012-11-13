@@ -1,23 +1,6 @@
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<link rel="stylesheet" href="/static/css/index.css" />
-	    <title>Dashboard</title>
-	</head>
-	<body>
-		<header>
-			<hgroup>
-				<h1>Opportunity</h1>
-				<h2>a site for active job seekers.</h2>
-				<nav>
-					<ul>
-						<li><a href="/books/">books</a></li> | 
-						<li><a href="/">about</a></li>
-					</ul>
-				</nav>
-			</hgroup>
-		</header>
-		<section>
+{% extends "base.html" %}
+{% block content %}
+
 			<h1>Dashboard</h1>
 This dashboard offer's the job seeker an aggregated view of your job hunt. 
 
@@ -57,6 +40,5 @@ To add move information about your job hunt, select the activity and click submi
 					</form>
 				</fieldset>
             </div>
-		</section>
-	</body>
-</html>
+
+{% endblock %}

@@ -15,16 +15,23 @@
 					<ul>
 						<li><a href="/dashboard/">dashboard</a></li> |
 						<li><a href="/books/">books</a></li> | 
-						<li><a href="/">about</a></li>
+						<li><a href="/">about</a></li> |
+					{% if user.is_authenticated %} 
+						<li><a href="/logout/">logout</a></li>
+					{% else %} 
+						<li><a href="/login/">login</a></li>
+					{% endif %} 
 					</ul>
 				</nav>
 			</hgroup>
 		</header>
-
-		{% block content %}{% endblock %}
+		<section>
+		{% block content %}
+		{% endblock %}
 		{% block footer %}
 		<hr/>
 		<p>Thanks for visiting my site.</p>
 		{% endblock %}
+		</section>
 	</body>
 </html>

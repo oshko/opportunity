@@ -1,45 +1,23 @@
-<!doctype html>
+{% extends "base.html" %}
+{% block content %}
+ 
+	<h1>Profile - skills the job seeker has on offer.</h1>
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="stylesheet" href="/static/css/index.css" />
-		<title>Opportunity</title>
-	</head>
-	<body>
-		<header>
-			<hgroup>
-				<h1>Opportunity</h1>
-				<h2>a site for active job seekers.</h2>
-				<nav>
-					<ul>
-						<li><a href="/dashboard/">dashboard</a></li> |
-						<li><a href="/books/">books</a></li> |
-						<li><a href="/profile/">profile</a> </li>
-					</ul>
-				</nav>
-			</hgroup>
-		</header>
+	<p> 
+	On the job hunt, you often tell stories. This page is design to help you organize your elevator pitch and response to behavior interview questions. 
+	</p>
 
-		<section>
-			<h1>Profile - skills the job seeker has on offer.</h1>
+	<p> When you meet a new person on the job hunt, the elevator pitch allows you to convey your value proposition. </p>
 
-				<p> 
-				On the job hunt, you often tell stories. This page is design to help you organize your elevator pitch and response to behavior interview questions. 
-				</p>
+	<p> During the interview process in the United States, the job candidate is often asked a series of behavior question. 
+		<ul>
+			<li>Tell me about how you worked effectively under pressure.</li>
+			<li>How do you handle a challenge? Give an example.</li>
+			<li>Have you ever made a mistake? How did you handle it? </li>
+		</ul>
 
-				<p> When you meet a new person on the job hunt, the elevator pitch allows you to convey your value proposition. </p>
+	The PAR format is a good way to answer these questions. PAR stands for problem, action and results. Consider the queston about overcoming a challenge. You'd need to tell the interviewer about a specific <b>problem</b> in your career where you faced a challenge. Outline the <b>actions</b> you told to overcome it. Finally, you should talk about <b>results</b>. 
+	</p> 
 
-				<p> During the interview process in the United States, the job candidate is often asked a series of behavior question. 
-					<ul>
-						<li>Tell me about how you worked effectively under pressure.</li>
-						<li>How do you handle a challenge? Give an example.</li>
-						<li>Have you ever made a mistake? How did you handle it? </li>
-					</ul>
 
-				The PAR format is a good way to answer these questions. PAR stands for problem, action and results. Consider the queston about overcoming a challenge. You'd need to tell the interviewer about a specific <b>problem</b> in your career where you faced a challenge. Outline the <b>actions</b> you told to overcome it. Finally, you should talk about <b>results</b>. 
-				</p> 
-
-		</section>
-	</body>
-</html>
+{% endblock %}
