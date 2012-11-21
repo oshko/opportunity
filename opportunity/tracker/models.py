@@ -1,14 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from django.utils.translation import ugettext_lazy as _
 
 class Company(models.Model):
-    name = models.CharField(max_length=32)
-    address = models.CharField(max_length=128)
-    city = models.CharField(max_length=32)
-    state_province = models.CharField(max_length=32)
-    country = models.CharField(max_length=3)   # select from three digit country code. 
-    website = models.URLField()
+    name = models.CharField(_('Name'), max_length=32)
+    address = models.CharField(_('Address'), max_length=128)
+    city = models.CharField(_('City'), max_length=32)
+    state_province = models.CharField(_('State or Province'),max_length=32)
+    country = models.CharField(_('Country'),max_length=3)   # select from three digit country code. 
+    website = models.URLField(_('Website'))
 
     def __unicode__(self):
         return self.name
@@ -20,9 +21,9 @@ class Person(models.Model):
     '''
     People a job seeker has met along the way. 
     '''
-    first_name = models.CharField(max_length=16)
-    last_name = models.CharField(max_length=16)
-    title = models.CharField(max_length=64)
+    first_name = models.CharField(_('First name'),max_length=16)
+    last_name = models.CharField(_('Last name'),max_length=16)
+    title = models.CharField(_('Title'),max_length=64)
     company = models.ForeignKey(Company, unique=True)
 
     def __unicode__(self):
@@ -108,7 +109,9 @@ class Conversation(Activity):
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
     title = models.CharField(max_length=32) 
-    url = models.URLField("Website", blank=True)
+    pitch = models.CharField(max_length=128) 
+    
+    url = models.URLField("Website", blank=True) # linkedin, resume or similar
 
     def __unicode__(self):
         return self.user.username

@@ -1,25 +1,25 @@
 <!doctype html>
-
+{% load i18n %}
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="stylesheet" href="/static/css/index.css" />
-		<title>Opportunity</title>
+		<title>{% trans "Opportunity" %}</title>
 	</head>
 	<body>
 		<header>
 			<hgroup>
-				<h1>Opportunity</h1>
-				<h2>a site for active job seekers.</h2>
+				<h1>{% trans "Opportunity" %}</h1>
+				<h2>{% trans "a site for active job seekers." %}</h2>
 				<nav>
 					<ul>
-						<li><a href="/dashboard/">dashboard</a></li> |
-						<li><a href="/books/">books</a></li> | 
-						<li><a href="/">about</a></li> |
+						<li><a href="/dashboard/">{% trans "dashboard" %}</a></li> |
+						<li><a href="/books/">{% trans "books" %}</a></li> | 
+						<li><a href="/">{% trans "about" %}</a></li> |
 					{% if user.is_authenticated %} 
-						<li><a href="/logout/">logout</a></li>
+						<li><a href="/logout/">{% trans "logout" %}</a></li>
 					{% else %} 
-						<li><a href="/login/">login</a></li>
+						<li><a href="/login/">{% trans "login" %}</a></li>
 					{% endif %} 
 					</ul>
 				</nav>
@@ -30,7 +30,7 @@
 		{% endblock %}
 		{% block footer %}
 		<hr/>
-		<p>Thanks for visiting my site.</p>
+		<p>{% trans "Thanks for visiting my site." %}</p>
 		{% endblock %}
 		</section>
 	</body>

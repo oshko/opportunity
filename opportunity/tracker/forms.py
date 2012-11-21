@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext as _
 
 from models import Apply
 from models import Company
@@ -45,11 +46,11 @@ class ConversationForm(forms.ModelForm):
 
 
 class RegistrationForm(forms.ModelForm):
-    username = forms.CharField(label=(u'User Name'))
-    email = forms.EmailField(label=(u'Email Address'))
-    password = forms.CharField(label=(u'Password'), 
+    username = forms.CharField(label=_('User Name'))
+    email = forms.EmailField(label=_('Email Address'))
+    password = forms.CharField(label=_('Password'), 
 				widget =forms.PasswordInput(render_value=False))
-    password_verify = forms.CharField(label=(u'Verify password'), 
+    password_verify = forms.CharField(label=_('Verify password'), 
 				widget =forms.PasswordInput(render_value=False))
     class Meta:
         model = UserProfile
@@ -67,7 +68,7 @@ class RegistrationForm(forms.ModelForm):
             User.objects.get(username=username)
         except User.DoesNotExist:
             return username
-        raise forms.ValidationError('That user name is take. Please, select anthor')
+        raise forms.ValidationError(_('That user name is taken. Please, select another'))
 
 
     def clean(self):
@@ -78,11 +79,11 @@ class RegistrationForm(forms.ModelForm):
         password = self.cleaned_data['password']
         password_verify = self.cleaned_data['password_verify']
         if password != password_verify:
-            raise forms.ValidationError('The passwords did not match')
+            raise forms.ValidationError(_('The passwords did not match'))
         # import pdb; pdb.set_trace()
         return self.cleaned_data       
 
 class LoginForm(forms.Form):
-    username = forms.CharField(label=(u'User Name'))
-    password = forms.CharField(label=(u'Password'), 
-				widget =forms.PasswordInput(render_value=False))
+    username = forms.CharField(label=_('User Name'))
+    password = forms.CharField(label=_('Password'), 
+            widget =forms.PasswordInput(render_value=False))

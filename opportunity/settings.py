@@ -48,6 +48,10 @@ USE_I18N = True
 # calendars according to the current locale.
 USE_L10N = True
 
+LOCALE_PATHS = ( 
+    os.path.join(os.path.dirname(__file__), 'locale'), 
+)
+
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
@@ -98,6 +102,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',

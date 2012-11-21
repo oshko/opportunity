@@ -1,0 +1,179 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012 COPYRIGHT John Kern 
+# This file is distributed under the same license as the PACKAGE package.
+# John Kern <EMAIL@ADDRESS>, 2012 .
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-11-20 15:46-0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: templates/base.html:7 templates/base.html.py:12
+msgid "Opportunity"
+msgstr "Oportunidade"
+
+#: templates/base.html:13
+msgid "a site for active job seekers."
+msgstr "um site para quem procura emprego ativos"
+
+#: templates/base.html:16
+msgid "dashboard"
+msgstr "painel de instrumentos"
+
+#: templates/base.html:17
+msgid "books"
+msgstr "livros"
+
+#: templates/base.html:18
+msgid "about"
+msgstr "sobre"
+
+#: templates/base.html:20
+msgid "logout"
+msgstr "logout"
+
+#: templates/base.html:22
+msgid "login"
+msgstr "login"
+
+#: templates/base.html:33
+msgid "Thanks for visiting my site."
+msgstr "Obrigado por visitar o meu site."
+
+#: tracker/forms.py:49 tracker/forms.py:87
+msgid "User Name"
+msgstr "Nome de Utilizador"
+
+#: tracker/forms.py:50
+msgid "Email Address"
+msgstr "Endereço de e-mail"
+
+#: tracker/forms.py:51 tracker/forms.py:88
+msgid "Password"
+msgstr "senha"
+
+#: tracker/forms.py:53
+msgid "Verify password"
+msgstr "verificar senha"
+
+#: tracker/forms.py:71
+msgid "That user name is taken. Please, select another"
+msgstr "Este nome de usuário é levado. Por favor, selecione outro"
+
+#: tracker/forms.py:82
+msgid "The passwords did not match"
+msgstr "As senhas não conferem"
+
+#: tracker/models.py:7
+msgid "Name"
+msgstr "nome"
+
+#: tracker/models.py:8
+msgid "Address"
+msgstr "Endereço"
+
+#: tracker/models.py:9
+msgid "City"
+msgstr "Cidade"
+
+#: tracker/models.py:10
+msgid "State or Province"
+msgstr "Estate ou Província"
+
+#: tracker/models.py:11
+msgid "Country"
+msgstr "país"
+
+#: tracker/models.py:12
+msgid "Website"
+msgstr "site"
+
+#: tracker/models.py:24
+msgid "First name"
+msgstr "primeiro nome"
+
+#: tracker/models.py:25
+msgid "Last name"
+msgstr "sobrenome"
+
+#: tracker/models.py:26
+msgid "Title"
+msgstr "Título"
+
+#: tracker/views.py:39 tracker/views.py:44 tracker/views.py:99
+msgid "Company"
+msgstr "Empresa"
+
+#: tracker/views.py:39 tracker/views.py:45 tracker/views.py:116
+msgid "Person"
+msgstr "Pessoa"
+
+#: tracker/views.py:39 tracker/views.py:46 tracker/views.py:133
+msgid "Position"
+msgstr "posição"
+
+#: tracker/views.py:39 tracker/views.py:47 tracker/views.py:158
+msgid "Interview"
+msgstr "Entrevista"
+
+#: tracker/views.py:40 tracker/views.py:48
+msgid "Applying"
+msgstr "Aplicando"
+
+#: tracker/views.py:40 tracker/views.py:49 tracker/views.py:192
+msgid "Networking"
+msgstr "Networking"
+
+#: tracker/views.py:40 tracker/views.py:50 tracker/views.py:209
+msgid "Gratitude"
+msgstr "Gratidão"
+
+#: tracker/views.py:40 tracker/views.py:51 tracker/views.py:227
+msgid "Conversation"
+msgstr "conversa"
+
+#: tracker/views.py:100
+msgid "Record information about a prospective employer."
+msgstr "Registre as informações sobre um potencial empregador."
+
+#: tracker/views.py:117
+msgid "Record a contact you met on the job hunt."
+msgstr ""
+
+#: tracker/views.py:134
+msgid "Record a position in which you are interested.."
+msgstr "Anotar um contato que você conheceu na busca de emprego."
+
+#: tracker/views.py:159
+msgid "Record a pertinent interview."
+msgstr "Anotar uma entrevista pertinente."
+
+#: tracker/views.py:175
+msgid "Apply"
+msgstr "aplicar"
+
+#: tracker/views.py:176
+msgid "Record information about a job for which you applied."
+msgstr "Anotar informações sobre um trabalho para o qual se candidatou."
+
+#: tracker/views.py:193
+msgid "Record information about a networking event."
+msgstr "Anotar as informações sobre um evento de networking."
+
+#: tracker/views.py:210
+msgid "Remember to thank those people who've helped you along the way."
+msgstr "Lembre-se de agradecer às pessoas que ajudaram ao longo do caminho."
+
+#: tracker/views.py:228
+msgid "Record a pertinent conversation."
+msgstr "Anotar uma conversa pertinente."
