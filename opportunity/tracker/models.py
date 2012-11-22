@@ -104,17 +104,42 @@ class Conversation(Activity):
     def __unicode__(self):
         return  u'Spoke %s via ' % (self.person.name,self.via)
 
-# A UserProfile is a person which uses our system. 
-
 class UserProfile(models.Model):
+    """
+    A UserProfile is a person which uses our system.
+    """
     user = models.OneToOneField(User)
     title = models.CharField(max_length=32) 
-    pitch = models.CharField(max_length=128) 
-    
-    url = models.URLField("Website", blank=True) # linkedin, resume or similar
+    #pitch = models.CharField(max_length=128)
 
     def __unicode__(self):
         return self.user.username
+
+class OnlinePresence(models.Model):
+    """
+    Other websites are useful for the job hunt. Everyone has an online 
+    resume, linkedin profile or similar. You might also want to highlight
+    your twitter feed. Software developers might have a github profile. 
+    """
+    name = models.CharField(_('website name'), max_length=32)
+    url = models.URLField(_('URL'), blank=True) 
+    user = models.ForeignKey(UserProfile,unique=True)
+    
+    def __unicode__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ['name']
+
+class PAR(models.Model):
+    """
+    Behaviorial questions and results to them in PAR format. 
+    """
+    question = models.CharField(_('question'), max_length=128)
+    problem = models.CharField(_('problem'), max_length=256)
+    action = models.CharField(_('action'), max_length=256)
+    result = models.CharField(_('result'), max_length=256)
+    user = models.ForeignKey(UserProfile,unique=True)
 
 # UserProfile is associated with the User table. Listen for the post_save 
 # signal. Create a profile when new User added.

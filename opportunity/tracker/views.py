@@ -5,34 +5,9 @@ from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib.auth.decorators import login_required
-from forms import CompanyForm
-from models import Company
 
-from forms import PersonForm
-from models import Person
-
-from forms import PositionForm
-from models import Position
-
-from forms import InterviewForm
-from models import Interview
-
-from forms import ApplyForm
-from models import Apply 
-
-from forms import NetworkingForm
-from models import Networking 
-
-from forms import GratitudeForm
-from models import Gratitude 
-
-from forms import ConversationForm
-from models import Conversation 
-
-from forms import RegistrationForm
-from models import UserProfile
-
-from forms import LoginForm
+from forms import *
+from models import *
 
 # The prettyNames are displayed to the user. 
 prettyNames = [_("Company"), _("Person"), _("Position"), _("Interview"),
@@ -218,6 +193,42 @@ def conversation(request):
                            'desc': _("Record a pertinent conversation."), 
                            'form': form}, 
 		                   context_instance=RequestContext(request))
+
+@login_required
+def onlinePresenceView(request):
+    """
+    A form for Online Presence. See model for model detail. 
+    """
+    if request.method == 'POST':
+        form = OnlinePresenceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/profile/')
+    else:
+        form = OnlinePresenceForm()
+    return render_to_response('tracker_form.html', 
+                           {'title': _("Online Presence"), 
+                           'desc': _("Record a link pointing to your online presence."), 
+                           'form': form}, 
+		                   context_instance=RequestContext(request))   
+
+@login_required
+def parView (request):
+    """
+    A form for PAR. See model for model detail. 
+    """
+    if request.method == 'POST':
+        form = PARForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/profile/')
+    else:
+        form = PARForm()
+    return render_to_response('tracker_form.html', 
+                           {'title': _("PAR - problem, action, result"), 
+                           'desc': _("Record a response to a behaviorial question in PAR format."), 
+                           'form': form}, 
+                           context_instance=RequestContext(request))    
 
 @login_required
 def profileView(request):

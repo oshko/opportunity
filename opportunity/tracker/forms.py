@@ -2,15 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
-from models import Apply
-from models import Company
-from models import Person
-from models import Position
-from models import Interview
-from models import Networking
-from models import Gratitude
-from models import Conversation
-from models import UserProfile
+from models import *
+
 
 class CompanyForm(forms.ModelForm):
     class Meta:
@@ -44,6 +37,13 @@ class ConversationForm(forms.ModelForm):
     class Meta:
         model = Conversation
 
+class OnlinePresenceForm(forms.ModelForm):
+    class Meta:
+        model = OnlinePresence
+
+class PARForm(forms.ModelForm):
+    class Meta:
+        model = PAR
 
 class RegistrationForm(forms.ModelForm):
     username = forms.CharField(label=_('User Name'))
