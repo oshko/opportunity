@@ -200,12 +200,12 @@ def onlinePresenceView(request):
     A form for Online Presence. See model for model detail. 
     """
     if request.method == 'POST':
-        form = OnlinePresenceForm(request.POST)
+        form = OnlinePresenceForm(request.POST, user = request.user.get_profile())
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/profile/')
     else:
-        form = OnlinePresenceForm()
+        form = OnlinePresenceForm(user = request.user.get_profile())
     return render_to_response('tracker_form.html', 
                            {'title': _("Online Presence"), 
                            'desc': _("Record a link pointing to your online presence."), 
@@ -218,12 +218,12 @@ def parView (request):
     A form for PAR. See model for model detail. 
     """
     if request.method == 'POST':
-        form = PARForm(request.POST)
+        form = PARForm(request.POST, user = request.user.get_profile())
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/profile/')
     else:
-        form = PARForm()
+        form = PARForm(user = request.user.get_profile())
     return render_to_response('tracker_form.html', 
                            {'title': _("PAR - problem, action, result"), 
                            'desc': _("Record a response to a behaviorial question in PAR format."), 
@@ -236,8 +236,12 @@ def profileView(request):
     This is a profile page. It contains the elevator pitch and responses to 
     behavioral interview questions. 
     """
-    return render_to_response('profile.html', 
-		    context_instance=RequestContext(request))
+    profile_id = request.user.userprofile.id
+    ref_list = OnlinePresence.objects.filter(user=profile_id)
+    story_list = PAR.objects.filter(user=profile_id)
+    #import pdb; pdb.set_trace()
+    return render_to_response('profile.html', { 'ref_list' : ref_list, 
+            'story_list' : story_list}, context_instance=RequestContext(request))
 
 # TODO: need a user profile with which to associate the pitch 
 @login_required
@@ -246,7 +250,6 @@ def pitchView(request):
     Record the elevator pitch.   
     """
     if request.method == 'POST':
-        
         return HttpResponseRedirect('/dashboard/')
     else:
         return render_to_response('pitch_form.html', 

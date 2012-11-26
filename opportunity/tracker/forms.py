@@ -40,10 +40,34 @@ class ConversationForm(forms.ModelForm):
 class OnlinePresenceForm(forms.ModelForm):
     class Meta:
         model = OnlinePresence
+        exclude = ('user',)
+
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super(OnlinePresenceForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super(OnlinePresenceForm, self).save(commit=False)
+        inst.user = self._user
+        if commit:
+            inst.save()
+        return inst
 
 class PARForm(forms.ModelForm):
     class Meta:
         model = PAR
+        exclude = ('user',)
+
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super(PARForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super(PARForm, self).save(commit=False)
+        inst.user = self._user
+        if commit:
+            inst.save()
+        return inst
 
 class RegistrationForm(forms.ModelForm):
     username = forms.CharField(label=_('User Name'))

@@ -123,7 +123,7 @@ class OnlinePresence(models.Model):
     """
     name = models.CharField(_('website name'), max_length=32)
     url = models.URLField(_('URL'), blank=True) 
-    user = models.ForeignKey(UserProfile,unique=True)
+    user = models.ForeignKey(UserProfile)
     
     def __unicode__(self):
         return self.name
@@ -139,7 +139,7 @@ class PAR(models.Model):
     problem = models.CharField(_('problem'), max_length=256)
     action = models.CharField(_('action'), max_length=256)
     result = models.CharField(_('result'), max_length=256)
-    user = models.ForeignKey(UserProfile,unique=True)
+    user = models.ForeignKey(UserProfile)
 
 # UserProfile is associated with the User table. Listen for the post_save 
 # signal. Create a profile when new User added.

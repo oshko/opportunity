@@ -16,6 +16,19 @@
     <p> You may find it convenient to store the URL to your resume here. 
     That way it is aggregated with related data. 
     </p>
+    <a class="button" href="/onlinePresence/">Add a link</a>
+    <br/>
+    <p>
+    {% if ref_list %}
+<ul>
+        {% for ref in ref_list %}
+            <li><a href="{{ ref.url }}">{{ ref.name }}</a>  </li>
+        {% endfor %}
+</ul>
+    {% else %} 
+                There are no links to references at this time. 
+    {% endif %} 
+    </p>
 <hr/>
     <h3>Pitch: give them something to remember you by.  </h3>
 	<p> When you meet a new person on the job hunt, the elevator pitch 
@@ -37,5 +50,23 @@
     challenge. Outline the <b>actions</b> you told to 
     overcome it. Finally, you should talk about <b>results</b>. 
 	</p> 
-
+    <a class="button" href="/par/">Add a story</a>
+   <br/>
+    <p>
+    {% if story_list %}
+<ul>
+        {% for story in story_list %}
+            <li> Question: {{ story.question }}
+                <ul>
+                    <li>Problem: {{ story.problem }} </li>
+                    <li>Action: {{ story.action }}  </li>
+                    <li>Result: {{ story.result }}  </li>
+                </ul>
+                </li>
+        {% endfor %}
+</ul>
+    {% else %} 
+                There are no links to references at this time. 
+    {% endif %} 
+    </p>
 {% endblock %}
