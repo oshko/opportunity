@@ -280,7 +280,6 @@ def onlinePresenceDelete(request, *args, **kwargs):
     /onlinePresence/(?P<op>del)/(?P<id>\d+) - delete link with id. 
     """
     rc = { 'id' : kwargs['id'] } 
-    # import pdb; pdb.set_trace()
     try:
         obj = OnlinePresence.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -297,7 +296,6 @@ def parDelete(request, *args, **kwargs):
     /par/(?P<op>del)/(?P<id>\d+) - delete story with id. 
     """
     rc = { 'id' : kwargs['id'] } 
-    # import pdb; pdb.set_trace()
     try:
         obj = PAR.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -342,23 +340,6 @@ def parView (request, *args, **kwargs):
                            context_instance=RequestContext(request))    
 
 @login_required
-def parDelete(request, *args, **kwargs):
-    """
-    Delete a PAR story. 
-    /par/(?P<op>del)/(?P<id>\d+) - delete story with id. 
-    """
-    rc = { 'id' : kwargs['id'] } 
-    # import pdb; pdb.set_trace()
-    try:
-        obj = PAR.objects.get(pk=int(kwargs['id']))
-        obj.delete()
-    except PAR.DoesNotExist: 
-        # todo: add loging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
-    return HttpResponse(simplejson.dumps(rc))
-
-@login_required
 def profileView(request):
     """ 
     This is a profile page. It contains the elevator pitch and responses to 
@@ -368,14 +349,9 @@ def profileView(request):
     ref_list = OnlinePresence.objects.filter(user=profile_id)
     story_list = PAR.objects.filter(user=profile_id)
     pitch_list = Pitch.objects.filter(user=profile_id)
-    #import pdb; pdb.set_trace()
     return render_to_response('profile.html', { 'ref_list' : ref_list, 
             'story_list' : story_list, 'pitch_list' : pitch_list }, 
             context_instance=RequestContext(request))
-
-
-
-
 
 def registration(request):
     if request.user.is_authenticated():

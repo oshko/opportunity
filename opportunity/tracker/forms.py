@@ -123,7 +123,6 @@ class RegistrationForm(forms.ModelForm):
         password_verify = self.cleaned_data['password_verify']
         if password != password_verify:
             raise forms.ValidationError(_('The passwords did not match'))
-        # import pdb; pdb.set_trace()
         return self.cleaned_data       
 
 class LoginForm(forms.Form):
