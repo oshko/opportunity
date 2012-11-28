@@ -196,6 +196,52 @@ def conversation(request):
 		                   context_instance=RequestContext(request))
 
 @login_required
+def pitchView(request, *args, **kwargs):
+    """
+    Record the elevator pitch.   
+    """
+    if request.method == 'POST':
+        if kwargs['op'] == 'edit':
+            fi = Pitch.objects.get(pk=int(kwargs['id']))
+            form = PitchForm(request.POST, 
+                instance=fi, user = request.user.get_profile())
+        else: 
+            form = PitchForm(request.POST, user = request.user.get_profile())
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/profile/')
+    else:
+        if kwargs['op'] == 'edit':
+            try:
+                fi = Pitch.objects.get(pk=int(kwargs['id']))
+                form = PitchForm(instance=fi, user = request.user.get_profile())
+            except: 
+                return HttpResponseServerError("bad id")
+        else: 
+            form = PitchForm(user = request.user.get_profile())
+    return render_to_response('tracker_form.html',
+            { 'title': "Elevator Pitch",
+            'desc': "The elevator pitch allows you to convey your value proposition when you meet new people in person.",
+            'form': form},
+		    context_instance=RequestContext(request))
+
+@login_required
+def pitchDelete(request, *args, **kwargs):
+    """
+    Delete a elevator pitch. 
+    /pitch/(?P<op>del)/(?P<id>\d+) - delete pitch with id. 
+    """
+    rc = { 'id' : kwargs['id'] } 
+    try:
+        obj = Pitch.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except Pitch.DoesNotExist: 
+        # todo: add logging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponse(simplejson.dumps(rc))
+
+@login_required
 def onlinePresenceView(request, *args, **kwargs):
     """
     A form for Online Presence. See model for model detail. 
@@ -321,30 +367,15 @@ def profileView(request):
     profile_id = request.user.userprofile.id
     ref_list = OnlinePresence.objects.filter(user=profile_id)
     story_list = PAR.objects.filter(user=profile_id)
+    pitch_list = Pitch.objects.filter(user=profile_id)
     #import pdb; pdb.set_trace()
     return render_to_response('profile.html', { 'ref_list' : ref_list, 
-            'story_list' : story_list}, context_instance=RequestContext(request))
-
-# TODO: need a user profile with which to associate the pitch 
-@login_required
-def pitchView(request):
-    """
-    Record the elevator pitch.   
-    """
-    if request.method == 'POST':
-        return HttpResponseRedirect('/dashboard/')
-    else:
-        return render_to_response('pitch_form.html', 
-		    context_instance=RequestContext(request))
+            'story_list' : story_list, 'pitch_list' : pitch_list }, 
+            context_instance=RequestContext(request))
 
 
-# TODO: need a user profile with which to associate this story.
-@login_required
-def story(request): 
-    """
-    Record stories for behaviorial interviews. 
-    """
-    pass 
+
+
 
 def registration(request):
     if request.user.is_authenticated():

@@ -53,7 +53,15 @@ section {
     display: inline;
 }
 
-#story-container, #presence-container li {
+#story-container li {
+    list-style: none
+}
+
+#presence-container li {
+    list-style: none
+}
+
+#pitch-container li {
     list-style: none
 }
 

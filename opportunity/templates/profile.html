@@ -38,6 +38,24 @@
     <h3>Pitch: give them something to remember you by.  </h3>
 	<p> When you meet a new person on the job hunt, the elevator pitch 
     allows you to convey your value proposition. </p>
+    <a class="button" href="/pitch/add">Add a pitch</a>
+    <a class="button" onclick="deletePitch()">Delete</a>
+    <br/>
+      <p> 
+    <div id="pitch-container">
+        {% if pitch_list %}
+            <ul>
+            {% for pitch in pitch_list %}
+                <div id="pitch-{{ pitch.id }}">
+                    <li><input type="checkbox" value={{ pitch.id }} /> {{ pitch.thePitch }} (<a href="/pitch/edit/{{ pitch.id }}">edit</a>)</li>
+                </div>
+            {% endfor %}
+            </ul>
+        {% else %}
+            No elevator pitch.
+        {% endif %}
+    </div>
+    </p>
 <hr/>
     <h3>Behaviorial interview</h3>
 	<p> During the interview process in the United States, the job 

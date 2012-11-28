@@ -115,6 +115,18 @@ class UserProfile(models.Model):
     def __unicode__(self):
         return self.user.username
 
+class Pitch(models.Model):
+    """
+    This models simply stores an elevator pitch. 
+    """
+    role = models.CharField(_('Role'), max_length=32)
+    thePitch = models.CharField(_('Pitch'), max_length=256)
+    user = models.ForeignKey(UserProfile)
+
+    def __unicode__(self):
+        return self.thePitch
+    
+
 class OnlinePresence(models.Model):
     """
     Other websites are useful for the job hunt. Everyone has an online 
