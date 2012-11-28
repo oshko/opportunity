@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext as _
-from django.http import HttpResponseRedirect
+from django.utils import simplejson
+from django.http import HttpResponse,HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.models import User
@@ -213,9 +214,11 @@ def onlinePresenceView(request):
 		                   context_instance=RequestContext(request))   
 
 @login_required
-def parView (request):
+def parView (request, *args, **kwargs):
     """
-    A form for PAR. See model for model detail. 
+    A form for PAR. See model for model detail. two URLs map to this function.
+    /par/(?P<op>add) - add a new story
+    /par/(?P<op>edit)/(?P<id>\d+) - present story. populate form with id. 
     """
     if request.method == 'POST':
         form = PARForm(request.POST, user = request.user.get_profile())
@@ -223,12 +226,35 @@ def parView (request):
             form.save()
             return HttpResponseRedirect('/profile/')
     else:
-        form = PARForm(user = request.user.get_profile())
+        if kwargs['op'] == 'edit': 
+            try: 
+                a = PAR.objects.get(pk=int(kwargs['id']))
+                form = PARForm(instance=a ,user = request.user.get_profile())
+            except: 
+                return HttpResponseServerError("bad id") 
+        else: 
+            form = PARForm(user = request.user.get_profile())
     return render_to_response('tracker_form.html', 
                            {'title': _("PAR - problem, action, result"), 
                            'desc': _("Record a response to a behaviorial question in PAR format."), 
                            'form': form}, 
                            context_instance=RequestContext(request))    
+
+@login_required
+def parDelete(request, *args, **kwargs):
+    """
+    Delete a PAR story. 
+    /par/(?P<op>del)/(?P<id>\d+) - delete story with id. 
+    """
+    rc = { 'id' : kwargs['id'] } 
+    try:
+        obj = PAR.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except PAR.DoesNotExist: 
+        # todo: add loging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponse(simplejson.dumps(rc,mimetype='application/json'))
 
 @login_required
 def profileView(request):
@@ -276,7 +302,6 @@ def registration(request):
                 password = form.cleaned_data['password'])
             user.save()
             profile = user.get_profile()
-            profile.url = form.cleaned_data['url']
             profile.title = form.cleaned_data['title'] 
             profile.save()
             return HttpResponseRedirect('/profile/')

@@ -49,6 +49,14 @@ section {
 	margin: 10px;
 }
 
+#story-cmd {
+    display: inline;
+}
+
+#story-container li {
+    list-style: none
+}
+
 /* output from the ButtonMaker - http://css-tricks.com/examples/ButtonMaker */ 
 .button {
    border-top: 1px solid #96d1f8;

@@ -54,6 +54,9 @@ class OnlinePresenceForm(forms.ModelForm):
         return inst
 
 class PARForm(forms.ModelForm):
+    """
+    Form to enter and edit stories in PAR(Problem, action, result) format. 
+    """
     class Meta:
         model = PAR
         exclude = ('user',)
