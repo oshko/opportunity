@@ -221,7 +221,14 @@ def parView (request, *args, **kwargs):
     /par/(?P<op>edit)/(?P<id>\d+) - present story. populate form with id. 
     """
     if request.method == 'POST':
-        form = PARForm(request.POST, user = request.user.get_profile())
+        if kwargs['op'] == 'edit':
+            # edit existing story
+            fi = PAR.objects.get(pk=int(kwargs['id']))
+            form = PARForm(request.POST, 
+                instance=fi, user = request.user.get_profile())
+        else:
+            # create a new one 
+            form = PARForm(request.POST, user = request.user.get_profile())
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/profile/')
