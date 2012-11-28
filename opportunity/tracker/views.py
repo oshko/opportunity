@@ -196,22 +196,70 @@ def conversation(request):
 		                   context_instance=RequestContext(request))
 
 @login_required
-def onlinePresenceView(request):
+def onlinePresenceView(request, *args, **kwargs):
     """
     A form for Online Presence. See model for model detail. 
+    /onlinePresence/(?P<op>add) - add a new story
+    /onlinePresence/(?P<op>edit)/(?P<id>\d+) - present link. populate form with id.
     """
     if request.method == 'POST':
-        form = OnlinePresenceForm(request.POST, user = request.user.get_profile())
+        if kwargs['op'] == 'edit': 
+            fi = OnlinePresence.objects.get(pk=int(kwargs['id']))
+            form = OnlinePresenceForm(request.POST, 
+                instance=fi, user = request.user.get_profile())
+        else:
+            form = OnlinePresenceForm(request.POST, user = request.user.get_profile())
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/profile/')
     else:
-        form = OnlinePresenceForm(user = request.user.get_profile())
+        if kwargs['op'] == 'edit': 
+            try: 
+                fi = OnlinePresence.objects.get(pk=int(kwargs['id']))
+                form = OnlinePresenceForm(instance=fi, 
+                    user = request.user.get_profile())
+            except: 
+                return HttpResponseServerError("bad id")
+        else: 
+            form = OnlinePresenceForm(user = request.user.get_profile())
     return render_to_response('tracker_form.html', 
                            {'title': _("Online Presence"), 
                            'desc': _("Record a link pointing to your online presence."), 
                            'form': form}, 
-		                   context_instance=RequestContext(request))   
+		                   context_instance=RequestContext(request)) 
+@login_required
+def onlinePresenceDelete(request, *args, **kwargs):
+    """
+    Delete a reference link. 
+    /onlinePresence/(?P<op>del)/(?P<id>\d+) - delete link with id. 
+    """
+    rc = { 'id' : kwargs['id'] } 
+    # import pdb; pdb.set_trace()
+    try:
+        obj = OnlinePresence.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except OnlinePresence.DoesNotExist: 
+        # todo: add logging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponse(simplejson.dumps(rc))
+
+@login_required
+def parDelete(request, *args, **kwargs):
+    """
+    Delete a PAR story. 
+    /par/(?P<op>del)/(?P<id>\d+) - delete story with id. 
+    """
+    rc = { 'id' : kwargs['id'] } 
+    # import pdb; pdb.set_trace()
+    try:
+        obj = PAR.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except PAR.DoesNotExist: 
+        # todo: add logging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponse(simplejson.dumps(rc))
 
 @login_required
 def parView (request, *args, **kwargs):

@@ -53,7 +53,7 @@ section {
     display: inline;
 }
 
-#story-container li {
+#story-container, #presence-container li {
     list-style: none
 }
 
