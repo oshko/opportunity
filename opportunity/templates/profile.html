@@ -56,8 +56,8 @@
     </div>
    <br/>
     <p>
-    {% if story_list %}
 <div id="story-container"> 
+    {% if story_list %}
     <ul>
         {% for story in story_list %}
         <div id="story-{{ story.id }}">
@@ -71,9 +71,9 @@
         </div>
         {% endfor %}
     </ul>
-</div>
     {% else %} 
                 There are no links to references at this time. 
     {% endif %} 
+</div>
     </p>
 {% endblock %}

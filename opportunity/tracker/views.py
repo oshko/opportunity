@@ -254,6 +254,7 @@ def parDelete(request, *args, **kwargs):
     /par/(?P<op>del)/(?P<id>\d+) - delete story with id. 
     """
     rc = { 'id' : kwargs['id'] } 
+    # import pdb; pdb.set_trace()
     try:
         obj = PAR.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -261,7 +262,7 @@ def parDelete(request, *args, **kwargs):
         # todo: add loging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc,mimetype='application/json'))
+    return HttpResponse(simplejson.dumps(rc))
 
 @login_required
 def profileView(request):
