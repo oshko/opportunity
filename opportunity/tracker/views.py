@@ -231,7 +231,8 @@ def pitchDelete(request, *args, **kwargs):
     Delete a elevator pitch. 
     /pitch/(?P<op>del)/(?P<id>\d+) - delete pitch with id. 
     """
-    rc = { 'id' : kwargs['id'] } 
+    rc = { 'id' : kwargs['id'], 'idName': 'pitch',
+        'noElements' : "No elevator pitch." } 
     try:
         obj = Pitch.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -279,7 +280,9 @@ def onlinePresenceDelete(request, *args, **kwargs):
     Delete a reference link. 
     /onlinePresence/(?P<op>del)/(?P<id>\d+) - delete link with id. 
     """
-    rc = { 'id' : kwargs['id'] } 
+    rc = { 'id' : kwargs['id'], 
+        'idName': 'presence',
+        'noElements' : "There are no links to references at this time."} 
     try:
         obj = OnlinePresence.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -295,7 +298,8 @@ def parDelete(request, *args, **kwargs):
     Delete a PAR story. 
     /par/(?P<op>del)/(?P<id>\d+) - delete story with id. 
     """
-    rc = { 'id' : kwargs['id'] } 
+    rc = { 'id' : kwargs['id'],'idName': 'story', 
+        'noElements' : "There are no links to PAR based stories at this time." } 
     try:
         obj = PAR.objects.get(pk=int(kwargs['id']))
         obj.delete()
