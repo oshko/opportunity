@@ -42,11 +42,11 @@ def dashboard(request):
     employers and activities in which the job hunter is engaged. 
     """
     positions = Position.objects.all()
-    conversation = Conversation.objects.all()
+    activities = Activity.getAll()
     return render_to_response('dashboard.html', 
                              {'position_list' : positions, 
-                              'activity_list' : prettyNames,
-                              'conversation_list' : conversation }, 
+                              'activity_name_list' : prettyNames,
+                              'activity_list' : activities }, 
 		                      context_instance=RequestContext(request))
 
 @login_required
@@ -105,21 +105,32 @@ def newactivity(request):
     """
     Display to create a new activity.
     """
-    newURL = '/' + mapNameToFunction[request.GET['activity']] + '/'
+    newURL = '/' + mapNameToFunction[request.GET['activity']] + '/add'
     return HttpResponseRedirect(newURL)    
 
 @login_required
-def interview(request):
+def interviewView(request, *args, **kwargs):
     """
     form to enter information about an interview
     """
     if request.method == 'POST':
-        form = InterviewForm(request.POST)
+        if kwargs['op'] == 'edit':
+            form = InterviewForm(request.POST, 
+                instance=Interview.objects.get(pk=int(kwargs['id'])))
+        else: 
+            form = InterviewForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
     else:
-        form = InterviewForm()
+        if kwargs['op'] == 'edit':
+            try:
+                form = InterviewForm(
+                    instance=Interview.objects.get(pk=int(kwargs['id'])))
+            except: 
+                return HttpResponseServerError("bad id")
+        else:
+            form = InterviewForm()
     return render_to_response('tracker_form.html', 
                           {'title': _("Interview"), 
                            'desc': _("Record a pertinent interview."), 
@@ -127,73 +138,177 @@ def interview(request):
 			               context_instance=RequestContext(request))
 
 @login_required
-def applyFor(request):
+def interviewDelete(request, *args, **kwargs):
+    try:
+        obj = Interview.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except Interview.DoesNotExist: 
+        # todo: add logging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponseRedirect('/dashboard/')
+
+@login_required
+def applyForView(request, *args, **kwargs):
     """
     A form to enter for submitting an apply
+    /apply/(?P<op>add) - a new application
+    /apply/(?P<op>edit)/(?P<id>\d+) - edit apply with id.
     """
     if request.method == 'POST':
-        form = ApplyForm(request.POST)
+        if kwargs['op'] == 'edit':
+            form = ApplyForm(request.POST, 
+                instance=Apply.objects.get(pk=int(kwargs['id'])))
+        else: 
+            form = ApplyForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
     else:
-        form = ApplyForm()
+        if kwargs['op'] == 'edit':
+            try:
+                form = ApplyForm(
+                    instance=Apply.objects.get(pk=int(kwargs['id'])))
+            except: 
+                return HttpResponseServerError("bad id")
+        else:
+            form = ApplyForm()
     return render_to_response('tracker_form.html', {'title': _("Apply"), 
                            'desc': _("Record information about a job for which you applied."), 
                            'form': form}, 
 		                   context_instance=RequestContext(request))
 
 @login_required
-def networking(request):
+def applyForDelete(request, *args, **kwargs):
+    """
+    /apply/(?P<op>del)/(?P<id>\d+) - delete apply with id.
+    """
+    try:
+        obj = Apply.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except Apply.DoesNotExist: 
+        # todo: add logging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponseRedirect('/dashboard/')
+
+@login_required
+def networkingView(request, *args, **kwargs):
     """
     A form to document a networking event 
     """
     if request.method == 'POST':
-        form = NetworkingForm(request.POST)
+        if kwargs['op'] == 'edit':
+            form = NetworkingForm(request.POST, 
+                instance=Networking.objects.get(pk=int(kwargs['id'])))
+        else: 
+            form = NetworkingForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
     else:
-        form = NetworkingForm()
+        if kwargs['op'] == 'edit':
+            try:
+                form = NetworkingForm(
+                    instance=Networking.objects.get(pk=int(kwargs['id'])))
+            except: 
+                return HttpResponseServerError("bad id")
+        else:
+            form = NetworkingForm()
     return render_to_response('tracker_form.html', {'title': _("Networking"), 
                            'desc': _("Record information about a networking event."), 
                            'form': form}, 
 		                   context_instance=RequestContext(request))
 
 @login_required
-def gratitude(request):
+def networkingDelete(request, *args, **kwargs):
+    try:
+        obj = Networking.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except Networking.DoesNotExist: 
+        # todo: add logging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponseRedirect('/dashboard/')
+
+@login_required
+def gratitudeView(request, *args, **kwargs):
     """
     A form to setup a reminder to thank someone.
     """
     if request.method == 'POST':
-        form = GratitudeForm(request.POST)
+        if kwargs['op'] == 'edit':
+            form = GratitudeForm(request.POST, 
+                instance=Gratitude.objects.get(pk=int(kwargs['id'])))
+        else: 
+            form = GratitudeForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
     else:
-        form = GratitudeForm()
+        if kwargs['op'] == 'edit':
+            try:
+                form = GratitudeForm( 
+                    instance=Gratitude.objects.get(pk=int(kwargs['id'])))
+            except: 
+                return HttpResponseServerError("bad id")
+        else:
+            form = GratitudeForm()
     return render_to_response('tracker_form.html', {'title': _("Gratitude"), 
                            'desc': _("Remember to thank those people who've helped you along the way."), 
                            'form': form}, 
 		                   context_instance=RequestContext(request))
 
 @login_required
-def conversation(request):
+def gratitudeDelete(request, *args, **kwargs):
+    try:
+        obj = Gratitude.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except Gratitude.DoesNotExist: 
+        # todo: add logging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponseRedirect('/dashboard/')
+
+@login_required
+def conversationView(request, *args, **kwargs):
     """
     A form to document a pertinent conversation
     """
     if request.method == 'POST':
-        form = ConversationForm(request.POST)
+        if kwargs['op'] == 'edit':
+            form = ConversationForm(request.POST, 
+                instance=Conversation.objects.get(pk=int(kwargs['id'])))
+        else: 
+            form = ConversationForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
     else:
-        form = ConversationForm()
+        if kwargs['op'] == 'edit':
+            try:
+                form = ConversationForm(
+                    instance=Conversation.objects.get(pk=int(kwargs['id'])))
+            except: 
+                return HttpResponseServerError("bad id")
+        else:
+            form = ConversationForm()
     return render_to_response('tracker_form.html', 
                            {'title': _("Conversation"), 
                            'desc': _("Record a pertinent conversation."), 
                            'form': form}, 
 		                   context_instance=RequestContext(request))
+
+@login_required
+def conversationDelete(request, *args, **kwargs):
+    try:
+        obj = Conversation.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except Conversation.DoesNotExist: 
+        # todo: add logging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponseRedirect('/dashboard/')
 
 @login_required
 def pitchView(request, *args, **kwargs):

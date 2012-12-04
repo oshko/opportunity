@@ -49,6 +49,20 @@ class Activity(models.Model):
     when = models.DateField()
     comment = models.CharField(max_length=256)
 
+    '''
+    Since Activity is abstract, there is no manager object (ie, objects). 
+    However we want a complete list of all activities.
+    '''
+    @staticmethod
+    def getAll():
+        rc = []
+        rc.extend(Interview.objects.all())
+        rc.extend(Apply.objects.all())
+        rc.extend(Networking.objects.all())
+        rc.extend(Gratitude.objects.all())
+        rc.extend(Conversation.objects.all())
+        return rc
+
     class Meta:
         abstract = True
         ordering = ['when']
@@ -57,9 +71,11 @@ class Interview(Activity):
     position = models.ForeignKey(Position, unique=True)
     company = models.ForeignKey(Company, unique=True)
     withWhom = models.ManyToManyField(Person)
+    
+    tag = "interview"
 
     def __unicode__(self):
-        return  u'interviewing with %s for %s' % (self.company.name, self.Position.title)
+        return  u'Interviewing with %s for %s' % (self.company.name, self.position.title)
 
 class Apply(Activity): 
     '''
@@ -68,14 +84,18 @@ class Apply(Activity):
     position = models.ForeignKey(Position, unique=True)
     company = models.ForeignKey(Company, unique=True)
 
+    tag = "apply"
+
     def __unicode__(self):
-        return  u'Applied for %s at %s' % (self.Position.title, self.company.name)
+        return  u'Applied for %s at %s' % (self.position.title, self.company.name)
  
 class Networking(Activity):
     '''
     networking at professional event. Company.name is the venue.
     '''
     venue = models.ForeignKey(Company, unique=True)
+
+    tag = "networking"
 
     def __unicode__(self):
         return  u'Networking at %s' % (self.company.name)
@@ -85,6 +105,9 @@ class Gratitude(Activity):
     send thank you letters.
     '''
     person = models.ForeignKey(Person, unique=True)
+
+    def getTag():
+        return "gratitude"
 
     def __unicode__(self):
         return  u'Thank %s' % (self.person.name)
@@ -100,6 +123,8 @@ class Conversation(Activity):
     )
     via = models.CharField(max_length=16, choices=METHOD_OF_COMMUNICATION)
     person = models.ForeignKey(Person, unique=True) 
+    
+    tag = "conversation"
 
     def __unicode__(self):
         return  u'Spoke %s via ' % (self.person.name,self.via)
