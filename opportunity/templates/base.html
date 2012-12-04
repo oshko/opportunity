@@ -20,7 +20,7 @@
 						<li><a href="/books/">{% trans "books" %}</a></li> | 
 						<li><a href="/">{% trans "about" %}</a></li> |
 					{% if user.is_authenticated %} 
-						<li><a href="/logout/">{% trans "logout" %}</a></li>
+						<li>{{ user.username }} (<a href="/logout/">{% trans "logout" %}</a>)</li>
 					{% else %} 
 						<li><a href="/login/">{% trans "login" %}</a></li>
 					{% endif %} 

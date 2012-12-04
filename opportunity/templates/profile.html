@@ -71,7 +71,7 @@
     overcoming a challenge. You'd need to tell the interviewer about 
     a specific <b>problem</b> in your career where you faced a 
     challenge. Outline the <b>actions</b> you told to 
-    overcome it. Finally, you should talk about <b>results</b>. 
+    overcome it. Finally, you should talk about <b>results</b>. [A similar approach is called STAR. ST stands for situation/task. AR is the same. ]
 	</p> 
     <div id="story-cmd" >
     <a class="button" href="/par/add">Add a story</a>  
@@ -85,11 +85,8 @@
         {% for story in story_list %}
         <div id="story-{{ story.id }}">
             <li> <input type="checkbox" value={{ story.id }} /> <b>Question</b> (<a href="/par/edit/{{ story.id }}">edit</a>): {{ story.question }}
-                <ul>
-                    <li><em>Problem</em>: {{ story.problem }} </li>
-                    <li><em>Action</em>: {{ story.action }}  </li>
-                    <li><em>Result</em>: {{ story.result }}  </li>
-                </ul>
+            <br/>
+                <b>Response</b>: {{ story.par_response }}
             </li>
         </div>
         {% endfor %}

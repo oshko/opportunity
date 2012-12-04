@@ -147,11 +147,12 @@ class PAR(models.Model):
     """
     Behaviorial questions and results to them in PAR format. 
     """
-    question = models.CharField(_('question'), max_length=128)
-    problem = models.CharField(_('problem'), max_length=256)
-    action = models.CharField(_('action'), max_length=256)
-    result = models.CharField(_('result'), max_length=256)
+    question = models.CharField(_('Question'), max_length=128)
+    par_response = models.TextField(_('Response')) 
     user = models.ForeignKey(UserProfile)
+    
+    class Meta:
+        ordering = ['question']
 
 # UserProfile is associated with the User table. Listen for the post_save 
 # signal. Create a profile when new User added.

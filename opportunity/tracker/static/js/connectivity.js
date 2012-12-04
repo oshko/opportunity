@@ -9,8 +9,7 @@ deleteEntry = function(idName, aUrl) {
                 var selector = '#'+ data['idName'] + '-' + data['id']; 
                 $(selector).remove() ;
 
-                var n = $("#"+ data['idName'] +"-container ul div").length;
-                if (n == 0) {
+                if ($("#"+ data['idName'] +"-container ul div").length == 0) {
                     $("#" + data['idName'] + "-container ul").remove();
                     $("#" + data['idName'] + "-container").text(data['noElements']);
                 }
