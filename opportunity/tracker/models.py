@@ -5,11 +5,14 @@ from django.utils.translation import ugettext_lazy as _
 
 class Company(models.Model):
     name = models.CharField(_('Name'), max_length=32)
+    division = models.CharField(_('Division'), max_length=64,blank=True,null=True)
     address = models.CharField(_('Address'), max_length=128)
     city = models.CharField(_('City'), max_length=32)
     state_province = models.CharField(_('State or Province'),max_length=32)
     country = models.CharField(_('Country'),max_length=3)   # select from three digit country code. 
+    zipCode = models.CharField(_('Zip'),max_length=16, blank=True, null=True)
     website = models.URLField(_('Website'))
+    comment = models.CharField(_('Comment'), max_length=256,blank=True,null=True)
 
     def __unicode__(self):
         return self.name
@@ -33,7 +36,7 @@ class Position(models.Model):
     company = models.ForeignKey(Company, unique=True)
     title = models.CharField(max_length=64)
     website = models.URLField()
-    comment = models.CharField(max_length=256)
+    comment = models.CharField(max_length=256,blank=True,null=True)
 
     def __unicode__(self):
         return  u'%s at %s' % (self.title, self.company)
@@ -47,7 +50,7 @@ class Activity(models.Model):
 	Apply for a job? Sent thank to interviewer? 
     '''
     when = models.DateField()
-    comment = models.CharField(max_length=256)
+    comment = models.CharField(max_length=256,blank=True,null=True)
 
     '''
     Since Activity is abstract, there is no manager object (ie, objects). 
@@ -98,7 +101,18 @@ class Networking(Activity):
     tag = "networking"
 
     def __unicode__(self):
-        return  u'Networking at %s' % (self.company.name)
+        return  u'Networking at %s' % (self.venue.name)
+
+class Lunch (Activity):
+    '''
+    Lunch with colleague 
+    '''
+    withWhom = models.ManyToManyField(Person)
+    venue = models.CharField(max_length=128,blank=True,null=True)
+    
+    tag = "lunch"
+    def __unicode__(self):
+        return u'Lunch with %s %s at %s' % (self.withWhom.first_name, self.withWhom.last_name, self.venue)
 
 class Gratitude(Activity):
     '''
@@ -106,8 +120,7 @@ class Gratitude(Activity):
     '''
     person = models.ForeignKey(Person, unique=True)
 
-    def getTag():
-        return "gratitude"
+    tag = "gratitude"
 
     def __unicode__(self):
         return  u'Thank %s' % (self.person.name)
@@ -135,7 +148,6 @@ class UserProfile(models.Model):
     """
     user = models.OneToOneField(User)
     title = models.CharField(max_length=32) 
-    #pitch = models.CharField(max_length=128)
 
     def __unicode__(self):
         return self.user.username
@@ -191,4 +203,3 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 # register for post_save signal on User 
 post_save.connect(create_user_profile, sender=User)
-

@@ -2,14 +2,30 @@
 {% block content %}
 
 			<h1>Dashboard</h1>
-This dashboard offer's the job seeker an aggregated view of your job hunt. 
+This dashboard offers the job seeker an aggregated view of your job hunt. 
 
+            <div id="add-something">
+To add more information about your job hunt, select the activity and click submit. This will take you to a page which you can enter pertinent details about it. 
+				<fieldset>
+					<legend>add:</legend>
+					<form action="/newactivity/">
+						<select name="activity">
+			{% for activity in activity_name_list %}
+						<option value="{{ activity }}">{{ activity }}</option>
+			{% endfor %}
+						</select>
+						<input type="submit" value="Submit">
+					</form>
+				</fieldset>
+            </div>
+            
 			<div id="positions" >
 				<h2>Positions</h2> 
 	{% if position_list %}
 					<ul>
 		{% for position in position_list %}
-						<li><a href="{{ position.website }}">{{ position.title }}</a> at {{ position.company.name }} </li>
+						<li><a href="{{ position.website }}">{{ position.title }}</a> at 
+                        <a href="{{ position.company.website }}">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  </li>
 		{% endfor %}
 					</ul>
 	{% else %} 
@@ -34,19 +50,6 @@ This dashboard offer's the job seeker an aggregated view of your job hunt.
     {% endif %}
 			</div>
 
-            <div id="add-something">
-To add more information about your job hunt, select the activity and click submit. This will take you to a page which you can enter pertinent details about it. 
-				<fieldset>
-					<legend>add:</legend>
-					<form action="/newactivity/">
-						<select name="activity">
-			{% for activity in activity_name_list %}
-						<option value="{{ activity }}">{{ activity }}</option>
-			{% endfor %}
-						</select>
-						<input type="submit" value="Submit">
-					</form>
-				</fieldset>
-            </div>
+
 
 {% endblock %}

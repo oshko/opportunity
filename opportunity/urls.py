@@ -14,10 +14,19 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-    (r'^prospect/', 'opportunity.tracker.views.company'),
-    (r'^contact/', 'opportunity.tracker.views.person'),
-    (r'^position/', 'opportunity.tracker.views.position'),
-    (r'^newactivity/', 'opportunity.tracker.views.newactivity'), # dispatch 
+    (r'^prospect/(?P<op>add)$', 'opportunity.tracker.views.companyView'),
+    (r'^prospect/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.companyView'),
+    (r'^prospect/(?P<op>del)/(?P<id>\d+)$', 'opportunity.tracker.views.companyDelete'),
+    
+    (r'^contact/(?P<op>add)$', 'opportunity.tracker.views.personView'),
+    (r'^contact/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.personView'),
+    (r'^contact/(?P<op>del)/(?P<id>\d+)$', 'opportunity.tracker.views.personDelete'),
+    
+    (r'^position/(?P<op>add)$', 'opportunity.tracker.views.positionView'),
+    (r'^position/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.positionView'),
+    (r'^position/(?P<op>del)/(?P<id>\d+)$', 'opportunity.tracker.views.positionDelete'),
+    
+    (r'^newactivity/', 'opportunity.tracker.views.newactivity'), # dispatch activity
     
     (r'^interview/(?P<op>add)$', 'opportunity.tracker.views.interviewView'), # add 
     (r'^interview/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.interviewView'), # edit

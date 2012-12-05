@@ -50,56 +50,129 @@ def dashboard(request):
 		                      context_instance=RequestContext(request))
 
 @login_required
-def company(request):
+def companyView(request, *args, **kwargs):
     """
     A form to enter information about the company.
     """
     if request.method == 'POST':
-        form = CompanyForm(request.POST)
+        if kwargs['op'] == 'edit':
+            form = CompanyForm(request.POST, 
+                instance=Company.objects.get(pk=int(kwargs['id'])))
+        else: 
+            form = CompanyForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
     else:
-        form = CompanyForm()
+        if kwargs['op'] == 'edit':
+            try:
+                form = CompanyForm(
+                    instance=Company.objects.get(pk=int(kwargs['id'])))
+            except: 
+                return HttpResponseServerError("bad id")
+        else:
+            form = CompanyForm()
     return render_to_response('tracker_form.html',
                            {'title': _("Company"), 
                            'desc': _("Record information about a prospective employer."), 
                            'form': form}, 
 		                   context_instance=RequestContext(request))
+
 @login_required
-def person(request):
+def companyDelete(request, *args, **kwargs):
+    """
+    Delete company.
+    """
+    try:
+        obj = Company.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except Company.DoesNotExist: 
+        # todo: add logging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponseRedirect('/dashboard/')
+
+@login_required
+def personView(request, *args, **kwargs):
     """
     A form to enter information about a person of interest. 
     """
     if request.method == 'POST':
-        form = PersonForm(request.POST)
+        if kwargs['op'] == 'edit':
+            form = PersonForm(request.POST, 
+                instance=Person.objects.get(pk=int(kwargs['id'])))
+        else: 
+            form = PersonForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
     else:
-        form = PersonForm()
+        if kwargs['op'] == 'edit':
+            try:
+                form = PersonForm(
+                    instance=Person.objects.get(pk=int(kwargs['id'])))
+            except: 
+                return HttpResponseServerError("bad id")
+        else:
+            form = PersonForm()
     return render_to_response('tracker_form.html', 
                            {'title': _("Person"), 
                            'desc': _("Record a contact you met on the job hunt."), 
                            'form': form}, 
 		                   context_instance=RequestContext(request))
+
 @login_required
-def position(request):
+def personDelete(request, *args, **kwargs):
+    try:
+        obj = Person.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except Person.DoesNotExist: 
+        # todo: add logging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponseRedirect('/dashboard/')
+
+
+@login_required
+def positionView(request, *args, **kwargs):
     """
     A form to enter information about a position
     """
     if request.method == 'POST':
-        form = PositionForm(request.POST)
+        if kwargs['op'] == 'edit':
+            form = PositionForm(request.POST, 
+                instance=Position.objects.get(pk=int(kwargs['id'])))
+        else: 
+            form = PositionForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
     else:
-        form = PositionForm()
+        if kwargs['op'] == 'edit':
+            try:
+                form = PositionForm(
+                    instance=Position.objects.get(pk=int(kwargs['id'])))
+            except: 
+                return HttpResponseServerError("bad id")
+        else:
+            form = PositionForm()
     return render_to_response('tracker_form.html', 
                            {'title': _("Position"), 
                            'desc': _("Record a position in which you are interested.."), 
                            'form': form}, 
 		                   context_instance=RequestContext(request))
+
+@login_required
+def positionDelete(request, *args, **kwargs):
+    try:
+        obj = Position.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except Position.DoesNotExist: 
+        # todo: add logging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponseRedirect('/dashboard/')
+
 @login_required
 def newactivity(request):
     """
