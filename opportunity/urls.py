@@ -50,6 +50,7 @@ urlpatterns = patterns('',
     
     (r'^dashboard/', 'opportunity.tracker.views.dashboard'),
     (r'^$','opportunity.tracker.views.about'),
+    (r'^manage/$','opportunity.tracker.views.manage'), # edit/del people and companies. 
     (r'^books/$','opportunity.tracker.views.books'),
     (r'^profile/$','opportunity.tracker.views.profileView'),
     (r'^pitch/(?P<op>add)$', 'opportunity.tracker.views.pitchView'), 

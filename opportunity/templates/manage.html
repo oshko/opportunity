@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Manage</h1>
+
+This page allows you to edit or delete people and companies. 
+   <h3>Prospective employers </h3>
+
+    <a class="button" href="/prospect/add">Add a company</a>
+
+    {% if prospect_list %}
+    <a class="button" onclick="deleteEntry('prospect','/prospect/del/')">Delete</a>
+    {% endif %}
+
+    <br/>
+      <p> 
+    <div id="prospect-container">
+        {% if prospect_list %}
+            <ul>
+            {% for prospect in prospect_list %}
+                <div id="prospect-{{ prospect.id }}">
+                    <li><input type="checkbox" value={{ prospect.id }} /> {{ prospect.name }} in {{ prospect.city }},{{ prospect.state_province }}  (<a href="/prospect/edit/{{ prospect.id }}">edit</a>)</li>
+                </div>
+            {% endfor %}
+            </ul>
+        {% else %}
+            No companies.
+        {% endif %}
+    </div>
+    
+       <h3>People </h3>
+
+    <a class="button" href="/contact/add">Add a person</a>
+
+    {% if prospect_list %}
+    <a class="button" onclick="deleteEntry('contact','/contact/del/')">Delete</a>
+    {% endif %}
+
+    <br/>
+      <p> 
+    <div id="contact-container">
+        {% if contact_list %}
+            <ul>
+            {% for contact in contact_list %}
+                <div id="contact-{{ contact.id }}">
+                    <li><input type="checkbox" value={{ contact.id }} /> {{ contact.first_name }}  {{ contact.last_name }}, {{ contact.title }} at {{ contact.company.name }}
+                     (<a href="/contact/edit/{{ contact.id }}">edit</a>)</li>
+                </div>
+            {% endfor %}
+            </ul>
+        {% else %}
+            No contacts.
+        {% endif %}
+    </div>
+
+
+{% endblock %}

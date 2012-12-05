@@ -30,9 +30,17 @@ def about(request):
     return render_to_response('about.html', 
 		    context_instance=RequestContext(request))
 
+def manage(request):
+    """ manage allows user to edit or delete people and companies """
+    people = Person.objects.all()
+    companies = Company.objects.all()
+    return render_to_response('manage.html',            
+            {'contact_list': people,'prospect_list': companies}, 
+		    context_instance=RequestContext(request))
+
 def books(request):
     """ references to books which may help the job seeker """ 
-    return render_to_response('books.html', 
+    return render_to_response('books.html',
 		    context_instance=RequestContext(request))
 
 @login_required
@@ -74,8 +82,9 @@ def companyView(request, *args, **kwargs):
             form = CompanyForm()
     return render_to_response('tracker_form.html',
                            {'title': _("Company"), 
-                           'desc': _("Record information about a prospective employer."), 
-                           'form': form}, 
+                            'desc': _("Record information about a prospective employer."), 
+                            'activity_name_list' : prettyNames,
+                            'form': form}, 
 		                   context_instance=RequestContext(request))
 
 @login_required
@@ -83,6 +92,8 @@ def companyDelete(request, *args, **kwargs):
     """
     Delete company.
     """
+    rc = { 'id' : kwargs['id'], 'idName': 'prospect',
+        'noElements' : "No prospective companies at this time." } 
     try:
         obj = Company.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -90,7 +101,7 @@ def companyDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponseRedirect('/dashboard/')
+    return HttpResponse(simplejson.dumps(rc))
 
 @login_required
 def personView(request, *args, **kwargs):
@@ -117,12 +128,15 @@ def personView(request, *args, **kwargs):
             form = PersonForm()
     return render_to_response('tracker_form.html', 
                            {'title': _("Person"), 
-                           'desc': _("Record a contact you met on the job hunt."), 
+                           'desc': _("Record a contact you met on the job hunt."),
+                           'activity_name_list' : prettyNames, 
                            'form': form}, 
 		                   context_instance=RequestContext(request))
 
 @login_required
 def personDelete(request, *args, **kwargs):
+    rc = { 'id' : kwargs['id'], 'idName': 'contact',
+        'noElements' : "No people at this time." } 
     try:
         obj = Person.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -130,7 +144,7 @@ def personDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponseRedirect('/dashboard/')
+    return HttpResponse(simplejson.dumps(rc))
 
 
 @login_required
@@ -159,11 +173,14 @@ def positionView(request, *args, **kwargs):
     return render_to_response('tracker_form.html', 
                            {'title': _("Position"), 
                            'desc': _("Record a position in which you are interested.."), 
+                           'activity_name_list' : prettyNames,
                            'form': form}, 
 		                   context_instance=RequestContext(request))
 
 @login_required
 def positionDelete(request, *args, **kwargs):
+    rc = { 'id' : kwargs['id'], 'idName': 'position',
+        'noElements' : "No positions being tracked." } 
     try:
         obj = Position.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -171,7 +188,7 @@ def positionDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponseRedirect('/dashboard/')
+    return HttpResponse(simplejson.dumps(rc))
 
 @login_required
 def newactivity(request):
@@ -207,6 +224,7 @@ def interviewView(request, *args, **kwargs):
     return render_to_response('tracker_form.html', 
                           {'title': _("Interview"), 
                            'desc': _("Record a pertinent interview."), 
+                           'activity_name_list' : prettyNames,
                            'form': form}, 
 			               context_instance=RequestContext(request))
 
@@ -248,6 +266,7 @@ def applyForView(request, *args, **kwargs):
             form = ApplyForm()
     return render_to_response('tracker_form.html', {'title': _("Apply"), 
                            'desc': _("Record information about a job for which you applied."), 
+                           'activity_name_list' : prettyNames,
                            'form': form}, 
 		                   context_instance=RequestContext(request))
 
@@ -290,6 +309,7 @@ def networkingView(request, *args, **kwargs):
             form = NetworkingForm()
     return render_to_response('tracker_form.html', {'title': _("Networking"), 
                            'desc': _("Record information about a networking event."), 
+                           'activity_name_list' : prettyNames,
                            'form': form}, 
 		                   context_instance=RequestContext(request))
 
@@ -329,6 +349,7 @@ def gratitudeView(request, *args, **kwargs):
             form = GratitudeForm()
     return render_to_response('tracker_form.html', {'title': _("Gratitude"), 
                            'desc': _("Remember to thank those people who've helped you along the way."), 
+                           'activity_name_list' : prettyNames,
                            'form': form}, 
 		                   context_instance=RequestContext(request))
 
@@ -369,6 +390,7 @@ def conversationView(request, *args, **kwargs):
     return render_to_response('tracker_form.html', 
                            {'title': _("Conversation"), 
                            'desc': _("Record a pertinent conversation."), 
+                           'activity_name_list' : prettyNames,
                            'form': form}, 
 		                   context_instance=RequestContext(request))
 
@@ -410,6 +432,7 @@ def pitchView(request, *args, **kwargs):
     return render_to_response('tracker_form.html',
             { 'title': "Elevator Pitch",
             'desc': "The elevator pitch allows you to convey your value proposition when you meet new people in person.",
+            'activity_name_list' : prettyNames,
             'form': form},
 		    context_instance=RequestContext(request))
 
@@ -460,6 +483,7 @@ def onlinePresenceView(request, *args, **kwargs):
     return render_to_response('tracker_form.html', 
                            {'title': _("Online Presence"), 
                            'desc': _("Record a link pointing to your online presence."), 
+                           'activity_name_list' : prettyNames,
                            'form': form}, 
 		                   context_instance=RequestContext(request)) 
 @login_required
@@ -528,6 +552,7 @@ def parView (request, *args, **kwargs):
     return render_to_response('tracker_form.html', 
                            {'title': _("PAR - problem, action, result"), 
                            'desc': _("Record a response to a behaviorial question in PAR format."), 
+                           'activity_name_list' : prettyNames,
                            'form': form}, 
                            context_instance=RequestContext(request))    
 

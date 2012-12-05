@@ -27,7 +27,7 @@ class Person(models.Model):
     first_name = models.CharField(_('First name'),max_length=16)
     last_name = models.CharField(_('Last name'),max_length=16)
     title = models.CharField(_('Title'),max_length=64)
-    company = models.ForeignKey(Company, unique=True)
+    company = models.ForeignKey(Company, unique=True, blank=True, null=True)
 
     def __unicode__(self):
         return self.name
@@ -72,7 +72,6 @@ class Activity(models.Model):
 
 class Interview(Activity):
     position = models.ForeignKey(Position, unique=True)
-    company = models.ForeignKey(Company, unique=True)
     withWhom = models.ManyToManyField(Person)
     
     tag = "interview"
@@ -85,7 +84,6 @@ class Apply(Activity):
     applied for job
     '''
     position = models.ForeignKey(Position, unique=True)
-    company = models.ForeignKey(Company, unique=True)
 
     tag = "apply"
 
