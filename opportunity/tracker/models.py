@@ -30,7 +30,7 @@ class Person(models.Model):
     company = models.ForeignKey(Company, unique=True, blank=True, null=True)
 
     def __unicode__(self):
-        return self.name
+        return u'%s %s' % (self.first_name , self.last_name)
 
 class Position(models.Model):
     company = models.ForeignKey(Company, unique=True)
@@ -138,7 +138,7 @@ class Conversation(Activity):
     tag = "conversation"
 
     def __unicode__(self):
-        return  u'Spoke %s via ' % (self.person.name,self.via)
+        return  u'Spoke with %s %s via %s' % (self.person.first_name, self.person.last_name ,self.via)
 
 class UserProfile(models.Model):
     """
