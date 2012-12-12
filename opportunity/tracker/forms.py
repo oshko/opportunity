@@ -8,34 +8,146 @@ from models import *
 class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
+        exclude = ('user',)
+        
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super(CompanyForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super(CompanyForm, self).save(commit=False)
+        inst.user = self._user
+        if commit:
+            inst.save()
+        return inst
 
 class PersonForm(forms.ModelForm):
     class Meta:
         model = Person
+        exclude = ('user',)
+        
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super(PersonForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super(PersonForm, self).save(commit=False)
+        inst.user = self._user
+        if commit:
+            inst.save()
+        return inst
 
 class PositionForm(forms.ModelForm):
     class Meta:
         model = Position
+        exclude = ('user',)
+
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super(PositionForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super(PositionForm, self).save(commit=False)
+        inst.user = self._user
+        if commit:
+            inst.save()
+        return inst
 
 class InterviewForm(forms.ModelForm):
     class Meta:
         model = Interview
+        exclude = ('user',)
+
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super(InterviewForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super(InterviewForm, self).save(commit=False)
+        inst.user = self._user
+        if commit:
+            inst.save()
+        return inst
 
 class ApplyForm(forms.ModelForm):
     class Meta:
         model = Apply
+        exclude = ('user',)
+
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super(ApplyForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super(ApplyForm, self).save(commit=False)
+        inst.user = self._user
+        if commit:
+            inst.save()
+        return inst
+
+class LunchForm (forms.ModelForm):
+    class Meta:
+        model = Lunch
+        exclude = ('user',)
+
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super(LunchForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super(LunchForm, self).save(commit=False)
+        inst.user = self._user
+        if commit:
+            inst.save()
+        return inst
 
 class NetworkingForm(forms.ModelForm):
     class Meta:
         model = Networking
+        exclude = ('user',)
+
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super(NetworkingForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super(NetworkingForm, self).save(commit=False)
+        inst.user = self._user
+        if commit:
+            inst.save()
+        return inst
 
 class GratitudeForm(forms.ModelForm):
     class Meta:
         model = Gratitude
+        exclude = ('user',)
+
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super(GratitudeForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super(GratitudeForm, self).save(commit=False)
+        inst.user = self._user
+        if commit:
+            inst.save()
+        return inst
 
 class ConversationForm(forms.ModelForm):
     class Meta:
         model = Conversation
+        exclude = ('user',)
+
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super(ConversationForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super(ConversationForm, self).save(commit=False)
+        inst.user = self._user
+        if commit:
+            inst.save()
+        return inst
 
 class PitchForm(forms.ModelForm):
     class Meta:

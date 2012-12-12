@@ -30,10 +30,12 @@ def about(request):
     return render_to_response('about.html', 
 		    context_instance=RequestContext(request))
 
+@login_required
 def manage(request):
     """ manage allows user to edit or delete people and companies """
-    people = Person.objects.all()
-    companies = Company.objects.all()
+    profile_id = request.user.userprofile.id
+    people = Person.objects.filter(user=profile_id)
+    companies = Company.objects.filter(user=profile_id)
     return render_to_response('manage.html',            
             {'contact_list': people,'prospect_list': companies}, 
 		    context_instance=RequestContext(request))
@@ -49,7 +51,8 @@ def dashboard(request):
     This is the dashboard page.  Aggregates information about prosepctive
     employers and activities in which the job hunter is engaged. 
     """
-    positions = Position.objects.all()
+    profile_id = request.user.userprofile.id
+    positions = Position.objects.filter(user=profile_id)
     activities = Activity.getAll()
     return render_to_response('dashboard.html', 
                              {'position_list' : positions, 
@@ -65,9 +68,10 @@ def companyView(request, *args, **kwargs):
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = CompanyForm(request.POST, 
-                instance=Company.objects.get(pk=int(kwargs['id'])))
+                instance=Company.objects.get(pk=int(kwargs['id'])),
+                user = request.user.get_profile())
         else: 
-            form = CompanyForm(request.POST)
+            form = CompanyForm(request.POST,user = request.user.get_profile())
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
@@ -75,11 +79,12 @@ def companyView(request, *args, **kwargs):
         if kwargs['op'] == 'edit':
             try:
                 form = CompanyForm(
-                    instance=Company.objects.get(pk=int(kwargs['id'])))
+                    instance=Company.objects.get(pk=int(kwargs['id'])), 
+                    user = request.user.get_profile())
             except: 
                 return HttpResponseServerError("bad id")
         else:
-            form = CompanyForm()
+            form = CompanyForm(user = request.user.get_profile())
     return render_to_response('tracker_form.html',
                            {'title': _("Company"), 
                             'desc': _("Record information about a prospective employer."), 
@@ -111,9 +116,11 @@ def personView(request, *args, **kwargs):
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = PersonForm(request.POST, 
-                instance=Person.objects.get(pk=int(kwargs['id'])))
+                instance=Person.objects.get(pk=int(kwargs['id'])),
+                user = request.user.get_profile())
         else: 
-            form = PersonForm(request.POST)
+            form = PersonForm(request.POST,
+                user = request.user.get_profile())
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
@@ -121,11 +128,12 @@ def personView(request, *args, **kwargs):
         if kwargs['op'] == 'edit':
             try:
                 form = PersonForm(
-                    instance=Person.objects.get(pk=int(kwargs['id'])))
+                    instance=Person.objects.get(pk=int(kwargs['id'])),
+                    user = request.user.get_profile())
             except: 
                 return HttpResponseServerError("bad id")
         else:
-            form = PersonForm()
+            form = PersonForm(user = request.user.get_profile())
     return render_to_response('tracker_form.html', 
                            {'title': _("Person"), 
                            'desc': _("Record a contact you met on the job hunt."),
@@ -155,9 +163,11 @@ def positionView(request, *args, **kwargs):
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = PositionForm(request.POST, 
-                instance=Position.objects.get(pk=int(kwargs['id'])))
+                instance=Position.objects.get(pk=int(kwargs['id'])),
+                user = request.user.get_profile())
         else: 
-            form = PositionForm(request.POST)
+            form = PositionForm(request.POST,
+                user = request.user.get_profile())
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
@@ -165,11 +175,12 @@ def positionView(request, *args, **kwargs):
         if kwargs['op'] == 'edit':
             try:
                 form = PositionForm(
-                    instance=Position.objects.get(pk=int(kwargs['id'])))
+                    instance=Position.objects.get(pk=int(kwargs['id'])),
+                    user = request.user.get_profile())
             except: 
                 return HttpResponseServerError("bad id")
         else:
-            form = PositionForm()
+            form = PositionForm(user = request.user.get_profile())
     return render_to_response('tracker_form.html', 
                            {'title': _("Position"), 
                            'desc': _("Record a position in which you are interested.."), 
@@ -206,9 +217,11 @@ def interviewView(request, *args, **kwargs):
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = InterviewForm(request.POST, 
-                instance=Interview.objects.get(pk=int(kwargs['id'])))
+                instance=Interview.objects.get(pk=int(kwargs['id'])),
+                user = request.user.get_profile())
         else: 
-            form = InterviewForm(request.POST)
+            form = InterviewForm(request.POST,
+                user = request.user.get_profile())
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
@@ -216,11 +229,12 @@ def interviewView(request, *args, **kwargs):
         if kwargs['op'] == 'edit':
             try:
                 form = InterviewForm(
-                    instance=Interview.objects.get(pk=int(kwargs['id'])))
+                    instance=Interview.objects.get(pk=int(kwargs['id'])),
+                    user = request.user.get_profile())
             except: 
                 return HttpResponseServerError("bad id")
         else:
-            form = InterviewForm()
+            form = InterviewForm(user = request.user.get_profile())
     return render_to_response('tracker_form.html', 
                           {'title': _("Interview"), 
                            'desc': _("Record a pertinent interview."), 
@@ -249,21 +263,23 @@ def applyForView(request, *args, **kwargs):
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = ApplyForm(request.POST, 
-                instance=Apply.objects.get(pk=int(kwargs['id'])))
+                instance=Apply.objects.get(pk=int(kwargs['id'])),
+                user = request.user.get_profile())
         else: 
-            form = ApplyForm(request.POST)
+            form = ApplyForm(request.POST,
+                user = request.user.get_profile())
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
     else:
         if kwargs['op'] == 'edit':
             try:
-                form = ApplyForm(
-                    instance=Apply.objects.get(pk=int(kwargs['id'])))
+                form = ApplyForm(instance=Apply.objects.get(pk=int(kwargs['id'])),
+                    user = request.user.get_profile())
             except: 
                 return HttpResponseServerError("bad id")
         else:
-            form = ApplyForm()
+            form = ApplyForm(user = request.user.get_profile())
     return render_to_response('tracker_form.html', {'title': _("Apply"), 
                            'desc': _("Record information about a job for which you applied."), 
                            'activity_name_list' : prettyNames,
@@ -292,9 +308,11 @@ def networkingView(request, *args, **kwargs):
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = NetworkingForm(request.POST, 
-                instance=Networking.objects.get(pk=int(kwargs['id'])))
+                instance=Networking.objects.get(pk=int(kwargs['id'])),
+                user = request.user.get_profile())
         else: 
-            form = NetworkingForm(request.POST)
+            form = NetworkingForm(request.POST,
+                user = request.user.get_profile())
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
@@ -302,11 +320,12 @@ def networkingView(request, *args, **kwargs):
         if kwargs['op'] == 'edit':
             try:
                 form = NetworkingForm(
-                    instance=Networking.objects.get(pk=int(kwargs['id'])))
+                    instance=Networking.objects.get(pk=int(kwargs['id'])),
+                    user = request.user.get_profile())
             except: 
                 return HttpResponseServerError("bad id")
         else:
-            form = NetworkingForm()
+            form = NetworkingForm(user = request.user.get_profile())
     return render_to_response('tracker_form.html', {'title': _("Networking"), 
                            'desc': _("Record information about a networking event."), 
                            'activity_name_list' : prettyNames,
@@ -332,9 +351,11 @@ def gratitudeView(request, *args, **kwargs):
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = GratitudeForm(request.POST, 
-                instance=Gratitude.objects.get(pk=int(kwargs['id'])))
+                instance=Gratitude.objects.get(pk=int(kwargs['id'])),
+                user = request.user.get_profile())
         else: 
-            form = GratitudeForm(request.POST)
+            form = GratitudeForm(request.POST,
+                user = request.user.get_profile())
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
@@ -342,11 +363,12 @@ def gratitudeView(request, *args, **kwargs):
         if kwargs['op'] == 'edit':
             try:
                 form = GratitudeForm( 
-                    instance=Gratitude.objects.get(pk=int(kwargs['id'])))
+                    instance=Gratitude.objects.get(pk=int(kwargs['id'])),
+                    user = request.user.get_profile())
             except: 
                 return HttpResponseServerError("bad id")
         else:
-            form = GratitudeForm()
+            form = GratitudeForm(user = request.user.get_profile())
     return render_to_response('tracker_form.html', {'title': _("Gratitude"), 
                            'desc': _("Remember to thank those people who've helped you along the way."), 
                            'activity_name_list' : prettyNames,
@@ -372,9 +394,11 @@ def conversationView(request, *args, **kwargs):
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = ConversationForm(request.POST, 
-                instance=Conversation.objects.get(pk=int(kwargs['id'])))
+                instance=Conversation.objects.get(pk=int(kwargs['id'])),
+                user = request.user.get_profile())
         else: 
-            form = ConversationForm(request.POST)
+            form = ConversationForm(request.POST,
+                user = request.user.get_profile())
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/dashboard/')
@@ -382,11 +406,12 @@ def conversationView(request, *args, **kwargs):
         if kwargs['op'] == 'edit':
             try:
                 form = ConversationForm(
-                    instance=Conversation.objects.get(pk=int(kwargs['id'])))
+                    instance=Conversation.objects.get(pk=int(kwargs['id'])),
+                    user = request.user.get_profile())
             except: 
                 return HttpResponseServerError("bad id")
         else:
-            form = ConversationForm()
+            form = ConversationForm(user = request.user.get_profile())
     return render_to_response('tracker_form.html', 
                            {'title': _("Conversation"), 
                            'desc': _("Record a pertinent conversation."), 

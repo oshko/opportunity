@@ -3,6 +3,29 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 
+class UserProfile(models.Model):
+    """
+    A UserProfile is a person which uses our system.
+    """
+    user = models.OneToOneField(User)
+    title = models.CharField(max_length=32) 
+
+    def __unicode__(self):
+        return self.user.username
+
+# UserProfile is associated with the User table. Listen for the post_save 
+# signal. Create a profile when new User added.
+
+def create_user_profile(sender, instance, created, **kwargs):
+    """
+    This is the callback associated with the post_save signal on User. 	
+    """ 
+    if created:
+        UserProfile.objects.create(user=instance)
+
+# register for post_save signal on User 
+post_save.connect(create_user_profile, sender=User)
+
 class Company(models.Model):
     name = models.CharField(_('Name'), max_length=32)
     division = models.CharField(_('Division'), max_length=64,blank=True,null=True)
@@ -13,6 +36,7 @@ class Company(models.Model):
     zipCode = models.CharField(_('Zip'),max_length=16, blank=True, null=True)
     website = models.URLField(_('Website'))
     comment = models.CharField(_('Comment'), max_length=256,blank=True,null=True)
+    user = models.ForeignKey(UserProfile)
 
     def __unicode__(self):
         return self.name
@@ -28,6 +52,7 @@ class Person(models.Model):
     last_name = models.CharField(_('Last name'),max_length=16)
     title = models.CharField(_('Title'),max_length=64)
     company = models.ForeignKey(Company, unique=True, blank=True, null=True)
+    user = models.ForeignKey(UserProfile)
 
     def __unicode__(self):
         return u'%s %s' % (self.first_name , self.last_name)
@@ -37,6 +62,7 @@ class Position(models.Model):
     title = models.CharField(max_length=64)
     website = models.URLField()
     comment = models.CharField(max_length=256,blank=True,null=True)
+    user = models.ForeignKey(UserProfile)
 
     def __unicode__(self):
         return  u'%s at %s' % (self.title, self.company)
@@ -51,6 +77,7 @@ class Activity(models.Model):
     '''
     when = models.DateField()
     comment = models.CharField(max_length=256,blank=True,null=True)
+    user = models.ForeignKey(UserProfile)
 
     '''
     Since Activity is abstract, there is no manager object (ie, objects). 
@@ -107,8 +134,8 @@ class Lunch (Activity):
     '''
     withWhom = models.ManyToManyField(Person)
     venue = models.CharField(max_length=128,blank=True,null=True)
-    
     tag = "lunch"
+    
     def __unicode__(self):
         return u'Lunch with %s %s at %s' % (self.withWhom.first_name, self.withWhom.last_name, self.venue)
 
@@ -140,15 +167,7 @@ class Conversation(Activity):
     def __unicode__(self):
         return  u'Spoke with %s %s via %s' % (self.person.first_name, self.person.last_name ,self.via)
 
-class UserProfile(models.Model):
-    """
-    A UserProfile is a person which uses our system.
-    """
-    user = models.OneToOneField(User)
-    title = models.CharField(max_length=32) 
 
-    def __unicode__(self):
-        return self.user.username
 
 class Pitch(models.Model):
     """
@@ -189,15 +208,4 @@ class PAR(models.Model):
     class Meta:
         ordering = ['question']
 
-# UserProfile is associated with the User table. Listen for the post_save 
-# signal. Create a profile when new User added.
 
-def create_user_profile(sender, instance, created, **kwargs):
-    """
-    This is the callback associated with the post_save signal on User. 	
-    """ 
-    if created:
-        UserProfile.objects.create(user=instance)
-
-# register for post_save signal on User 
-post_save.connect(create_user_profile, sender=User)
