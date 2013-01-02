@@ -16,7 +16,7 @@ MANAGERS = ADMINS
 # export DATABASE_URL='postgresql://myuser:mypass@localhost/test'
 # >>> dj_database_url.config()
 # {'ENGINE': 'django.db.backends.postgresql_psycopg2', 'NAME': 'test', 'HOST': 'localhost', 'USER': 'myuser', 'PASSWORD': 'mypass', 'PORT': None}
-
+DATABASES = { 'default': {} } 
 DATABASES['default'] = dj_database_url.config()
 
 AUTH_PROFILE_MODULE = "tracker.UserProfile"
