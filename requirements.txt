@@ -1,0 +1,8 @@
+Cython==0.17.1
+Django==1.4.2
+distribute==0.6.31
+dj-database-url==0.2.1
+psycopg2==2.4.6
+python-dateutil==1.5
+virtualenv==1.8.4
+wsgiref==0.1.2

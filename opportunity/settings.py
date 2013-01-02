@@ -1,26 +1,23 @@
 # Django settings for opportunity project.
 
 import os
+import dj_database_url
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+    ('John', 'plumber3020@gmail.com'),
 )
 
 MANAGERS = ADMINS
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'test',                      # Or path to database file if using sqlite3.
-        'USER': 'myuser',                      # Not used with sqlite3.
-        'PASSWORD': 'mypass',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
-}
+# example: 
+# export DATABASE_URL='postgresql://myuser:mypass@localhost/test'
+# >>> dj_database_url.config()
+# {'ENGINE': 'django.db.backends.postgresql_psycopg2', 'NAME': 'test', 'HOST': 'localhost', 'USER': 'myuser', 'PASSWORD': 'mypass', 'PORT': None}
+
+DATABASES['default'] = dj_database_url.config()
 
 AUTH_PROFILE_MODULE = "tracker.UserProfile"
 
