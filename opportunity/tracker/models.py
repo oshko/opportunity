@@ -104,7 +104,7 @@ class Interview(Activity):
     tag = "interview"
 
     def __unicode__(self):
-        return  u'Interviewing with %s for %s' % (self.company.name, self.position.title)
+        return  u'Interviewing with %s for %s' % (self.position.company.name, self.position.title)
 
 class Apply(Activity): 
     '''
@@ -115,7 +115,7 @@ class Apply(Activity):
     tag = "apply"
 
     def __unicode__(self):
-        return  u'Applied for %s at %s' % (self.position.title, self.company.name)
+        return  u'Applied for %s at %s' % (self.position.title, self.position.company.name)
  
 class Networking(Activity):
     '''
