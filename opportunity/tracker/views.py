@@ -210,7 +210,11 @@ def newactivity(request):
     """
     Display to create a new activity.
     """
-    newURL = '/' + request.GET['activity'] + '/add'
+    if request.GET['activity'] in mapNameToFunction:
+        a = mapNameToFunction[request.GET['activity']]
+    else:
+        a = request.GET['activity']
+    newURL = '/' + a + '/add'
     return HttpResponseRedirect(newURL)    
 
 @login_required
