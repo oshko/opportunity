@@ -50,7 +50,6 @@ urlpatterns = patterns('',
     
     (r'^dashboard/', 'opportunity.tracker.views.dashboard'),
     (r'^$','opportunity.tracker.views.about'),
-    (r'^manage/$','opportunity.tracker.views.manage'), # edit/del people and companies. 
     (r'^books/$','opportunity.tracker.views.books'),
     (r'^profile/$','opportunity.tracker.views.profileView'),
     (r'^pitch/(?P<op>add)$', 'opportunity.tracker.views.pitchView'), 
@@ -65,6 +64,9 @@ urlpatterns = patterns('',
     (r'^login/$', 'opportunity.tracker.views.loginRequest'),
     (r'^logout/$', 'opportunity.tracker.views.logoutRequest'),
     (r'^register/$','opportunity.tracker.views.registration'),
+    (r'^password_change/$','django.contrib.auth.views.password_change'),
+    (r'^password_reset/$','django.contrib.auth.views.password_reset'),
+    
 )
 
 # newactivity

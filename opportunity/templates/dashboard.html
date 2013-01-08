@@ -3,25 +3,11 @@
 
 			<h1>Dashboard</h1>
 This dashboard offers the job seeker an aggregated view of their job hunt. 
-
-            <div id="add-something">
-To add more information about your job hunt, select the activity and click submit. This will take you to a page which you can enter pertinent details about it. 
-				<fieldset>
-					<legend>add:</legend>
-					<form action="/newactivity/">
-						<select name="activity">
-			{% for activity in activity_name_list %}
-						<option value="{{ activity }}">{{ activity }}</option>
-			{% endfor %}
-						</select>
-						<input type="submit" value="Submit">
-					</form>
-				</fieldset>
-            </div>
                
-            <h2>Positions</h2> 
+            <h3>Positions</h2> 
+    <a class="button" href="/position/add">Add a position</a>
+
 			<div id="position-container" >
-  
 	{% if position_list %}
 					<ul>
 		{% for position in position_list %}
@@ -39,7 +25,19 @@ To add more information about your job hunt, select the activity and click submi
 			</div>
             <hr/>
             
-	<h2>Activities</h2> 
+	<h3>Activities</h3> 
+        <fieldset>
+            <legend>add:</legend>
+            <form name="input" action="/newactivity/" method="get">
+                <input type="radio" name="activity" value="interview">Interview with someone<br/>
+                <input type="radio" name="activity" value="apply" checked>Apply for a position <br/>
+                <input type="radio" name="activity" value="netorking"> Attending a Neworking event <br/>
+                <input type="radio" name="activity" value="gratitude"> reminder to send a thank you note <br/>
+                <input type="radio" name="activity" value="conversation"> Note in interesting conversation <br/>
+                <input type="submit" class="button" value="Add Selected"> 
+            </form>
+        </fieldset>
+    
 			<div id="activity-container" >
         {% if activity_list %}   
         
@@ -60,7 +58,43 @@ To add more information about your job hunt, select the activity and click submi
         There are no activities at this time. You can add them below. 
     {% endif %}
 			</div>
+    <hr/>
+ <h3>Prospective employers </h3>
 
+    <a class="button" href="/prospect/add">Add a company</a>
 
+    <br/>
+      <p/> 
+    <div id="prospect-container">
+        {% if prospect_list %}
+            <ul>
+            {% for prospect in prospect_list %}
+                <div id="prospect-{{ prospect.id }}">
+                    <li> (<a href="/prospect/edit/{{ prospect.id }}">edit</a> | <a href="/prospect/del/{{ prospect.id }}">delete</a>) {{ prospect.name }} in {{ prospect.city }},{{ prospect.state_province }}  </li>
+                </div>
+            {% endfor %}
+            </ul>
+        {% else %}
+            No companies.
+        {% endif %}
+    </div>
+    <hr/>
+       <h3>People </h3>
+    <a class="button" href="/contact/add">Add a person</a>
+      <p/> 
+    <div id="contact-container">
+        {% if contact_list %}
+            <ul>
+            {% for contact in contact_list %}
+                <div id="contact-{{ contact.id }}">
+                    <li> (<a href="/contact/edit/{{ contact.id }}">edit</a> | <a href="/contact/del/{{ contact.id }}">delete</a> ) {{ contact.first_name }}  {{ contact.last_name }}, {{ contact.title }} at {{ contact.company.name }}
+                     </li>
+                </div>
+            {% endfor %}
+            </ul>
+        {% else %}
+            No contacts.
+        {% endif %}
+    </div>
 
 {% endblock %}

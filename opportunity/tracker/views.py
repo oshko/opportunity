@@ -53,11 +53,15 @@ def dashboard(request):
     """
     profile_id = request.user.userprofile.id
     positions = Position.objects.filter(user=profile_id)
+    people = Person.objects.filter(user=profile_id)
+    companies = Company.objects.filter(user=profile_id)
     activities = Activity.getAll()
     return render_to_response('dashboard.html', 
-                             {'position_list' : positions, 
-                              'activity_name_list' : prettyNames,
-                              'activity_list' : activities }, 
+                             {'activity_name_list' : prettyNames,
+                              'activity_list' : activities,
+                              'contact_list': people,
+                              'position_list' : positions, 
+                              'prospect_list': companies }, 
 		                      context_instance=RequestContext(request))
 
 @login_required
@@ -206,7 +210,7 @@ def newactivity(request):
     """
     Display to create a new activity.
     """
-    newURL = '/' + mapNameToFunction[request.GET['activity']] + '/add'
+    newURL = '/' + request.GET['activity'] + '/add'
     return HttpResponseRedirect(newURL)    
 
 @login_required
