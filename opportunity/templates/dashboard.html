@@ -60,17 +60,36 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
 			</div>
     <hr/>
  <h3>Prospective employers </h3>
-
-    <a class="button" href="/prospect/add">Add a company</a>
-
-    <br/>
+ 
       <p/> 
+    <fieldset>
+        <legend>add:</legend>
+        <form id="company_form" action="/prospect/add/" method="get">
+            <label for="id_company">Company:</label>
+            <input id="id_company" type="text" name="company">
+            <input type="submit" class="button" value="Add"> 
+        </form>
+    </fieldset>
+      <script>
+ 
+            $("#company_form").submit(function(){
+                var isFormValid = true;
+                if (isEmpty($("#id_company").val()) ) {
+                    isFormValid = false;
+                }
+                if (!isFormValid) {
+                    alert("Fill in the text field. \nWhat's the company in which you're interested?");
+                }
+
+                return isFormValid;
+            });
+        </script>
     <div id="prospect-container">
         {% if prospect_list %}
             <ul>
             {% for prospect in prospect_list %}
                 <div id="prospect-{{ prospect.id }}">
-                    <li> (<a href="/prospect/edit/{{ prospect.id }}">edit</a> | <a href="/prospect/del/{{ prospect.id }}">delete</a>) {{ prospect.name }} in {{ prospect.city }},{{ prospect.state_province }}  </li>
+                    <li> (<a href="/prospect/edit/{{ prospect.id }}">edit</a> | <a href="/prospect/del/{{ prospect.id }}">delete</a>) <a href="{{ prospect.website }}">{{ prospect.name }}</a> in {{ prospect.city }}, {{ prospect.state_province }}  </li>
                 </div>
             {% endfor %}
             </ul>

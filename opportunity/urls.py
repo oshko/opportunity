@@ -14,7 +14,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-    (r'^prospect/(?P<op>add)$', 'opportunity.tracker.views.companyView'),
+    (r'^prospect/(?P<op>add)', 'opportunity.tracker.views.companyView'),
     (r'^prospect/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.companyView'),
     (r'^prospect/(?P<op>del)/(?P<id>\d+)$', 'opportunity.tracker.views.companyDelete'),
     

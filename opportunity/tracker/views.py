@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 
 from forms import *
 from models import *
+from crunchbase import CrunchProxy
 
 # The prettyNames are displayed to the user. 
 prettyNames = [_("Company"), _("Person"), _("Position"), _("Interview"),
@@ -88,13 +89,54 @@ def companyView(request, *args, **kwargs):
             except: 
                 return HttpResponseServerError("bad id")
         else:
-            form = CompanyForm(user = request.user.get_profile())
+            co = Company()
+            companyData = {}
+            co_name = request.GET['company']
+            try: 
+                crunch = CrunchProxy()
+                companyData = crunch.getCompanyDetails(co_name)
+            except Exception as e:
+                # if there was a network error, ignore and use
+                # default values. 
+                pass
+            
+            # ignore result if there was api error.
+            if not 'error' in companyData: 
+                if 'name' in companyData:
+                    co.name = companyData['name']
+                if 'homepage_url' in companyData:
+                    co.website = companyData['homepage_url']
+
+                # todo: there can be multiple offices. For now we just use one. 
+                office = {} 
+                if 'offices' in companyData:
+                    office = companyData['offices'][0]
+                if 'address1' in office:
+                    co.address = office['address1'].strip()
+                if 'address2' in office:
+                    tmp = office['address2'].strip()
+                    if tmp is not None and len(tmp) > 0:
+                        co.address += ", " + tmp
+                if 'city' in office:
+                    co.city = office['city'].strip()
+                if 'state_code' in office:
+                    co.state_province = office['state_code'].strip()
+                if 'state_code' in office:
+                    co.country = office['country_code'].strip()
+                if 'zip_code'  in office:
+                    co.zipCode = office['zip_code'].strip()
+
+            form = CompanyForm(
+                instance=co, 
+                user = request.user.get_profile())
     return render_to_response('tracker_form.html',
                            {'title': _("Company"), 
                             'desc': _("Record information about a prospective employer."), 
                             'activity_name_list' : prettyNames,
                             'form': form}, 
 		                   context_instance=RequestContext(request))
+
+
 
 @login_required
 def companyDelete(request, *args, **kwargs):
