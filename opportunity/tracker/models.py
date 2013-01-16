@@ -76,6 +76,7 @@ class Activity(models.Model):
 	Apply for a job? Sent thank to interviewer? 
     '''
     when = models.DateField()
+    time = models.TimeField()
     comment = models.CharField(max_length=256,blank=True,null=True)
     user = models.ForeignKey(UserProfile)
 
@@ -99,11 +100,14 @@ class Activity(models.Model):
 
 class Interview(Activity):
     position = models.ForeignKey(Position, unique=True)
-    withWhom = models.ManyToManyField(Person)
+    withWhom = models.ForeignKey(Person)
     
     tag = "interview"
 
     def __unicode__(self):
+        t2 = self.withWhom.all()
+        import pdb; pdb.set_trace()
+        # self.withWhom.first_name,self.withWhom.last_name
         return  u'Interviewing with %s for %s' % (self.position.company.name, self.position.title)
 
 class Apply(Activity): 
@@ -132,7 +136,7 @@ class Lunch (Activity):
     '''
     Lunch with colleague 
     '''
-    withWhom = models.ManyToManyField(Person)
+    withWhom = models.ForeignKey(Person)
     venue = models.CharField(max_length=128,blank=True,null=True)
     tag = "lunch"
     
