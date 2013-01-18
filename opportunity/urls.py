@@ -48,6 +48,10 @@ urlpatterns = patterns('',
     (r'^conversation/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.conversationView'), # edit
     (r'^conversation/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.conversationDelete'), # del
     
+    (r'^lunch/(?P<op>add)$', 'opportunity.tracker.views.lunchView'),
+    (r'^lunch/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.lunchView'),
+    (r'^lunch/(?P<op>del)/(?P<id>\d+)$', 'opportunity.tracker.views.lunchDelete'),
+    
     (r'^dashboard/', 'opportunity.tracker.views.dashboard'),
     (r'^$','opportunity.tracker.views.about'),
     (r'^books/$','opportunity.tracker.views.books'),

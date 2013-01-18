@@ -13,7 +13,7 @@ from crunchbase import CrunchProxy
 
 # The prettyNames are displayed to the user. 
 prettyNames = [_("Company"), _("Person"), _("Position"), _("Interview"),
-    _("Applying"), _("Networking"), _("Gratitude"), _("Conversation")]
+    _("Applying"), _("Networking"), _("Gratitude"), _("Lunch"), _("Conversation")]
 
 # The prettyNames are keys this hash array which returns 
 #   the url for the object or activity you want to enter. 
@@ -24,6 +24,7 @@ mapNameToFunction = {_("Company") : "prospect",
                      _("Applying") : "apply",
                      _("Networking") : "networking",
                      _("Gratitude") : "gratitude",
+                     _("Lunch") : "lunch",
                      _("Conversation") : "conversation"}
 
 def about(request):
@@ -92,11 +93,12 @@ def companyView(request, *args, **kwargs):
             co = Company()
             companyData = {}
             if 'company' in request.GET:
-                co_name = request.GET['company']
+                co.name = request.GET['company']
                 try: 
                     crunch = CrunchProxy()
-                    companyData = crunch.getCompanyDetails(co_name)
+                    companyData = crunch.getCompanyDetails(co.name)
                 except Exception as e:
+                    # todo: add logging 
                     # if there was a network error, ignore and use
                     # default values. 
                     pass
@@ -201,6 +203,51 @@ def personDelete(request, *args, **kwargs):
         pass
     return HttpResponse(simplejson.dumps(rc))
 
+@login_required
+def lunchView(request, *args, **kwargs):
+    """
+    A form to enter information a lunch appointment. 
+    """
+    if request.method == 'POST':
+        if kwargs['op'] == 'edit':
+            form = LunchForm(request.POST, 
+                instance=Lunch.objects.get(pk=int(kwargs['id'])),
+                user = request.user.get_profile())
+        else: 
+            form = LunchForm(request.POST,
+                user = request.user.get_profile())
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/dashboard/')
+    else:
+        if kwargs['op'] == 'edit':
+            try:
+                form = LunchForm(
+                    instance=Lunch.objects.get(pk=int(kwargs['id'])),
+                    user = request.user.get_profile())
+            except: 
+                return HttpResponseServerError("bad id")
+        else:
+            form = LunchForm(user = request.user.get_profile())
+    return render_to_response('tracker_form.html', 
+                           {'title': _("Lunch(or Coffee)"), 
+                           'desc': _("Having Lunch(or Coffee)? ."),
+                           'activity_name_list' : prettyNames, 
+                           'form': form}, 
+		                   context_instance=RequestContext(request))
+
+@login_required
+def lunchDelete(request, *args, **kwargs):
+    rc = { 'id' : kwargs['id'], 'idName': 'lunch',
+        'noElements' : "No lunch dates yet." } 
+    try:
+        obj = Lunch.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except Lunch.DoesNotExist: 
+        # todo: add logging 
+        #  we wanted to delete it anyway. ignoring and contining.   
+        pass
+    return HttpResponse(simplejson.dumps(rc))
 
 @login_required
 def positionView(request, *args, **kwargs):

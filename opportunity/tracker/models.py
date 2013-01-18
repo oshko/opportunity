@@ -75,6 +75,7 @@ class Activity(models.Model):
     The job seeker can record activities. When is the interview? 
 	Apply for a job? Sent thank to interviewer? 
     '''
+    
     when = models.DateField()
     time = models.TimeField()
     comment = models.CharField(max_length=256,blank=True,null=True)
@@ -92,11 +93,12 @@ class Activity(models.Model):
         rc.extend(Networking.objects.all())
         rc.extend(Gratitude.objects.all())
         rc.extend(Conversation.objects.all())
+        rc.extend(Lunch.objects.all())
         return rc
 
     class Meta:
         abstract = True
-        ordering = ['when']
+        ordering = ['-when','time']
 
 class Interview(Activity):
     position = models.ForeignKey(Position, unique=True)

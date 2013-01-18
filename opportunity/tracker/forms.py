@@ -86,6 +86,7 @@ class ApplyForm(forms.ModelForm):
         return inst
 
 class LunchForm (forms.ModelForm):
+    time = forms.TimeField(help_text='ex: 10:30am', input_formats=['%H:%M', '%I:%M%p', '%I:%M %p'])
     class Meta:
         model = Lunch
         exclude = ('user',)
