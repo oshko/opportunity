@@ -13,7 +13,7 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
 		{% for position in position_list %}
                         <div id="position-{{ position.id }}">
                             <li>
-                            (<a href="/position/edit/{{ position.id }}">edit</a> | <a href="/position/del/{{ position.id }}">delete</a>)
+                            (<a href="/position/edit/{{ position.id }}">edit</a> | <a href=javascript:deleteEntry("/position/del/{{ position.id }}/position")>delete</a>)
                             <a href="{{ position.website }}">{{ position.title }}</a> at 
                             <a href="{{ position.company.website }}">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  </li>
                         </div>
@@ -46,7 +46,7 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
         {% for activity in activity_list %}
                     <div id="activity-{{ activity.id }}">
                         <li> 
-                        {{ activity.when }}:  (<a href="/{{ activity.tag }}/edit/{{ activity.id }}">edit</a> | <a href="/{{ activity.tag }}/del/{{ activity.id }}">delete</a>)
+                        {{ activity.when }}:  (<a href="/{{ activity.tag }}/edit/{{ activity.id }}">edit</a> | <a href=javascript:deleteEntry("/{{ activity.tag }}/del/{{ activity.id }}/activity")>delete</a>)
                         {{ activity }} <br/>
             {% if activity.comment %}
                         Comments: {{ activity.comment }} 
@@ -91,7 +91,7 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
             <ul>
             {% for prospect in prospect_list %}
                 <div id="prospect-{{ prospect.id }}">
-                    <li> (<a href="/prospect/edit/{{ prospect.id }}">edit</a> | <a href="/prospect/del/{{ prospect.id }}">delete</a>) <a href="{{ prospect.website }}">{{ prospect.name }}</a> in {{ prospect.city }}, {{ prospect.state_province }}  </li>
+                    <li> (<a href="/prospect/edit/{{ prospect.id }}">edit</a> | <a href=javascript:deleteEntry("/prospect/del/{{ prospect.id }}/prospect")>delete</a>) <a href="{{ prospect.website }}">{{ prospect.name }}</a> in {{ prospect.city }}, {{ prospect.state_province }}  </li>
                 </div>
             {% endfor %}
             </ul>
@@ -108,7 +108,7 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
             <ul>
             {% for contact in contact_list %}
                 <div id="contact-{{ contact.id }}">
-                    <li> (<a href="/contact/edit/{{ contact.id }}">edit</a> | <a href="/contact/del/{{ contact.id }}">delete</a> ) {{ contact.first_name }}  {{ contact.last_name }}, {{ contact.title }} at {{ contact.company.name }}
+                    <li> (<a href="/contact/edit/{{ contact.id }}">edit</a> | <a href=javascript:deleteEntry("/contact/del/{{ contact.id }}/contact")>delete</a> ) {{ contact.first_name }}  {{ contact.last_name }}, {{ contact.title }} at {{ contact.company.name }}
                      </li>
                 </div>
             {% endfor %}

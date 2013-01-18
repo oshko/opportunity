@@ -15,6 +15,8 @@ from crunchbase import CrunchProxy
 prettyNames = [_("Company"), _("Person"), _("Position"), _("Interview"),
     _("Applying"), _("Networking"), _("Gratitude"), _("Lunch"), _("Conversation")]
 
+MSG_EMPTY_ACTIVITY="No activities logged yet."
+
 # The prettyNames are keys this hash array which returns 
 #   the url for the object or activity you want to enter. 
 mapNameToFunction = {_("Company") : "prospect",
@@ -146,7 +148,7 @@ def companyDelete(request, *args, **kwargs):
     """
     Delete company.
     """
-    rc = { 'id' : kwargs['id'], 'idName': 'prospect',
+    rc = { 'id' : kwargs['id'], 'divId':  kwargs['divId'],
         'noElements' : "No prospective companies at this time." } 
     try:
         obj = Company.objects.get(pk=int(kwargs['id']))
@@ -192,7 +194,7 @@ def personView(request, *args, **kwargs):
 
 @login_required
 def personDelete(request, *args, **kwargs):
-    rc = { 'id' : kwargs['id'], 'idName': 'contact',
+    rc = { 'id' : kwargs['id'], 'divId': kwargs['divId'],
         'noElements' : "No people at this time." } 
     try:
         obj = Person.objects.get(pk=int(kwargs['id']))
@@ -238,8 +240,8 @@ def lunchView(request, *args, **kwargs):
 
 @login_required
 def lunchDelete(request, *args, **kwargs):
-    rc = { 'id' : kwargs['id'], 'idName': 'lunch',
-        'noElements' : "No lunch dates yet." } 
+    rc = { 'id' : kwargs['id'], 'divId': kwargs['divId'],
+        'noElements' : MSG_EMPTY_ACTIVITY } 
     try:
         obj = Lunch.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -284,7 +286,7 @@ def positionView(request, *args, **kwargs):
 
 @login_required
 def positionDelete(request, *args, **kwargs):
-    rc = { 'id' : kwargs['id'], 'idName': 'position',
+    rc = { 'id' : kwargs['id'], 'divId': kwargs['divId'],
         'noElements' : "No positions being tracked." } 
     try:
         obj = Position.objects.get(pk=int(kwargs['id']))
@@ -342,6 +344,8 @@ def interviewView(request, *args, **kwargs):
 
 @login_required
 def interviewDelete(request, *args, **kwargs):
+    rc = { 'id' : kwargs['id'], 'divId': kwargs['divId'], 
+        'noElements' : MSG_EMPTY_ACTIVITY } 
     try:
         obj = Interview.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -349,7 +353,7 @@ def interviewDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponseRedirect('/dashboard/')
+    return HttpResponse(simplejson.dumps(rc))
 
 @login_required
 def applyForView(request, *args, **kwargs):
@@ -386,9 +390,8 @@ def applyForView(request, *args, **kwargs):
 
 @login_required
 def applyForDelete(request, *args, **kwargs):
-    """
-    /apply/(?P<op>del)/(?P<id>\d+) - delete apply with id.
-    """
+    rc = { 'id' : kwargs['id'], 'divId': kwargs['divId'], 
+        'noElements' : MSG_EMPTY_ACTIVITY } 
     try:
         obj = Apply.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -396,7 +399,7 @@ def applyForDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponseRedirect('/dashboard/')
+    return HttpResponse(simplejson.dumps(rc))
 
 @login_required
 def networkingView(request, *args, **kwargs):
@@ -432,6 +435,8 @@ def networkingView(request, *args, **kwargs):
 
 @login_required
 def networkingDelete(request, *args, **kwargs):
+    rc = { 'id' : kwargs['id'], 'divId': kwargs['divId'], 
+        'noElements' : MSG_EMPTY_ACTIVITY } 
     try:
         obj = Networking.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -439,7 +444,7 @@ def networkingDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponseRedirect('/dashboard/')
+    return HttpResponse(simplejson.dumps(rc))
 
 @login_required
 def gratitudeView(request, *args, **kwargs):
@@ -475,6 +480,8 @@ def gratitudeView(request, *args, **kwargs):
 
 @login_required
 def gratitudeDelete(request, *args, **kwargs):
+    rc = { 'id' : kwargs['id'], 'divId': kwargs['divId'], 
+        'noElements' : MSG_EMPTY_ACTIVITY } 
     try:
         obj = Gratitude.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -482,7 +489,7 @@ def gratitudeDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponseRedirect('/dashboard/')
+    return HttpResponse(simplejson.dumps(rc))
 
 @login_required
 def conversationView(request, *args, **kwargs):
@@ -519,6 +526,8 @@ def conversationView(request, *args, **kwargs):
 
 @login_required
 def conversationDelete(request, *args, **kwargs):
+    rc = { 'id' : kwargs['id'], 'divId': kwargs['divId'], 
+        'noElements' : MSG_EMPTY_ACTIVITY } 
     try:
         obj = Conversation.objects.get(pk=int(kwargs['id']))
         obj.delete()
@@ -526,7 +535,7 @@ def conversationDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponseRedirect('/dashboard/')
+    return HttpResponse(simplejson.dumps(rc))
 
 @login_required
 def pitchView(request, *args, **kwargs):
