@@ -105,10 +105,7 @@ class Interview(Activity):
     tag = "interview"
 
     def __unicode__(self):
-        t2 = self.withWhom.all()
-        import pdb; pdb.set_trace()
-        # self.withWhom.first_name,self.withWhom.last_name
-        return  u'Interviewing with %s for %s' % (self.position.company.name, self.position.title)
+        return  u'Interview with %s %s at %s for %s' % (self.withWhom.first_name, self.withWhom.last_name, self.position.company.name, self.position.title)
 
 class Apply(Activity): 
     '''
