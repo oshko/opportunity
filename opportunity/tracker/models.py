@@ -140,7 +140,7 @@ class Lunch (Activity):
     tag = "lunch"
     
     def __unicode__(self):
-        return u'Lunch with %s %s at %s' % (self.withWhom.first_name, self.withWhom.last_name, self.venue)
+        return u'Lunch(or coffee) with %s %s at %s' % (self.withWhom.first_name, self.withWhom.last_name, self.venue)
 
 class Gratitude(Activity):
     '''
