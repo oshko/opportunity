@@ -116,19 +116,19 @@ def companyView(request, *args, **kwargs):
                     office = {} 
                     if 'offices' in companyData:
                         office = companyData['offices'][0]
-                    if 'address1' in office:
+                    if 'address1' in office and office['address1'] != None:
                         co.address = office['address1'].strip()
-                    if 'address2' in office:
+                    if 'address2' in office and office['address2'] != None:
                         tmp = office['address2'].strip()
                         if tmp is not None and len(tmp) > 0:
                             co.address += ", " + tmp
-                    if 'city' in office:
+                    if 'city' in office and office['city'] != None:
                         co.city = office['city'].strip()
-                    if 'state_code' in office:
+                    if 'state_code' in office and office['state_code'] != None:
                         co.state_province = office['state_code'].strip()
-                    if 'state_code' in office:
+                    if 'country_code' in office and office['country_code'] != None:
                         co.country = office['country_code'].strip()
-                    if 'zip_code'  in office:
+                    if 'zip_code'  in office and office['zip_code'] != None:
                         co.zipCode = office['zip_code'].strip()
 
             form = CompanyForm(
