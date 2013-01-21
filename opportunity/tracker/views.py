@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 # In django 1.5, simplyjson is deprecated in favor of pythons json module. 
 import json 
+import logging
 
 from forms import *
 from models import *
@@ -18,6 +19,7 @@ prettyNames = [_("Company"), _("Person"), _("Position"), _("Interview"),
     _("Applying"), _("Networking"), _("Gratitude"), _("Lunch"), _("Conversation")]
 
 MSG_EMPTY_ACTIVITY="No activities logged yet."
+logger = logging.getLogger(__name__)
 
 # The prettyNames are keys this hash array which returns 
 #   the url for the object or activity you want to enter. 
@@ -102,10 +104,7 @@ def companyView(request, *args, **kwargs):
                     crunch = CrunchProxy()
                     companyData = crunch.getCompanyDetails(co.name)
                 except Exception as e:
-                    # todo: add logging 
-                    # if there was a network error, ignore and use
-                    # default values. 
-                    pass
+                    logging.warning(str.format("Company, {0}, not found in crunchbase. Ignoring and continuing.", co.name))
             
                 # ignore result if there was api error.
                 if not 'error' in companyData: 
@@ -156,9 +155,8 @@ def companyDelete(request, *args, **kwargs):
         obj = Company.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Company.DoesNotExist: 
-        # todo: add logging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
+        logging.warning("Deleting company object id, %d, failed." , kwargs['id'])
+        logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
 @login_required
@@ -202,9 +200,8 @@ def personDelete(request, *args, **kwargs):
         obj = Person.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Person.DoesNotExist: 
-        # todo: add logging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
+        logging.warning("Deleting person object id, %d, failed." , kwargs['id'])
+        logging.warning("we wanted to delete it anyway. ignoring and contining.") 
     return HttpResponse(json.dumps(rc))
 
 @login_required
@@ -248,9 +245,8 @@ def lunchDelete(request, *args, **kwargs):
         obj = Lunch.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Lunch.DoesNotExist: 
-        # todo: add logging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
+        logging.warning("Deleting lunch object id, %d, failed." , kwargs['id'])
+        logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
 @login_required
@@ -294,9 +290,8 @@ def positionDelete(request, *args, **kwargs):
         obj = Position.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Position.DoesNotExist: 
-        # todo: add logging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
+        logging.warning("Deleting position object id, %d, failed." , kwargs['id'])
+        logging.warning("We wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
 @login_required
@@ -352,9 +347,8 @@ def interviewDelete(request, *args, **kwargs):
         obj = Interview.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Interview.DoesNotExist: 
-        # todo: add logging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
+        logging.warning("Deleting interview object id, %d, failed." , kwargs['id'])
+        logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
 @login_required
@@ -398,9 +392,8 @@ def applyForDelete(request, *args, **kwargs):
         obj = Apply.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Apply.DoesNotExist: 
-        # todo: add logging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
+        logging.warning("Deleting apply object id, %d, failed." , kwargs['id'])
+        logging.warning("We wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
 @login_required
@@ -443,9 +436,8 @@ def networkingDelete(request, *args, **kwargs):
         obj = Networking.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Networking.DoesNotExist: 
-        # todo: add logging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
+        logging.warning("Deleting networking object id, %d, failed." , kwargs['id'])
+        logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
 @login_required
@@ -488,9 +480,8 @@ def gratitudeDelete(request, *args, **kwargs):
         obj = Gratitude.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Gratitude.DoesNotExist: 
-        # todo: add logging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
+        logging.warning("Deleting gratitdue object id, %d, failed." , kwargs['id'])
+        logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
 @login_required
@@ -534,9 +525,8 @@ def conversationDelete(request, *args, **kwargs):
         obj = Conversation.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Conversation.DoesNotExist: 
-        # todo: add logging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
+        logging.warning("Deleting conversation object id, %d, failed." , kwargs['id'])
+        logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
 @login_required
@@ -582,9 +572,8 @@ def pitchDelete(request, *args, **kwargs):
         obj = Pitch.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Pitch.DoesNotExist: 
-        # todo: add logging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
+        logging.warning("Deleting pitch object id, %d, failed." , kwargs['id'])
+        logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
 @login_required
@@ -633,9 +622,8 @@ def onlinePresenceDelete(request, *args, **kwargs):
         obj = OnlinePresence.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except OnlinePresence.DoesNotExist: 
-        # todo: add logging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
+        logging.warning("Deleting online presence object id, %d, failed." , kwargs['id'])
+        logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
 @login_required
@@ -650,9 +638,8 @@ def parDelete(request, *args, **kwargs):
         obj = PAR.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except PAR.DoesNotExist: 
-        # todo: add logging 
-        #  we wanted to delete it anyway. ignoring and contining.   
-        pass
+        logging.warning("Deleting PAR object id, %d, failed." , kwargs['id'])
+        logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
 @login_required
