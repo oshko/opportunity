@@ -1,11 +1,13 @@
 from django.utils.translation import ugettext as _
-from django.utils import simplejson
 from django.http import HttpResponse,HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib.auth.decorators import login_required
+
+# In django 1.5, simplyjson is deprecated in favor of pythons json module. 
+import json 
 
 from forms import *
 from models import *
@@ -157,7 +159,7 @@ def companyDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc))
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def personView(request, *args, **kwargs):
@@ -203,7 +205,7 @@ def personDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc))
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def lunchView(request, *args, **kwargs):
@@ -249,7 +251,7 @@ def lunchDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc))
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def positionView(request, *args, **kwargs):
@@ -295,7 +297,7 @@ def positionDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc))
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def newactivity(request):
@@ -353,7 +355,7 @@ def interviewDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc))
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def applyForView(request, *args, **kwargs):
@@ -399,7 +401,7 @@ def applyForDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc))
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def networkingView(request, *args, **kwargs):
@@ -444,7 +446,7 @@ def networkingDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc))
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def gratitudeView(request, *args, **kwargs):
@@ -489,7 +491,7 @@ def gratitudeDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc))
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def conversationView(request, *args, **kwargs):
@@ -535,7 +537,7 @@ def conversationDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc))
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def pitchView(request, *args, **kwargs):
@@ -583,7 +585,7 @@ def pitchDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc))
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def onlinePresenceView(request, *args, **kwargs):
@@ -634,7 +636,7 @@ def onlinePresenceDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc))
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def parDelete(request, *args, **kwargs):
@@ -651,7 +653,7 @@ def parDelete(request, *args, **kwargs):
         # todo: add logging 
         #  we wanted to delete it anyway. ignoring and contining.   
         pass
-    return HttpResponse(simplejson.dumps(rc))
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def parView (request, *args, **kwargs):
