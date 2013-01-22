@@ -54,6 +54,7 @@ class PositionForm(forms.ModelForm):
         return inst
 
 class InterviewForm(forms.ModelForm):
+    time = forms.TimeField(help_text='ex: 10:30am', input_formats=['%H:%M', '%I:%M%p', '%I:%M %p'])
     class Meta:
         model = Interview
         exclude = ('user',)
@@ -70,6 +71,7 @@ class InterviewForm(forms.ModelForm):
         return inst
 
 class ApplyForm(forms.ModelForm):
+    time = forms.TimeField(help_text='ex: 10:30am', input_formats=['%H:%M', '%I:%M%p', '%I:%M %p'])
     class Meta:
         model = Apply
         exclude = ('user',)
@@ -103,6 +105,7 @@ class LunchForm (forms.ModelForm):
         return inst
 
 class NetworkingForm(forms.ModelForm):
+    time = forms.TimeField(help_text='ex: 10:30am', input_formats=['%H:%M', '%I:%M%p', '%I:%M %p'])
     class Meta:
         model = Networking
         exclude = ('user',)
@@ -119,6 +122,7 @@ class NetworkingForm(forms.ModelForm):
         return inst
 
 class GratitudeForm(forms.ModelForm):
+    time = forms.TimeField(help_text='ex: 10:30am', input_formats=['%H:%M', '%I:%M%p', '%I:%M %p'])
     class Meta:
         model = Gratitude
         exclude = ('user',)
@@ -135,6 +139,7 @@ class GratitudeForm(forms.ModelForm):
         return inst
 
 class ConversationForm(forms.ModelForm):
+    time = forms.TimeField(help_text='ex: 10:30am', input_formats=['%H:%M', '%I:%M%p', '%I:%M %p'])
     class Meta:
         model = Conversation
         exclude = ('user',)

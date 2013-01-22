@@ -64,6 +64,7 @@ def dashboard(request):
     people = Person.objects.filter(user=profile_id)
     companies = Company.objects.filter(user=profile_id)
     activities = Activity.getAll()
+    activities.reverse()
     return render_to_response('dashboard.html', 
                              {'activity_name_list' : prettyNames,
                               'activity_list' : activities,
@@ -155,7 +156,7 @@ def companyDelete(request, *args, **kwargs):
         obj = Company.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Company.DoesNotExist: 
-        logging.warning("Deleting company object id, %d, failed." , kwargs['id'])
+        logging.warning(str.format("Deleting company object id, {0}, failed." , kwargs['id']))
         logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
@@ -200,7 +201,7 @@ def personDelete(request, *args, **kwargs):
         obj = Person.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Person.DoesNotExist: 
-        logging.warning("Deleting person object id, %d, failed." , kwargs['id'])
+        logging.warning(str.format("Deleting person object id, {0}, failed." , kwargs['id']))
         logging.warning("we wanted to delete it anyway. ignoring and contining.") 
     return HttpResponse(json.dumps(rc))
 
@@ -245,7 +246,7 @@ def lunchDelete(request, *args, **kwargs):
         obj = Lunch.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Lunch.DoesNotExist: 
-        logging.warning("Deleting lunch object id, %d, failed." , kwargs['id'])
+        logging.warning(str.format("Deleting lunch object id, {0}, failed." , kwargs['id']))
         logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
@@ -290,7 +291,7 @@ def positionDelete(request, *args, **kwargs):
         obj = Position.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Position.DoesNotExist: 
-        logging.warning("Deleting position object id, %d, failed." , kwargs['id'])
+        logging.warning(str.format("Deleting position object id, {0}, failed." , kwargs['id']))
         logging.warning("We wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
@@ -347,7 +348,7 @@ def interviewDelete(request, *args, **kwargs):
         obj = Interview.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Interview.DoesNotExist: 
-        logging.warning("Deleting interview object id, %d, failed." , kwargs['id'])
+        logging.warning(str.format("Deleting interview object id, {0}, failed." , kwargs['id']))
         logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
@@ -392,7 +393,7 @@ def applyForDelete(request, *args, **kwargs):
         obj = Apply.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Apply.DoesNotExist: 
-        logging.warning("Deleting apply object id, %d, failed." , kwargs['id'])
+        logging.warning(str.format("Deleting apply object id, {0}, failed." , kwargs['id']))
         logging.warning("We wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
@@ -436,7 +437,7 @@ def networkingDelete(request, *args, **kwargs):
         obj = Networking.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Networking.DoesNotExist: 
-        logging.warning("Deleting networking object id, %d, failed." , kwargs['id'])
+        logging.warning(str.format("Deleting networking object id, {0}, failed." , kwargs['id']))
         logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
@@ -480,7 +481,7 @@ def gratitudeDelete(request, *args, **kwargs):
         obj = Gratitude.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Gratitude.DoesNotExist: 
-        logging.warning("Deleting gratitdue object id, %d, failed." , kwargs['id'])
+        logging.warning(str.format("Deleting gratitdue object id, {0}, failed." , kwargs['id']))
         logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
@@ -525,7 +526,7 @@ def conversationDelete(request, *args, **kwargs):
         obj = Conversation.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Conversation.DoesNotExist: 
-        logging.warning("Deleting conversation object id, %d, failed." , kwargs['id'])
+        logging.warning(str.format("Deleting conversation object id, {0}, failed." , kwargs['id']))
         logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
@@ -572,7 +573,7 @@ def pitchDelete(request, *args, **kwargs):
         obj = Pitch.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except Pitch.DoesNotExist: 
-        logging.warning("Deleting pitch object id, %d, failed." , kwargs['id'])
+        logging.warning(str.format("Deleting pitch object id, {0}, failed." , kwargs['id']))
         logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
@@ -622,7 +623,7 @@ def onlinePresenceDelete(request, *args, **kwargs):
         obj = OnlinePresence.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except OnlinePresence.DoesNotExist: 
-        logging.warning("Deleting online presence object id, %d, failed." , kwargs['id'])
+        logging.warning(str.format("Deleting online presence object id, {0}, failed." , kwargs['id']))
         logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
@@ -638,7 +639,7 @@ def parDelete(request, *args, **kwargs):
         obj = PAR.objects.get(pk=int(kwargs['id']))
         obj.delete()
     except PAR.DoesNotExist: 
-        logging.warning("Deleting PAR object id, %d, failed." , kwargs['id'])
+        logging.warning(str.format("Deleting PAR object id, {0}, failed." , kwargs['id']))
         logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
