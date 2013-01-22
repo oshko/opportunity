@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib.auth.decorators import login_required
 
-# In django 1.5, simplyjson is deprecated in favor of pythons json module. 
+import httplib
 import json 
 import logging
 
@@ -105,6 +105,10 @@ def companyView(request, *args, **kwargs):
                     crunch = CrunchProxy()
                     companyData = crunch.getCompanyDetails(co.name)
                 except Exception as e:
+                    logging.error(str.format("HTTP Error: {0} - {1}", e.code,  httplib.responses[e.code]))
+                    err_msg = json.loads(e.read())
+                    if 'error' in err_msg: 
+                        logging.error(str.format("API Error: {0} ", err_msg['error']))
                     logging.warning(str.format("Company, {0}, not found in crunchbase. Ignoring and continuing.", co.name))
             
                 # ignore result if there was api error.
