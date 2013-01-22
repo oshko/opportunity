@@ -116,7 +116,7 @@ def companyView(request, *args, **kwargs):
 
                     # todo: there can be multiple offices. For now we just use one. 
                     office = {} 
-                    if 'offices' in companyData:
+                    if 'offices' in companyData and companyData['offices']:
                         office = companyData['offices'][0]
                     if 'address1' in office and office['address1'] != None:
                         co.address = office['address1'].strip()
