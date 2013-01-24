@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 import httplib
 import json 
 import logging
+import urllib2
 
 from forms import *
 from models import *
@@ -78,6 +79,8 @@ def companyView(request, *args, **kwargs):
     """
     A form to enter information about the company.
     """
+    companyData = None # results from crunchbase company search
+    companyAlternates = None # if mulitple hits, alternates go here 
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = CompanyForm(request.POST, 
@@ -100,17 +103,39 @@ def companyView(request, *args, **kwargs):
             co = Company()
             companyData = {}
             if 'company' in request.GET:
-                co.name = request.GET['company']
+                co.name = request.GET['company'].strip()
                 try: 
                     crunch = CrunchProxy()
                     companyData = crunch.getCompanyDetails(co.name)
-                except Exception as e:
+                except urllib2.HTTPError as e:
                     logging.error(str.format("HTTP Error: {0} - {1}", e.code,  httplib.responses[e.code]))
-                    err_msg = json.loads(e.read())
-                    if 'error' in err_msg: 
-                        logging.error(str.format("API Error: {0} ", err_msg['error']))
+                    err_msg = e.read()
+                    if err_msg: 
+                        err_msg = json.loads(err_msg)
+                        if 'error' in err_msg: 
+                            logging.error(str.format("API Error: {0} ", err_msg['error']))
+                    try:
+                        # explicit lookup of company by this name failed. 
+                        # Try a generic search for the company name
+                        companyData = crunch.genericQuery(co.name)
+                        # returns a list. Look at 'namespace' keys with
+                        # the value of 'company'. There can be multiple values.
+                        # Decide which one to use. 
+                        companyData = [x for x in companyData if x['namespace'] == u'company']
+                        companyAlternates = None # a list of companies the search up. 
+                        if len(companyData) == 1: 
+                            companyData = companyData[0] 
+                        else:
+                            companyAlternates = companyData[1:]
+                            companyData = companyData[0]
+                    except urllib2.HTTPError as e:
+                        logging.error(str.format("HTTP Error: {0} - {1}", e.code,  httplib.responses[e.code]))
+                        err_msg = e.read()
+                        if err_msg: 
+                            err_msg = json.loads(err_msg)
+                            if 'error' in err_msg: 
+                                logging.error(str.format("API Error: {0} ", err_msg['error']))
                     logging.warning(str.format("Company, {0}, not found in crunchbase. Ignoring and continuing.", co.name))
-            
                 # ignore result if there was api error.
                 if not 'error' in companyData: 
                     if 'name' in companyData:
@@ -140,10 +165,11 @@ def companyView(request, *args, **kwargs):
             form = CompanyForm(
                 instance=co, 
                 user = request.user.get_profile())
-    return render_to_response('tracker_form.html',
+    return render_to_response('company_form.html',
                            {'title': _("Company"), 
                             'desc': _("Record information about a prospective employer."), 
                             'activity_name_list' : prettyNames,
+                            'alternate_co_list': companyAlternates,
                             'form': form}, 
 		                   context_instance=RequestContext(request))
 

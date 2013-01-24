@@ -49,8 +49,8 @@ section {
 	margin: 10px;
 }
 
-#story-cmd {
-    display: inline;
+#spinner {
+    display: none
 }
 
  li {

@@ -1,10 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
+
 <!--
 
-We use a variety of forms in this applications. Most can be filled
-using this template. If a particular model requires special processing,
-copy this template and extend it. 
+The company model is distinct because we can glean information for other
+sources on the web (i.e., crunchbase ). This is simply more detail to 
+present. 
+
+[aside: track_form.html is a generic templete. if you are starting a
+new model/form, that is the place to start. 
 
 -->
 
@@ -18,6 +22,11 @@ copy this template and extend it.
 				    Please correct the error{{ form.errors|pluralize }} below.
 				</p>
 			{% endif %}
+            
+            {% if alternate_co_list %} 
+                <p>Multiple companies were found for this query. This first result was used 
+                to populate the fields. Look below for alternatives. </p>
+            {% endif %} 
 
 			<form action="" method="post">
 				<table>
@@ -25,6 +34,16 @@ copy this template and extend it.
 				</table>
 				<input type="submit" value="Submit">
 			</form>
+            
+            {% if alternate_co_list %} 
+                Additional companies found 
+                <ul>
+                    {% for alternate in alternate_co_list %}
+						<li><a href="/prospect/add/?company={{ alternate.name }}">{{ alternate.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %} 
+            
             <hr/>
             When entering information, sometimes a field doesn't have the company, person or position you desire. You can add it here. 
             <div id="add-something">

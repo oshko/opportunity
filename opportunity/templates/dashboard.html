@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% block content %}
 
 			<h1>Dashboard</h1>
@@ -63,14 +64,16 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
  <h3>Prospective employers </h3>
  
       <p/> 
-    <fieldset>
-        <legend>add:</legend>
-        <form id="company_form" action="/prospect/add/" method="get">
-            <label for="id_company">Company:</label>
-            <input id="id_company" type="text" name="company">
-            <input type="submit" class="button" value="Add"> 
-        </form>
-    </fieldset>
+        <fieldset>
+            <legend>add:</legend>
+            <form id="company_form" action="/prospect/add/" method="get">
+                <label for="id_company">Company:</label>
+                <input id="id_company" type="text" name="company" />
+                <input type="submit" class="button" value="Add" onclick='$("#spinner").show();return true;' /> 
+                <div id="spinner" ><img src="/static/gif/loadinfo.net.gif"/></div>        
+            </form>
+        </fieldset>
+        
       <script>
  
             $("#company_form").submit(function(){
@@ -79,6 +82,7 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
                     isFormValid = false;
                 }
                 if (!isFormValid) {
+                    $("#spinner").hide()
                     alert("Fill in the text field. \nWhat's the company in which you're interested?");
                 }
 
