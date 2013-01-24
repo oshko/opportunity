@@ -123,7 +123,10 @@ def companyView(request, *args, **kwargs):
                         # Decide which one to use. 
                         companyData = [x for x in companyData if x['namespace'] == u'company']
                         companyAlternates = None # a list of companies the search up. 
-                        if len(companyData) == 1: 
+                        if not companyData:
+                            # empty list. reset companyData
+                            companyData = {}
+                        elif len(companyData) == 1: 
                             companyData = companyData[0] 
                         else:
                             companyAlternates = companyData[1:]
