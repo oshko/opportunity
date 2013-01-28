@@ -1,4 +1,28 @@
 {% extends "base.html" %}
+
+{% block page_specific_js %} 
+        <script src="/static/js/jquery-ui-timepicker-addon.js"></script>
+        <script>
+            $(function() {
+                $("#id_when").datepicker();
+                var d = new Date (); 
+                var defaultTime = null;  
+                var hours = d.getHours();
+                if (hours < 12 ) {
+                    defaultTime = hours + ":00 am" ;
+                } else {
+                    // military time. so subtract 12 
+                    hours = hours - 12 
+                    defaultTime = hours + ":00 pm" ;
+                }
+                $("#id_time").val(defaultTime);
+                $("#id_time").timepicker({ timeFormat: 'hh:mm tt', seconds: false });
+            });
+            
+        </script>
+
+{% endblock %}
+
 {% block content %}
 <!--
 
