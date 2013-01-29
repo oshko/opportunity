@@ -1,8 +1,10 @@
 from django.conf.urls import patterns, include, url
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
 
 # Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+from django.contrib import admin
+admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
@@ -10,10 +12,10 @@ urlpatterns = patterns('',
     # url(r'^opportunity/', include('opportunity.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls)),
     (r'^prospect/(?P<op>add)', 'opportunity.tracker.views.companyView'),
     (r'^prospect/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.companyView'),
     (r'^prospect/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.companyDelete'),
@@ -72,9 +74,10 @@ urlpatterns = patterns('',
     (r'^login/$', 'opportunity.tracker.views.loginRequest'),
     (r'^logout/$', 'opportunity.tracker.views.logoutRequest'),
     (r'^register/$','opportunity.tracker.views.registration'),
-    (r'^password_change/$','django.contrib.auth.views.password_change'),
-    (r'^password_reset/$','django.contrib.auth.views.password_reset'),
-    
+    (r'^resetpassword/passwordsent$','django.contrib.auth.views.password_reset_done'),
+    (r'^resetpassword/$','django.contrib.auth.views.password_reset'),
+    (r'^reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$','django.contrib.auth.views.password_reset_confirm'),
+    (r'^reset/done/$', 'django.contrib.auth.views.password_reset_complete'),
 )
 
-# newactivity
+urlpatterns += staticfiles_urlpatterns()
