@@ -1,16 +1,34 @@
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
+from django.utils import unittest
 
-Replace this with more appropriate tests for your application.
-"""
+from models import Company
+from views import populateCompany
 
-from django.test import TestCase
+class FetchFromCrunch(unittest.TestCase):
+    def test_normal(self):
+        '''
+        The simpliest case is a single token with no special characters
+        which matches a specific company in crunchbase. 
+        '''
+        co = Company()
+        co.name = "Solum" 
+        populateCompany(co)
+        self.assertEqual(co.city, "Mountain View")
 
+    def test_encoding(self):
+        '''
+        If there is a space in the given name, you need to encode the
+        string. If you fail to so, you'll likely 
+        '''
+        co = Company()
+        co.name = "Red Hat" 
+        populateCompany(co)
+        self.assertEqual(co.city, "Raleigh")
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.assertEqual(1 + 1, 2)
+    def test_matches_multiple(self):
+        '''
+        What happens if a company has multiple offices?
+        '''
+        co = Company()
+        co.name = "IBM" 
+        populateCompany(co)
+        self.assertEqual(co.city, "Armonk")

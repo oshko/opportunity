@@ -73,6 +73,74 @@ def dashboard(request):
                               'position_list' : positions, 
                               'prospect_list': companies }, 
 		                      context_instance=RequestContext(request))
+                              
+def populateCompany(aCompanyModel):
+    '''
+    Populate a Company model. It is factored out of the companyView() 
+    method to make it easier to test.
+    '''
+    companyData = {}
+    try: 
+        crunch = CrunchProxy()
+        companyData = crunch.getCompanyDetails(aCompanyModel.name)
+    except urllib2.HTTPError as e:
+        logging.error(str.format("HTTP Error: {0} - {1}", e.code,  httplib.responses[e.code]))
+        err_msg = e.read()
+        if err_msg: 
+            err_msg = json.loads(err_msg)
+            if 'error' in err_msg: 
+                logging.error(str.format("API Error: {0} ", err_msg['error']))
+        try:
+            # Explicitly looking for company by this name failed. 
+            # Try a generic search for the company name
+            companyData = crunch.genericQuery(aCompanyModel.name)
+            # returns a list. Look at 'namespace' keys with
+            # the value of 'company'. There can be multiple values.
+            # Decide which one to use. 
+            companyData = [x for x in companyData if x['namespace'] == u'company']
+            companyAlternates = None # a list of companies the search up. 
+            if not companyData:
+                # empty list. reset companyData
+                companyData = {}
+            elif len(companyData) == 1: 
+                companyData = companyData[0] 
+            else:
+                companyAlternates = companyData[1:]
+                companyData = companyData[0]
+        except urllib2.HTTPError as e:
+            logging.error(str.format("HTTP Error: {0} - {1}", e.code,  httplib.responses[e.code]))
+            err_msg = e.read()
+            if err_msg: 
+                err_msg = json.loads(err_msg)
+                if 'error' in err_msg: 
+                    logging.error(str.format("API Error: {0} ", err_msg['error']))
+        logging.warning(str.format("Company, {0}, not found in crunchbase. Ignoring and continuing.", aCompanyModel.name))
+    # ignore result if there was api error.
+    if not 'error' in companyData: 
+        if 'name' in companyData:
+            aCompanyModel.name = companyData['name']
+        if 'homepage_url' in companyData:
+            aCompanyModel.website = companyData['homepage_url']
+
+        # todo: there can be multiple offices. For now we just use one. 
+        office = {} 
+        if 'offices' in companyData and companyData['offices']:
+            office = companyData['offices'][0]
+        if 'address1' in office and office['address1'] != None:
+            aCompanyModel.address = office['address1'].strip()
+        if 'address2' in office and office['address2'] != None:
+            tmp = office['address2'].strip()
+            if tmp is not None and len(tmp) > 0:
+                aCompanyModel.address += ", " + tmp
+        if 'city' in office and office['city'] != None:
+            aCompanyModel.city = office['city'].strip()
+        if 'state_code' in office and office['state_code'] != None:
+            aCompanyModel.state_province = office['state_code'].strip()
+        if 'country_code' in office and office['country_code'] != None:
+            aCompanyModel.country = office['country_code'].strip()
+        if 'zip_code'  in office and office['zip_code'] != None:
+            aCompanyModel.zipCode = office['zip_code'].strip()
+    return aCompanyModel 
 
 @login_required
 def companyView(request, *args, **kwargs):
@@ -101,69 +169,9 @@ def companyView(request, *args, **kwargs):
                 return HttpResponseServerError("bad id")
         else:
             co = Company()
-            companyData = {}
             if 'company' in request.GET:
                 co.name = request.GET['company'].strip()
-                try: 
-                    crunch = CrunchProxy()
-                    companyData = crunch.getCompanyDetails(co.name)
-                except urllib2.HTTPError as e:
-                    logging.error(str.format("HTTP Error: {0} - {1}", e.code,  httplib.responses[e.code]))
-                    err_msg = e.read()
-                    if err_msg: 
-                        err_msg = json.loads(err_msg)
-                        if 'error' in err_msg: 
-                            logging.error(str.format("API Error: {0} ", err_msg['error']))
-                    try:
-                        # explicit lookup of company by this name failed. 
-                        # Try a generic search for the company name
-                        companyData = crunch.genericQuery(co.name)
-                        # returns a list. Look at 'namespace' keys with
-                        # the value of 'company'. There can be multiple values.
-                        # Decide which one to use. 
-                        companyData = [x for x in companyData if x['namespace'] == u'company']
-                        companyAlternates = None # a list of companies the search up. 
-                        if not companyData:
-                            # empty list. reset companyData
-                            companyData = {}
-                        elif len(companyData) == 1: 
-                            companyData = companyData[0] 
-                        else:
-                            companyAlternates = companyData[1:]
-                            companyData = companyData[0]
-                    except urllib2.HTTPError as e:
-                        logging.error(str.format("HTTP Error: {0} - {1}", e.code,  httplib.responses[e.code]))
-                        err_msg = e.read()
-                        if err_msg: 
-                            err_msg = json.loads(err_msg)
-                            if 'error' in err_msg: 
-                                logging.error(str.format("API Error: {0} ", err_msg['error']))
-                    logging.warning(str.format("Company, {0}, not found in crunchbase. Ignoring and continuing.", co.name))
-                # ignore result if there was api error.
-                if not 'error' in companyData: 
-                    if 'name' in companyData:
-                        co.name = companyData['name']
-                    if 'homepage_url' in companyData:
-                        co.website = companyData['homepage_url']
-
-                    # todo: there can be multiple offices. For now we just use one. 
-                    office = {} 
-                    if 'offices' in companyData and companyData['offices']:
-                        office = companyData['offices'][0]
-                    if 'address1' in office and office['address1'] != None:
-                        co.address = office['address1'].strip()
-                    if 'address2' in office and office['address2'] != None:
-                        tmp = office['address2'].strip()
-                        if tmp is not None and len(tmp) > 0:
-                            co.address += ", " + tmp
-                    if 'city' in office and office['city'] != None:
-                        co.city = office['city'].strip()
-                    if 'state_code' in office and office['state_code'] != None:
-                        co.state_province = office['state_code'].strip()
-                    if 'country_code' in office and office['country_code'] != None:
-                        co.country = office['country_code'].strip()
-                    if 'zip_code'  in office and office['zip_code'] != None:
-                        co.zipCode = office['zip_code'].strip()
+                populateCompany(co)
 
             form = CompanyForm(
                 instance=co, 
