@@ -32,3 +32,14 @@ class FetchFromCrunch(unittest.TestCase):
         co.name = "IBM" 
         populateCompany(co)
         self.assertEqual(co.city, "Armonk")
+
+    def test_no_match(self):
+        '''
+        What happens if there is no match with crunchbase? 
+        '''
+        co = Company()
+        name = "pirulito" 
+        co.name = "pirulito" 
+        populateCompany(co)
+        self.assertEqual(co.name, name)
+        self.assertEqual(co.city, "")
