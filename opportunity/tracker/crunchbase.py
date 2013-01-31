@@ -1,6 +1,7 @@
 
 import os 
 import json
+import urllib
 import urllib2
 
 '''
@@ -45,7 +46,10 @@ class CrunchProxy():
     """
     def getCompanyDetails(self, aCompany):
         permalink = "company"
-        url_request_co = self.base_url + permalink + "/" + aCompany + ".js?api_key=" + self.api_key
+        url_request_co = (self.base_url + permalink + "/" 
+            + urllib.quote_plus(aCompany) 
+            + ".js?api_key=" + self.api_key )
+        import pdb; pdb.set_trace()
         results = json.loads(urllib2.urlopen(url_request_co).read())
         return results
 
@@ -57,6 +61,6 @@ class CrunchProxy():
     """
     def genericQuery(self, aTerm):
         url_request_query = (self.base_url + "search.js?query=" 
-            + aTerm + "&api_key=" + self.api_key)
+            + urllib.quote_plus(aTerm) + "&api_key=" + self.api_key)
         results = json.loads(urllib2.urlopen(url_request_query).read())
         return results['results']
