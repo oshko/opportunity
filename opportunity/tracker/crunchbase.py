@@ -49,7 +49,6 @@ class CrunchProxy():
         url_request_co = (self.base_url + permalink + "/" 
             + urllib.quote_plus(aCompany) 
             + ".js?api_key=" + self.api_key )
-        import pdb; pdb.set_trace()
         results = json.loads(urllib2.urlopen(url_request_co).read())
         return results
 
