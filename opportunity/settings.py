@@ -3,7 +3,16 @@
 import os
 import dj_database_url
 
-DEBUG = False
+# DJANGO - Make this unique, and don't share it with anybody.
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+
+AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
+AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
+
+import opportunity.s3utils
+
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -61,16 +70,29 @@ MEDIA_ROOT = ''
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = ''
 
+DEFAULT_FILE_STORAGE='storages.backends.s3boto.S3BotoStorage'
+# DEFAULT_FILE_STORAGE='opportunity.s3utils.MediaRootS3BotoStorage'
+
+
+
+# To allow django-admin.py collectstatic to automatically put your static 
+# files in your S3 bucket
+STATICFILES_STORAGE = "opportunity.s3utils.StaticRootS3BotoStorage"
+# STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static')
+# STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static')
 # STATIC_ROOT =  "/home/jkern/workspace/opportunity/static"
+STATIC_ROOT = '/static/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
+# STATIC_URL = 'http://opportunity3020.s3.amazonaws.com/static/'
+STATIC_URL = 'http://%s.s3.amazonaws.com/' % AWS_STORAGE_BUCKET_NAME
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -87,8 +109,6 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '+y5)!=^mi8ms7t!78%=#jv)pjb&amp;1d^z!svq&amp;uhs!sm40w)^$e5'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -130,6 +150,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'opportunity.tracker',
+    'storages',
     'south',
 )
 
