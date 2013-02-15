@@ -41,21 +41,22 @@ urlpatterns = patterns('',
     (r'^networking/(?P<op>add)$', 'opportunity.tracker.views.networkingView'), # add
     (r'^networking/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.networkingView'), # edit
     (r'^networking/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.networkingDelete'), # delete
-    
-    (r'^gratitude/(?P<op>add)$', 'opportunity.tracker.views.gratitudeView'), # add
-    (r'^gratitude/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.gratitudeView'), # edit
-    (r'^gratitude/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.gratitudeDelete'), # del
-    
+        
     (r'^conversation/(?P<op>add)$', 'opportunity.tracker.views.conversationView'), # add
     (r'^conversation/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.conversationView'), # edit
     (r'^conversation/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.conversationDelete'), # del
-    
+
+    (r'^mentormeeting/(?P<op>add)$', 'opportunity.tracker.views.mentormeetingView'), # add
+    (r'^mentormeeting/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.mentormeetingView'), # edit
+    (r'^mentormeeting/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.mentormeetingDelete'), # del
+
     (r'^lunch/(?P<op>add)$', 'opportunity.tracker.views.lunchView'),
     (r'^lunch/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.lunchView'),
     (r'^lunch/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.lunchDelete'),
     
     (r'^dashboard/', 'opportunity.tracker.views.dashboard'),
     (r'^$','opportunity.tracker.views.about'),
+    (r'^coordinator/$','opportunity.tracker.views.coordinatorView'),
     (r'^books/$','opportunity.tracker.views.books'),
     (r'^profile/$','opportunity.tracker.views.profileView'),
     

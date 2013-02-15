@@ -27,6 +27,7 @@ MANAGERS = ADMINS
 # {'ENGINE': 'django.db.backends.postgresql_psycopg2', 'NAME': 'test', 'HOST': 'localhost', 'USER': 'myuser', 'PASSWORD': 'mypass', 'PORT': None}
 DATABASES = { 'default': {} } 
 DATABASES['default'] = dj_database_url.config()
+DATABASES['default']['TEST_NAME'] = 'test_opportunity'
 
 AUTH_PROFILE_MODULE = "tracker.UserProfile"
 

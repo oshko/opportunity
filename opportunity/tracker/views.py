@@ -17,7 +17,7 @@ from crunchbase import CrunchProxy
 
 # The prettyNames are displayed to the user. 
 prettyNames = [_("Company"), _("Person"), _("Position"), _("Interview"),
-    _("Applying"), _("Networking"), _("Gratitude"), _("Lunch"), _("Conversation")]
+    _("Applying"), _("Networking"), _("Mentor Meeting"), _("Lunch"), _("Conversation")]
 
 MSG_EMPTY_ACTIVITY="No activities logged yet."
 logger = logging.getLogger(__name__)
@@ -30,9 +30,18 @@ mapNameToFunction = {_("Company") : "prospect",
                      _("Interview") : "interview",
                      _("Applying") : "apply",
                      _("Networking") : "networking",
-                     _("Gratitude") : "gratitude",
+                     _("Mentor Meeting") : "mentormeeting",
                      _("Lunch") : "lunch",
                      _("Conversation") : "conversation"}
+
+def coordinatorView(request):
+    """ 
+    UpGlo staff use this view to get an overview of the 
+    how the relationship between mentor and job seeker is
+    playing out. 
+    """
+    return render_to_response('coordinator.html', {},
+		    context_instance=RequestContext(request))
 
 def about(request):
     """ welcome page """
@@ -65,7 +74,6 @@ def dashboard(request):
     people = Person.objects.filter(user=profile_id)
     companies = Company.objects.filter(user=profile_id)
     activities = Activity.getAll()
-    activities.reverse()
     return render_to_response('dashboard.html', 
                              {'activity_name_list' : prettyNames,
                               'activity_list' : activities,
@@ -483,17 +491,17 @@ def networkingDelete(request, *args, **kwargs):
     return HttpResponse(json.dumps(rc))
 
 @login_required
-def gratitudeView(request, *args, **kwargs):
+def mentormeetingView(request, *args, **kwargs):
     """
-    A form to setup a reminder to thank someone.
+    A form to setup a meeting with mentor.
     """
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
-            form = GratitudeForm(request.POST, 
-                instance=Gratitude.objects.get(pk=int(kwargs['id'])),
+            form = MeetingMentorForm(request.POST, 
+                instance=MentorMeeting.objects.get(pk=int(kwargs['id'])),
                 user = request.user.get_profile())
         else: 
-            form = GratitudeForm(request.POST,
+            form = MeetingMentorForm(request.POST,
                 user = request.user.get_profile())
         if form.is_valid():
             form.save()
@@ -501,35 +509,35 @@ def gratitudeView(request, *args, **kwargs):
     else:
         if kwargs['op'] == 'edit':
             try:
-                form = GratitudeForm( 
-                    instance=Gratitude.objects.get(pk=int(kwargs['id'])),
+                form = MeetingMentorForm( 
+                    instance=MentorMeeting.objects.get(pk=int(kwargs['id'])),
                     user = request.user.get_profile())
             except: 
                 return HttpResponseServerError("bad id")
         else:
-            form = GratitudeForm(user = request.user.get_profile())
-    return render_to_response('tracker_form.html', {'title': _("Gratitude"), 
-                           'desc': _("Remember to thank those people who've helped you along the way."), 
+            form = MeetingMentorForm(user = request.user.get_profile())
+    return render_to_response('tracker_form.html', {'title': _("Mentor Meeting"), 
+                           'desc': _("A form to record a meeting with mentor."), 
                            'activity_name_list' : prettyNames,
                            'form': form}, 
 		                   context_instance=RequestContext(request))
 
 @login_required
-def gratitudeDelete(request, *args, **kwargs):
+def mentormeetingDelete(request, *args, **kwargs):
     rc = { 'id' : kwargs['id'], 'divId': kwargs['divId'], 
         'noElements' : MSG_EMPTY_ACTIVITY } 
     try:
-        obj = Gratitude.objects.get(pk=int(kwargs['id']))
+        obj = MentorMeeting.objects.get(pk=int(kwargs['id']))
         obj.delete()
-    except Gratitude.DoesNotExist: 
-        logging.warning(str.format("Deleting gratitdue object id, {0}, failed." , kwargs['id']))
+    except MentorMeeting.DoesNotExist: 
+        logging.warning(str.format("Deleting MentorMeeting object id, {0}, failed." , kwargs['id']))
         logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
 
 @login_required
 def conversationView(request, *args, **kwargs):
     """
-    A form to document a pertinent conversation
+    A form to setup a meeting with mentor.
     """
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
@@ -545,7 +553,7 @@ def conversationView(request, *args, **kwargs):
     else:
         if kwargs['op'] == 'edit':
             try:
-                form = ConversationForm(
+                form = ConversationForm( 
                     instance=Conversation.objects.get(pk=int(kwargs['id'])),
                     user = request.user.get_profile())
             except: 
@@ -570,6 +578,7 @@ def conversationDelete(request, *args, **kwargs):
         logging.warning(str.format("Deleting conversation object id, {0}, failed." , kwargs['id']))
         logging.warning("we wanted to delete it anyway. ignoring and contining.")
     return HttpResponse(json.dumps(rc))
+
 
 @login_required
 def pitchView(request, *args, **kwargs):

@@ -30,12 +30,12 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
         <fieldset>
             <legend>add:</legend>
             <form name="input" action="/newactivity/" method="get">
+                <input type="radio" name="activity" value="netorking">Attending a neworking event <br/>
+                <input type="radio" name="activity" value="mentormeeting">Met with mentor <br/>
+                <input type="radio" name="activity" value="lunch">Lunch(coffee) to network<br/>
                 <input type="radio" name="activity" value="interview">Interview with someone<br/>
                 <input type="radio" name="activity" value="apply" checked>Apply for a position <br/>
-                <input type="radio" name="activity" value="netorking">Attending a neworking event <br/>
-                <input type="radio" name="activity" value="gratitude">Reminder to send a thank you note <br/>
                 <input type="radio" name="activity" value="conversation">Note an interesting conversation <br/>
-                <input type="radio" name="activity" value="lunch">Lunch(coffee) to network<br/>
                 <input type="submit" class="button" value="Add Selected"> 
             </form>
         </fieldset>
@@ -70,7 +70,7 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
                 <label for="id_company">Company:</label>
                 <input id="id_company" type="text" name="company" />
                 <input type="submit" class="button" value="Add" onclick='$("#spinner").show();return true;' /> 
-                <div id="spinner" ><img src="/static/gif/loadinfo.net.gif"/></div>        
+                <div id="spinner" ><img src="{{ STATIC_URL }}static/gif/loadinfo.net.gif"/></div>        
             </form>
         </fieldset>
         

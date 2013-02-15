@@ -3,12 +3,27 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 
+import calendar 
+import datetime
+
 class UserProfile(models.Model):
     """
     A UserProfile is a person which uses our system.
     """
     user = models.OneToOneField(User)
     title = models.CharField(max_length=32) 
+    is_upglo_staff = models.BooleanField(default=False)
+    JOB_SEEKER = "jobseeker"
+    MENTOR = "mentor"
+    COORDINATOR = "coordinator"
+    ROLES_AT_UPGLO = (
+        (JOB_SEEKER, "Job seeker"), 
+        (MENTOR, "Mentor"), 
+        (COORDINATOR, "Coordinator"),
+    )
+    role = models.CharField(max_length=12, 
+        choices=ROLES_AT_UPGLO,
+        default=JOB_SEEKER)
 
     def __unicode__(self):
         return self.user.username
@@ -25,6 +40,41 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 # register for post_save signal on User 
 post_save.connect(create_user_profile, sender=User)
+
+"""
+A mentor assists a mentee with respect to finding a job.
+UpGlo Mentorships last five months.
+"""
+class Mentorship(models.Model):
+    jobseeker = models.ForeignKey(UserProfile,related_name='jobseeker')
+    mentor = models.ForeignKey(UserProfile, related_name='mentor')
+    startDate =  models.DateField() # should be set in UI
+    expirationDate = models.DateField(blank=True, null=True) # computed 
+
+    def __init__(self, *args, **kwargs):
+        super(Mentorship, self).__init__(*args, **kwargs)
+        duration = 5  # in months 
+        y = self.startDate.year
+        m = self.startDate.month + duration
+        d = self.startDate.day 
+        if (m > 12):
+            m = m % 12 
+            y += 1 
+        expiration = datetime.date(y, m, 1)
+        # check if the start month has more days then the expiration month
+        (dontcare, daysInThisMonth) = calendar.monthrange(y,m)
+        if d >= daysInThisMonth:
+            d = daysInThisMonth
+        self.expirationDate = expiration + datetime.timedelta(d-1)
+
+    def __unicode__(self):
+        return u'%s / %s' % (self.jobseeker, self.mentor)
+
+    def is_active(self):
+        return not self.has_expired()
+
+    def has_expired(self):
+        return datetime.date.today() > self.expirationDate
 
 class Company(models.Model):
     name = models.CharField(_('Name'), max_length=32)
@@ -44,10 +94,10 @@ class Company(models.Model):
     class Meta:
         ordering = ['name'];
 
+"""
+People a job seeker has met along the way. 
+"""
 class Person(models.Model):
-    '''
-    People a job seeker has met along the way. 
-    '''
     first_name = models.CharField(_('First name'),max_length=16)
     last_name = models.CharField(_('Last name'),max_length=16)
     title = models.CharField(_('Title'),max_length=64)
@@ -70,60 +120,66 @@ class Position(models.Model):
     class Meta:
         ordering = ['title']
 
+"""
+The job seeker can record activities. When is the interview? 
+Apply for a job? Sent thank to interviewer? 
+"""
 class Activity(models.Model):
-    '''
-    The job seeker can record activities. When is the interview? 
-	Apply for a job? Sent thank to interviewer? 
-    '''
-    
     when = models.DateField()
     time = models.TimeField()
     comment = models.CharField(max_length=256,blank=True,null=True)
     user = models.ForeignKey(UserProfile)
 
-    '''
+    """
     Since Activity is abstract, there is no manager object (ie, objects). 
     However we want a complete list of all activities.
-    '''
+    """
     @staticmethod
     def getAll():
         rc = []
         rc.extend(Interview.objects.all())
         rc.extend(Apply.objects.all())
         rc.extend(Networking.objects.all())
-        rc.extend(Gratitude.objects.all())
         rc.extend(Conversation.objects.all())
+        rc.extend(MentorMeeting.objects.all())
         rc.extend(Lunch.objects.all())
+        rc.reverse()
         return rc
 
     class Meta:
         abstract = True
         ordering = ['-when','time']
 
+'''
+NB:  You may notice that the tag field is not used in the python code. 
+It is used to compose the REST calls for editing and deleting 
+activities in the template code.
+'''
+
 class Interview(Activity):
     position = models.ForeignKey(Position, unique=True)
     withWhom = models.ForeignKey(Person)
-    
+
     tag = "interview"
 
     def __unicode__(self):
         return  u'Interview with %s %s at %s for %s' % (self.withWhom.first_name, self.withWhom.last_name, self.position.company.name, self.position.title)
 
+"""
+applied for job
+"""
 class Apply(Activity): 
-    '''
-    applied for job
-    '''
     position = models.ForeignKey(Position, unique=True)
 
     tag = "apply"
 
     def __unicode__(self):
         return  u'Applied for %s at %s' % (self.position.title, self.position.company.name)
- 
+
+"""
+networking at professional event. Company.name is the venue.
+""" 
 class Networking(Activity):
-    '''
-    networking at professional event. Company.name is the venue.
-    '''
     venue = models.ForeignKey(Company, unique=True)
 
     tag = "networking"
@@ -131,32 +187,34 @@ class Networking(Activity):
     def __unicode__(self):
         return  u'Networking at %s' % (self.venue.name)
 
+"""
+Lunch with colleague 
+"""
 class Lunch (Activity):
-    '''
-    Lunch with colleague 
-    '''
     withWhom = models.ForeignKey(Person)
     venue = models.CharField(max_length=128,blank=True,null=True)
+
     tag = "lunch"
     
     def __unicode__(self):
         return u'Lunch(or coffee) with %s %s at %s' % (self.withWhom.first_name, self.withWhom.last_name, self.venue)
 
-class Gratitude(Activity):
-    '''
-    send thank you letters.
-    '''
-    person = models.ForeignKey(Person, unique=True)
+"""
+Meet with Mentor. Assumption: The Mentorship should have been  
+"""
+class MentorMeeting(Activity):
+    mentorship = models.ForeignKey(Mentorship, unique=True)
+    face_to_face = models.BooleanField(default=False)
 
-    tag = "gratitude"
+    tag = "mentormeeting"
 
     def __unicode__(self):
-        return  u'Thank %s' % (self.person.name)
+        return  u'Met with %s' % (self.mentorship.mentor)
 
-class Conversation(Activity):
-    '''
+    """
     Conversation can be via email, phone, in-person, etc.
-    '''
+    """
+class Conversation(Activity):
     METHOD_OF_COMMUNICATION = (
         ("email","E-mail"),
         ("phone","Phone"),
@@ -170,12 +228,10 @@ class Conversation(Activity):
     def __unicode__(self):
         return  u'Spoke with %s %s via %s' % (self.person.first_name, self.person.last_name ,self.via)
 
-
-
+"""
+This models simply stores an elevator pitch. 
+"""
 class Pitch(models.Model):
-    """
-    This models simply stores an elevator pitch. 
-    """
     role = models.CharField(_('Role'), max_length=32)
     thePitch = models.CharField(_('Pitch'), max_length=256)
     user = models.ForeignKey(UserProfile)
@@ -184,12 +240,12 @@ class Pitch(models.Model):
         return self.thePitch
     
 
+"""
+Other websites are useful for the job hunt. Everyone has an online 
+resume, linkedin profile or similar. You might also want to highlight
+your twitter feed. Software developers might have a github profile. 
+"""
 class OnlinePresence(models.Model):
-    """
-    Other websites are useful for the job hunt. Everyone has an online 
-    resume, linkedin profile or similar. You might also want to highlight
-    your twitter feed. Software developers might have a github profile. 
-    """
     name = models.CharField(_('website name'), max_length=32)
     url = models.URLField(_('URL'), blank=True) 
     user = models.ForeignKey(UserProfile)
@@ -200,15 +256,13 @@ class OnlinePresence(models.Model):
     class Meta:
         ordering = ['name']
 
+"""
+Behaviorial questions and results to them in PAR format. 
+"""
 class PAR(models.Model):
-    """
-    Behaviorial questions and results to them in PAR format. 
-    """
     question = models.CharField(_('Question'), max_length=128)
     par_response = models.TextField(_('Response')) 
     user = models.ForeignKey(UserProfile)
     
     class Meta:
         ordering = ['question']
-
-

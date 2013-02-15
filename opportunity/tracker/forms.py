@@ -121,18 +121,18 @@ class NetworkingForm(forms.ModelForm):
             inst.save()
         return inst
 
-class GratitudeForm(forms.ModelForm):
+class MeetingMentorForm(forms.ModelForm):
     time = forms.TimeField(help_text='ex: 10:30am', input_formats=['%H:%M', '%I:%M%p', '%I:%M %p'])
     class Meta:
-        model = Gratitude
+        model = MentorMeeting
         exclude = ('user',)
 
     def __init__(self, *args, **kwargs):
         self._user = kwargs.pop('user')
-        super(GratitudeForm, self).__init__(*args, **kwargs)
+        super(MentorMeetingForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        inst = super(GratitudeForm, self).save(commit=False)
+        inst = super(MentorMeetingForm, self).save(commit=False)
         inst.user = self._user
         if commit:
             inst.save()
@@ -154,6 +154,7 @@ class ConversationForm(forms.ModelForm):
         if commit:
             inst.save()
         return inst
+
 
 class PitchForm(forms.ModelForm):
     class Meta:
