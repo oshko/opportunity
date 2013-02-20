@@ -34,28 +34,11 @@ mapNameToFunction = {_("Company") : "prospect",
                      _("Lunch") : "lunch",
                      _("Conversation") : "conversation"}
 
-def coordinatorView(request):
-    """ 
-    UpGlo staff use this view to get an overview of the 
-    how the relationship between mentor and job seeker is
-    playing out. 
-    """
-    return render_to_response('coordinator.html', {},
-		    context_instance=RequestContext(request))
+
 
 def about(request):
     """ welcome page """
     return render_to_response('about.html', 
-		    context_instance=RequestContext(request))
-
-@login_required
-def manage(request):
-    """ manage allows user to edit or delete people and companies """
-    profile_id = request.user.userprofile.id
-    people = Person.objects.filter(user=profile_id)
-    companies = Company.objects.filter(user=profile_id)
-    return render_to_response('manage.html',            
-            {'contact_list': people,'prospect_list': companies}, 
 		    context_instance=RequestContext(request))
 
 def books(request):
@@ -64,7 +47,35 @@ def books(request):
 		    context_instance=RequestContext(request))
 
 @login_required
-def dashboard(request):
+def coordinatorView(request, *args, **kwargs):
+    """ 
+    UpGlo staff use this view to get an overview of the 
+    how the relationship between mentor and job seeker is
+    playing out. 
+    """
+
+    user = request.user.get_profile()
+    page = None 
+    options = {}
+    if user.is_upglo_staff:
+        page = 'coordinator.html'
+        # Get all active mentorships 
+        mentorships = [m for m in Mentorship.objects.all() if m.is_active()]
+        options['mentorships'] = mentorships
+        import pdb; pdb.set_trace()
+        # get all mentorship meetings 
+        #  first contact - date 
+        options['first_contact'] = None 
+        #  frequency - meetings per month 
+        options['freq'] = None
+    else:
+        page = 'upglo_only.html'
+
+    return render_to_response(page, options,
+		    context_instance=RequestContext(request))
+
+@login_required
+def dashboard(request, *args, **kwargs):
     """
     This is the dashboard page.  Aggregates information about prosepctive
     employers and activities in which the job hunter is engaged. 
@@ -73,7 +84,7 @@ def dashboard(request):
     positions = Position.objects.filter(user=profile_id)
     people = Person.objects.filter(user=profile_id)
     companies = Company.objects.filter(user=profile_id)
-    activities = Activity.getAll()
+    activities = Activity.getAll(profile_id)
     return render_to_response('dashboard.html', 
                              {'activity_name_list' : prettyNames,
                               'activity_list' : activities,
@@ -535,6 +546,62 @@ def mentormeetingDelete(request, *args, **kwargs):
     return HttpResponse(json.dumps(rc))
 
 @login_required
+def mentorshipView(request, *args, **kwargs):
+    """
+    A form to setup a mentorship.
+    """
+    if request.method == 'POST':
+        if kwargs['op'] == 'edit':
+            form = MentorshipForm(request.POST, 
+                instance=Mentorship.objects.get(pk=int(kwargs['id'])))
+        else: 
+            form = MentorshipForm(request.POST)
+        if form.is_valid():
+            mentorship = form.save(commit=False)
+            # set expiration dated based on the start date provided. 
+            duration = 5  # in months 
+            y = mentorship.startDate.year
+            m = mentorship.startDate.month + duration
+            d = mentorship.startDate.day 
+            if (m > 12):
+                m = m % 12 
+                y += 1 
+            expiration = datetime.date(y, m, 1)
+            # check if the start month has more days then the expiration month
+            (dontcare, daysInThisMonth) = calendar.monthrange(y,m)
+            if d >= daysInThisMonth:
+                d = daysInThisMonth
+            mentorship.expirationDate = expiration + datetime.timedelta(d-1)
+            mentorship.save()             
+            return HttpResponseRedirect('/dashboard/')
+    else:
+        if kwargs['op'] == 'edit':
+            try:
+                form = MentorshipForm( 
+                    instance=Mentorship.objects.get(pk=int(kwargs['id'])))
+            except: 
+                return HttpResponseServerError("bad id")
+        else:
+            form = MentorshipForm()
+    return render_to_response('tracker_form.html', {'title': _("Mentorship"), 
+                           'desc': _("A form to create a mentorship."), 
+                           'activity_name_list' : prettyNames,
+                           'form': form}, 
+		                   context_instance=RequestContext(request))
+
+@login_required
+def mentorshipDelete(request, *args, **kwargs):
+    rc = { 'id' : kwargs['id'], 'divId': kwargs['divId'], 
+        'noElements' : MSG_EMPTY_ACTIVITY } 
+    try:
+        obj = Mentorship.objects.get(pk=int(kwargs['id']))
+        obj.delete()
+    except Mentorship.DoesNotExist: 
+        logging.warning(str.format("Deleting Mentorship object id, {0}, failed." , kwargs['id']))
+        logging.warning("we wanted to delete it anyway. ignoring and contining.")
+    return HttpResponse(json.dumps(rc))
+
+@login_required
 def conversationView(request, *args, **kwargs):
     """
     A form to setup a meeting with mentor.
@@ -755,6 +822,7 @@ def registration(request):
             user.save()
             profile = user.get_profile()
             profile.title = form.cleaned_data['title'] 
+            profile.role = form.cleaned_data['role']
             profile.save()
             return HttpResponseRedirect('/profile/')
         else:

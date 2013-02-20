@@ -55,37 +55,43 @@ def create_a_user_for_test(aDict):
     user.save()
     profile = user.get_profile()
     profile.title = aDict['title'] 
+    profile.is_upglo_staff = aDict['is_upglo']
     profile.save()
-    return profile
+    return user.id, profile
 
 class ValidateModels(unittest.TestCase):
     mentorship=None
     # cast 
     emily = "Emily" # upglo staff
-    yohannes = "Yohannes" # jobseeker
+    emilyId = None 
+    yohannes = "Yohannes"  # jobseeker
+    yohannesId = None
     diego = "Diego" # Yohannes' mentor
-    elena = "Elena" # unrelated job seeker
+    diegoId = None 
+    elena = "Elena"  # unrelated job seeker
+    elenaId = None
     jose = "Jose" # unrelated mentor
+    joseId = None 
     
     '''
     populate the database
     '''
     def setUp(self):
-        coordinator_profile = create_a_user_for_test( 
+        self.emilyId, coordinator_profile = create_a_user_for_test( 
             { 'username' : self.emily,
             'email' : self.emily + "@gmail.com",
             'password' : "secret",
             'is_upglo' : True, 
             'role' : "coordinator",
             'title' : "UpGlo Coordinator"})
-        jobseeker_profile = create_a_user_for_test( 
+        self.yohannesId, jobseeker_profile = create_a_user_for_test( 
             { 'username' : self.yohannes,
             'email' : self.yohannes + "@gmail.com",
             'password' : "secret",
             'is_upglo' : False, 
             'role' : "jobseeker",
             'title' : "Research Assoicate "})  
-        mentor_profile = create_a_user_for_test( 
+        self.diegoId, mentor_profile = create_a_user_for_test( 
             { 'username' : self.diego,
             'email' : self.diego + "@gmail.com",
             'password' : "secret",
@@ -96,14 +102,14 @@ class ValidateModels(unittest.TestCase):
         self.mentorship = Mentorship(jobseeker=jobseeker_profile, 
             mentor=mentor_profile, startDate=datetime.date.today())
         self.mentorship.save()
-        create_a_user_for_test( 
+        self.elenaId, dontcare = create_a_user_for_test( 
             { 'username' : self.elena,
             'email' : self.elena + "@gmail.com",
             'password' : "secret",
             'is_upglo' : False, 
             'role' : "jobseeker",
             'title' : "Research Assoicate "}) 
-        create_a_user_for_test( 
+        self.joseId, dontcare = create_a_user_for_test( 
             { 'username' : self.jose,
             'email' : self.jose + "@gmail.com",
             'password' : "secret",
@@ -115,14 +121,14 @@ class ValidateModels(unittest.TestCase):
         # Is the mentorship active? 
         self.assertTrue(self.mentorship.is_active())
         #  Can the mentor access their mentee?
-        self.assertTrue(may_access_control(self.diego, self.yohannes))
+        self.assertTrue(may_access_control(self.diegoId, self.yohannesId))
         #  Ensure an unrelated job seeker can't see profile? 
         self.assertFalse(
-            may_access_control(self.elena, self.yohannes))
+            may_access_control(self.elenaId, self.yohannesId))
         # Ensure unrelated mentor can't see profile? 
         self.assertFalse(
-            may_access_control(self.jose, self.yohannes))
+            may_access_control(self.joseId, self.yohannesId))
         # Ensure UpGlo staff can access jobseeker. 
-        self.assertFalse(
-            may_access_control(self.emily, self.yohannes))
+        self.assertTrue(
+            may_access_control(self.emilyId, self.yohannesId))
         

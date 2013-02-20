@@ -4,7 +4,6 @@ from django.utils.translation import ugettext as _
 
 from models import *
 
-
 class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
@@ -137,6 +136,17 @@ class MeetingMentorForm(forms.ModelForm):
         if commit:
             inst.save()
         return inst
+        
+class MentorshipForm(forms.ModelForm):
+    jobseeker = forms.ModelChoiceField(
+        queryset=UserProfile.objects.filter(role = UserProfile.JOB_SEEKER))
+    mentor = forms.ModelChoiceField(
+        queryset=UserProfile.objects.filter(role = UserProfile.MENTOR))
+
+    class Meta:
+        model = Mentorship
+        exclude = ('expirationDate',)
+
 
 class ConversationForm(forms.ModelForm):
     time = forms.TimeField(help_text='ex: 10:30am', input_formats=['%H:%M', '%I:%M%p', '%I:%M %p'])
@@ -213,10 +223,27 @@ class RegistrationForm(forms.ModelForm):
     password = forms.CharField(label=_('Password'), 
 				widget =forms.PasswordInput(render_value=False))
     password_verify = forms.CharField(label=_('Verify password'), 
-				widget =forms.PasswordInput(render_value=False))
+                widget =forms.PasswordInput(render_value=False))
+    # Users can select either job seeker or mentor. 
+    # coordinator is not granted via the UI.
+    role =  forms.ChoiceField( 
+        label="Label",
+        choices=[r for r in UserProfile.ROLES_AT_UPGLO if UserProfile.COORDINATOR not in r]
+    )
+
     class Meta:
         model = UserProfile
-        exclude = ('user',)
+        fields = (
+            'username',
+            'title',
+            'role',
+            'email',
+            'password',
+            'password_verify'
+        )
+        # is_upglo_staff is False by default. No UI will set it to True.  
+        # I script will set UpGlo staff to True.
+        exclude = ('user','is_upglo_staff',)
 
     def clean_username(self):
         ''' 

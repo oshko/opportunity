@@ -50,15 +50,22 @@ urlpatterns = patterns('',
     (r'^mentormeeting/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.mentormeetingView'), # edit
     (r'^mentormeeting/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.mentormeetingDelete'), # del
 
+    (r'^mentorship/(?P<op>add)$', 'opportunity.tracker.views.mentorshipView'), # add
+    (r'^mentorship/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.mentorshipView'), # edit
+    (r'^mentorship/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.mentorshipDelete'), # del
+
     (r'^lunch/(?P<op>add)$', 'opportunity.tracker.views.lunchView'),
     (r'^lunch/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.lunchView'),
     (r'^lunch/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.lunchDelete'),
     
-    (r'^dashboard/', 'opportunity.tracker.views.dashboard'),
+    (r'^dashboard/$', 'opportunity.tracker.views.dashboard'),
+    (r'^dashboard/(?P<mentee_id>\d+)$', 'opportunity.tracker.views.dashboard'),
+    (r'^profile/$','opportunity.tracker.views.profileView'),
+    (r'^profile/(?P<mentee_id>\d+)$','opportunity.tracker.views.profileView'),
+
     (r'^$','opportunity.tracker.views.about'),
     (r'^coordinator/$','opportunity.tracker.views.coordinatorView'),
     (r'^books/$','opportunity.tracker.views.books'),
-    (r'^profile/$','opportunity.tracker.views.profileView'),
     
     (r'^pitch/(?P<op>add)$', 'opportunity.tracker.views.pitchView'), 
     (r'^pitch/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.pitchView'),  

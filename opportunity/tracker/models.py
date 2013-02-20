@@ -51,8 +51,16 @@ class Mentorship(models.Model):
     startDate =  models.DateField() # should be set in UI
     expirationDate = models.DateField(blank=True, null=True) # computed 
 
-    def __init__(self, *args, **kwargs):
-        super(Mentorship, self).__init__(*args, **kwargs)
+    def __unicode__(self):
+        return u'%s / %s' % (self.jobseeker, self.mentor)
+
+    def is_active(self):
+        return not self.has_expired()
+
+    def has_expired(self):
+        return datetime.date.today() > self.expirationDate
+    
+    def set_expiration(self):
         duration = 5  # in months 
         y = self.startDate.year
         m = self.startDate.month + duration
@@ -67,14 +75,8 @@ class Mentorship(models.Model):
             d = daysInThisMonth
         self.expirationDate = expiration + datetime.timedelta(d-1)
 
-    def __unicode__(self):
-        return u'%s / %s' % (self.jobseeker, self.mentor)
-
-    def is_active(self):
-        return not self.has_expired()
-
-    def has_expired(self):
-        return datetime.date.today() > self.expirationDate
+    class Meta:
+        ordering = ['-startDate'];
 
 class Company(models.Model):
     name = models.CharField(_('Name'), max_length=32)
@@ -135,14 +137,14 @@ class Activity(models.Model):
     However we want a complete list of all activities.
     """
     @staticmethod
-    def getAll():
+    def getAll(profile_id):
         rc = []
-        rc.extend(Interview.objects.all())
-        rc.extend(Apply.objects.all())
-        rc.extend(Networking.objects.all())
-        rc.extend(Conversation.objects.all())
-        rc.extend(MentorMeeting.objects.all())
-        rc.extend(Lunch.objects.all())
+        rc.extend(Interview.objects.filter(user=profile_id))
+        rc.extend(Apply.objects.filter(user=profile_id))
+        rc.extend(Networking.objects.filter(user=profile_id))
+        rc.extend(Conversation.objects.filter(user=profile_id))
+        rc.extend(MentorMeeting.objects.filter(user=profile_id))
+        rc.extend(Lunch.objects.filter(user=profile_id))
         rc.reverse()
         return rc
 
