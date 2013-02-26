@@ -128,10 +128,10 @@ class MeetingMentorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self._user = kwargs.pop('user')
-        super(MentorMeetingForm, self).__init__(*args, **kwargs)
+        super(MeetingMentorForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        inst = super(MentorMeetingForm, self).save(commit=False)
+        inst = super(MeetingMentorForm, self).save(commit=False)
         inst.user = self._user
         if commit:
             inst.save()

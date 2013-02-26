@@ -2,11 +2,13 @@
 
 {% block content %}
 
-			<h1>Dashboard</h1>
+			<h1>{{ page_owner_name }} Dashboard</h1>
 This dashboard offers the job seeker an aggregated view of their job hunt. 
                
             <h3>Positions</h2> 
+    {% if page_owner_p %}
     <a class="button" href="/position/add">Add a position</a>
+    {% endif %}
 <p/> 
 			<div id="position-container" >
 	{% if position_list %}
@@ -14,7 +16,9 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
 		{% for position in position_list %}
                         <div id="position-{{ position.id }}">
                             <li>
+                {% if page_owner_p %}
                             (<a href="/position/edit/{{ position.id }}">edit</a> | <a href=javascript:deleteEntry("/position/del/{{ position.id }}/position")>delete</a>)
+                {% endif %}
                             <a href="{{ position.website }}">{{ position.title }}</a> at 
                             <a href="{{ position.company.website }}">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  </li>
                         </div>
@@ -27,11 +31,12 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
             <hr/>
             
 	<h3>Activities</h3> 
+    {% if page_owner_p %}
         <fieldset>
             <legend>add:</legend>
             <form name="input" action="/newactivity/" method="get">
                 <input type="radio" name="activity" value="networking">Attending a neworking event <br/>
-                <input type="radio" name="activity" value="mentormeeting">Met with mentor <br/>
+                <input type="radio" name="activity" value="mentormeeting">Meet with mentor <br/>
                 <input type="radio" name="activity" value="lunch">Lunch(coffee) to network<br/>
                 <input type="radio" name="activity" value="interview">Interview with someone<br/>
                 <input type="radio" name="activity" value="apply" checked>Apply for a position <br/>
@@ -39,6 +44,7 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
                 <input type="submit" class="button" value="Add Selected"> 
             </form>
         </fieldset>
+    {% endif %}
     <p/> 
 			<div id="activity-container" >
         {% if activity_list %}   
@@ -47,7 +53,10 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
         {% for activity in activity_list %}
                     <div id="activity-{{ activity.id }}">
                         <li> 
-                        {{ activity.when }}:  (<a href="/{{ activity.tag }}/edit/{{ activity.id }}">edit</a> | <a href=javascript:deleteEntry("/{{ activity.tag }}/del/{{ activity.id }}/activity")>delete</a>)
+                        {{ activity.when }}:  
+                    {% if page_owner_p %}
+                        (<a href="/{{ activity.tag }}/edit/{{ activity.id }}">edit</a> | <a href=javascript:deleteEntry("/{{ activity.tag }}/del/{{ activity.id }}/activity")>delete</a>)
+                    {% endif %} 
                         {{ activity }} <br/>
             {% if activity.comment %}
                         Comments: {{ activity.comment }} 
@@ -62,8 +71,9 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
 			</div>
     <hr/>
  <h3>Prospective employers </h3>
- 
+     {% if page_owner_p %}
       <p/> 
+     
         <fieldset>
             <legend>add:</legend>
             <form id="company_form" action="/prospect/add/" method="get">
@@ -73,7 +83,6 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
                 <div id="spinner" ><img src="{{ STATIC_URL }}static/gif/loadinfo.net.gif"/></div>        
             </form>
         </fieldset>
-        
       <script>
  
             $("#company_form").submit(function(){
@@ -89,13 +98,19 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
                 return isFormValid;
             });
         </script>
+        
         <p/> 
+        {% endif %}
     <div id="prospect-container">
         {% if prospect_list %}
             <ul>
             {% for prospect in prospect_list %}
                 <div id="prospect-{{ prospect.id }}">
-                    <li> (<a href="/prospect/edit/{{ prospect.id }}">edit</a> | <a href=javascript:deleteEntry("/prospect/del/{{ prospect.id }}/prospect")>delete</a>) <a href="{{ prospect.website }}">{{ prospect.name }}</a> in {{ prospect.city }}, {{ prospect.state_province }}  </li>
+                    <li> 
+                {% if page_owner_p %}
+                    (<a href="/prospect/edit/{{ prospect.id }}">edit</a> | <a href=javascript:deleteEntry("/prospect/del/{{ prospect.id }}/prospect")>delete</a>) 
+                {% endif %}
+                    <a href="{{ prospect.website }}">{{ prospect.name }}</a> in {{ prospect.city }}, {{ prospect.state_province }}  </li>
                 </div>
             {% endfor %}
             </ul>
@@ -105,14 +120,20 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
     </div>
     <hr/>
        <h3>People </h3>
+    {% if page_owner_p %}
     <a class="button" href="/contact/add">Add a person</a>
       <p/> 
+    {% endif %}
     <div id="contact-container">
         {% if contact_list %}
             <ul>
             {% for contact in contact_list %}
                 <div id="contact-{{ contact.id }}">
-                    <li> (<a href="/contact/edit/{{ contact.id }}">edit</a> | <a href=javascript:deleteEntry("/contact/del/{{ contact.id }}/contact")>delete</a> ) {{ contact.first_name }}  {{ contact.last_name }}, {{ contact.title }} at {{ contact.company.name }}
+                    <li>
+                {% if page_owner_p %}
+                     (<a href="/contact/edit/{{ contact.id }}">edit</a> | <a href=javascript:deleteEntry("/contact/del/{{ contact.id }}/contact")>delete</a> ) 
+                {% endif %} 
+                     {{ contact.first_name }}  {{ contact.last_name }}, {{ contact.title }} at {{ contact.company.name }}
                      </li>
                 </div>
             {% endfor %}

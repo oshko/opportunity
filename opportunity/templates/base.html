@@ -24,8 +24,12 @@
 				<h2>{% trans "a site for active job seekers." %}</h2>
 				<nav>
 					<ul>
+                    {% if user.get_profile.is_upglo_staff %}
+                        <li><a href="/coordinator/">{% trans "dashboard" %}</a></li> |
+                    {% else %}
 						<li><a href="/dashboard/">{% trans "dashboard" %}</a></li> |
                         <li><a href="/profile/">{% trans "profile" %}</a></li> |
+                    {% endif %} 
 						<li><a href="/books/">{% trans "books" %}</a></li> | 
 						<li><a href="/">{% trans "about" %}</a></li> |
 					{% if user.is_authenticated %} 

@@ -13,8 +13,8 @@ a mentorship relationship.
 '''
 can user with aRequester access a page for aTarget? 
 
-aRequester - is user id who wants access
-aTarget - is user id owns the data.
+aRequester - is user profile id who wants access
+aTarget - is user profile id owns the data.
 
 '''
 def may_access_control(aRequesterId, aTargetId):
@@ -28,11 +28,10 @@ def may_access_control(aRequesterId, aTargetId):
         # Requester owns requested page 
         rc = True 
     else:
-        # import pdb; pdb.set_trace()
         # is there a mentorship relationship between aRequester and aTarget?
         m = Mentorship.objects.filter(
-            jobseeker__user__id=aTargetId, 
-            mentor__user__id=aRequesterId)
+            jobseeker__id=aTargetId, 
+            mentor__id=aRequesterId)
         if len(m) == 1: 
             rc = True
     return rc

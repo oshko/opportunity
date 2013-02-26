@@ -27,16 +27,17 @@
     <tbody>
     {% for m in mentorships %}
         <tr>
-            <td>{{ m.jobseeker }}</td>
+            <td> <a href="/dashboard/{{ m.jobseeker.id }}">{{ m.jobseeker }}</a></td>
             <td>{{ m.mentor }}</td>
             <td>{{ m.expirationDate }}</td>
-            <td>nyi</td>
-            <td>nyi</td>
+            <td>{{ m.first_contact }}</td>
+            <td>{{ m.freq }}</td>
         </tr>
     {% endfor %}
     </tbody>
 </table>
 <hr/>
+</br> <div id="notes">Frequency is times per month. </div> </br> </p>
 <a class="button" href="/mentorship/add">Add a mentorship</a>
 
 {% endblock %}

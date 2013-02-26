@@ -63,7 +63,7 @@ urlpatterns = patterns('',
     (r'^profile/$','opportunity.tracker.views.profileView'),
     (r'^profile/(?P<mentee_id>\d+)$','opportunity.tracker.views.profileView'),
 
-    (r'^$','opportunity.tracker.views.about'),
+    (r'^$','opportunity.tracker.views.toplevelView'),
     (r'^coordinator/$','opportunity.tracker.views.coordinatorView'),
     (r'^books/$','opportunity.tracker.views.books'),
     

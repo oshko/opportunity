@@ -5,15 +5,18 @@ from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 
 import httplib
 import json 
 import logging
 import urllib2
+import datetime
 
 from forms import *
 from models import *
 from crunchbase import CrunchProxy
+from access import may_access_control
 
 # The prettyNames are displayed to the user. 
 prettyNames = [_("Company"), _("Person"), _("Position"), _("Interview"),
@@ -36,9 +39,18 @@ mapNameToFunction = {_("Company") : "prospect",
 
 
 
-def about(request):
+def toplevelView(request):
     """ welcome page """
-    return render_to_response('about.html', 
+    if request.user.is_authenticated():
+        user_profile = request.user.get_profile()
+        view_str = 'opportunity.tracker.views.dashboard'
+        if user_profile.is_upglo_staff:
+            # redirect to coordinatorView
+            view_str = 'opportunity.tracker.views.coordinatorView'
+        return HttpResponseRedirect(reverse(view_str))
+    else: 
+        # not logged in? tell them about the purpose of the site.
+        return render_to_response('about.html', 
 		    context_instance=RequestContext(request))
 
 def books(request):
@@ -61,13 +73,22 @@ def coordinatorView(request, *args, **kwargs):
         page = 'coordinator.html'
         # Get all active mentorships 
         mentorships = [m for m in Mentorship.objects.all() if m.is_active()]
+        for m in mentorships:
+            m.first_contact = False
+            m.freq = 0 
+            mtgs = MentorMeeting.objects.filter(mentorship__id=m.id)
+            for mtg in mtgs: 
+                if mtg.face_to_face:
+                    m.first_contact = mtg.face_to_face
+                # how many times per month did they meet? 
+                total = len(mtgs)
+                days = (datetime.date.today() - m.startDate).days
+                ave_days_in_month = 30
+                if days < ave_days_in_month:
+                    m.freq = total
+                else:
+                    m.freq = total / ((days/ave_days_in_month)+1)
         options['mentorships'] = mentorships
-        import pdb; pdb.set_trace()
-        # get all mentorship meetings 
-        #  first contact - date 
-        options['first_contact'] = None 
-        #  frequency - meetings per month 
-        options['freq'] = None
     else:
         page = 'upglo_only.html'
 
@@ -80,24 +101,47 @@ def dashboard(request, *args, **kwargs):
     This is the dashboard page.  Aggregates information about prosepctive
     employers and activities in which the job hunter is engaged. 
     """
-    profile_id = request.user.userprofile.id
+    profile_id = None
+    positions = None
+    people = None
+    companies = None
+    activities = None
+    mentee_id = None
+    page_owner_p = False
+    page_owner_name = 'My'
+    if 'mentee_id' in kwargs:
+        mentee_id = kwargs['mentee_id']
+
+    if request.user.userprofile.role == request.user.userprofile.JOB_SEEKER:
+        profile_id = request.user.userprofile.id
+        page_owner_p = True
+    else: 
+        # Does the user have permission to access this mentee?
+        if mentee_id and may_access_control(request.user.userprofile.id, mentee_id):
+            profile_id = mentee_id
+            mentee = UserProfile.objects.get(pk=mentee_id) 
+            page_owner_name = mentee.user.username.strip() + "'s"
+
     positions = Position.objects.filter(user=profile_id)
     people = Person.objects.filter(user=profile_id)
     companies = Company.objects.filter(user=profile_id)
     activities = Activity.getAll(profile_id)
+    
     return render_to_response('dashboard.html', 
                              {'activity_name_list' : prettyNames,
                               'activity_list' : activities,
                               'contact_list': people,
                               'position_list' : positions, 
-                              'prospect_list': companies }, 
-		                      context_instance=RequestContext(request))
+                              'prospect_list': companies,
+                              'page_owner_name': page_owner_name,
+                              'page_owner_p':  page_owner_p} , 
+                              context_instance=RequestContext(request))
                               
 def populateCompany(aCompanyModel):
-    '''
+    """
     Populate a Company model. It is factored out of the companyView() 
     method to make it easier to test.
-    '''
+    """
     companyData = {}
     try: 
         crunch = CrunchProxy()
@@ -177,7 +221,7 @@ def companyView(request, *args, **kwargs):
             form = CompanyForm(request.POST,user = request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/dashboard/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.dashboard'))
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -235,7 +279,7 @@ def personView(request, *args, **kwargs):
                 user = request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/dashboard/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.dashboard'))
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -280,7 +324,7 @@ def lunchView(request, *args, **kwargs):
                 user = request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/dashboard/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.dashboard'))
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -325,7 +369,7 @@ def positionView(request, *args, **kwargs):
                 user = request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/dashboard/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.dashboard'))
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -382,7 +426,7 @@ def interviewView(request, *args, **kwargs):
                 user = request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/dashboard/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.dashboard'))
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -429,7 +473,7 @@ def applyForView(request, *args, **kwargs):
                 user = request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/dashboard/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.dashboard'))
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -472,7 +516,7 @@ def networkingView(request, *args, **kwargs):
                 user = request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/dashboard/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.dashboard'))
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -516,7 +560,7 @@ def mentormeetingView(request, *args, **kwargs):
                 user = request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/dashboard/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.dashboard'))
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -573,7 +617,7 @@ def mentorshipView(request, *args, **kwargs):
                 d = daysInThisMonth
             mentorship.expirationDate = expiration + datetime.timedelta(d-1)
             mentorship.save()             
-            return HttpResponseRedirect('/dashboard/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.dashboard'))
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -616,7 +660,7 @@ def conversationView(request, *args, **kwargs):
                 user = request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/dashboard/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.dashboard'))
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -661,7 +705,7 @@ def pitchView(request, *args, **kwargs):
             form = PitchForm(request.POST, user = request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/profile/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.profileView'))
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -710,7 +754,7 @@ def onlinePresenceView(request, *args, **kwargs):
             form = OnlinePresenceForm(request.POST, user = request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/profile/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.profileView'))
     else:
         if kwargs['op'] == 'edit': 
             try: 
@@ -778,7 +822,7 @@ def parView (request, *args, **kwargs):
             form = PARForm(request.POST, user = request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/profile/')
+            return HttpResponseRedirect(reverse('opportunity.tracker.views.profileView'))
     else:
         if kwargs['op'] == 'edit': 
             try: 
@@ -810,8 +854,12 @@ def profileView(request):
             context_instance=RequestContext(request))
 
 def registration(request):
+    view_str = 'opportunity.tracker.views.profileView'
     if request.user.is_authenticated():
-        return HttpResponseRedirect('/profile/')
+        user_profile = request.user.get_profile()
+        if user_profile.is_upglo_staff:
+            view_str = 'opportunity.tracker.views.coordinatorView'
+        return HttpResponseRedirect(reverse(view_str))
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid(): 
@@ -824,7 +872,9 @@ def registration(request):
             profile.title = form.cleaned_data['title'] 
             profile.role = form.cleaned_data['role']
             profile.save()
-            return HttpResponseRedirect('/profile/')
+            if user_profile.role is user_profile.COORDINATOR:
+                view_str = 'opportunity.tracker.views.coordinatorView'
+            return HttpResponseRedirect(reverse(view_str))
         else:
             return render_to_response("register.html", {'form': form },
                 context_instance=RequestContext(request))
@@ -835,8 +885,12 @@ def registration(request):
 		    context_instance=RequestContext(request))
 
 def loginRequest(request):
+    view_str = 'opportunity.tracker.views.profileView'
     if request.user.is_authenticated():
-        return HttpResponseRedirect('/profile/')
+        user_profile = request.user.get_profile()
+        if user_profile.is_upglo_staff:
+            view_str = 'opportunity.tracker.views.coordinatorView'
+        return HttpResponseRedirect(reverse(view_str))
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -845,7 +899,9 @@ def loginRequest(request):
             userprofile = authenticate(username=username, password=password); 
             if userprofile is not None:
                 login(request, userprofile)
-                return HttpResponseRedirect('/profile/')
+                if userprofile.get_profile().is_upglo_staff:
+                    view_str = 'opportunity.tracker.views.coordinatorView'
+                return HttpResponseRedirect(reverse(view_str))
             else: 
                 return render_to_response("login.html", {'form' : form}, 
                     context_instance=RequestContext(request))

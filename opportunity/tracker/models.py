@@ -213,9 +213,9 @@ class MentorMeeting(Activity):
     def __unicode__(self):
         return  u'Met with %s' % (self.mentorship.mentor)
 
-    """
-    Conversation can be via email, phone, in-person, etc.
-    """
+"""
+Conversation can be via email, phone, in-person, etc.
+"""
 class Conversation(Activity):
     METHOD_OF_COMMUNICATION = (
         ("email","E-mail"),
