@@ -148,11 +148,6 @@ def populateCompany(aCompanyModel):
         companyData = crunch.getCompanyDetails(aCompanyModel.name)
     except urllib2.HTTPError as e:
         logging.error(str.format("HTTP Error: {0} - {1}", e.code,  httplib.responses[e.code]))
-        err_msg = e.read()
-        if err_msg: 
-            err_msg = json.loads(err_msg)
-            if 'error' in err_msg: 
-                logging.error(str.format("API Error: {0} ", err_msg['error']))
         try:
             # Explicitly looking for company by this name failed. 
             # Try a generic search for the company name
