@@ -867,7 +867,7 @@ def registration(request):
             profile.title = form.cleaned_data['title'] 
             profile.role = form.cleaned_data['role']
             profile.save()
-            if user_profile.role is user_profile.COORDINATOR:
+            if profile.role is profile.COORDINATOR:
                 view_str = 'opportunity.tracker.views.coordinatorView'
             return HttpResponseRedirect(reverse(view_str))
         else:
