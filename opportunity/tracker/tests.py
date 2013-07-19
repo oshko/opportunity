@@ -105,6 +105,7 @@ class ValidateModels(unittest.TestCase):
         self.mentorship = Mentorship(jobseeker=jobseeker_profile,
                                      mentor=mentor_profile,
                                      startDate=datetime.date.today())
+        self.mentorship.set_expiration()
         self.mentorship.save()
         self.elenaId, dontcare = create_a_user_for_test(
             {'username': self.elena,
