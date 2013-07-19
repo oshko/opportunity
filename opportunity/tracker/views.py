@@ -152,14 +152,14 @@ def populateCompany(aCompanyModel):
     companyData = {}
     try:
         crunch = CrunchProxy()
-        companyData = crunch.getCompanyDetails(aCompanyModel.name)
+        companyData = crunch.get_company_details(aCompanyModel.name)
     except urllib2.HTTPError as e:
         logging.error(str.format("HTTP Error: {0} - {1}", e.code,
                                  httplib.responses[e.code]))
         try:
             # Explicitly looking for company by this name failed.
             # Try a generic search for the company name
-            companyData = crunch.genericQuery(aCompanyModel.name)
+            companyData = crunch.generic_query(aCompanyModel.name)
             # returns a list. Look at 'namespace' keys with
             # the value of 'company'. There can be multiple values.
             # Decide which one to use.
