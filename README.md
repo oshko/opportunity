@@ -8,7 +8,6 @@ Installation
 
 You can check out the source code from https://github.com/kern3020/opportunity.git.
 
-./manage.py syncdb 
-./manage.py migrate
-./manage.py runserver
-
+	./manage.py syncdb 
+	./manage.py migrate
+	./manage.py runserver
