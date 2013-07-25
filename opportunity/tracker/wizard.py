@@ -1,8 +1,8 @@
 '''
 These utility funtions allow us to present a sequence of forms(aka, wizard) to
-the user. The state for each view in the wizard is stored in a tuple. Each
-element in the tuple will be a view name(string) and template(dictionary) of
-the expected values.
+the user. The state for each view in the wizard is stored in a list. Each
+element in the list is a tuple will be a view name(string) and
+template(dictionary) of the expected values.
 '''
 import logging
 
@@ -10,6 +10,25 @@ from django.core.urlresolvers import reverse
 
 logger = logging.getLogger(__name__)
 
+# parameter/value names based by initial GET request
+NEW_ACTIVITY = 'newactivity'   # initial dispatch
+APPLY='apply'                  # possible activity value
+COMPANY = 'company'            # possible activity value
+CONVERSATION = 'conversation'  # possible activity value
+CONTACT = 'contact'            # possible activity value
+DASHBOARD = 'dashboard'        # possible activity value
+INTERVIEW = 'interview'        # possible activity value
+NETOWRKING = 'networking'      # possible activity value
+POSITION = 'position'          # possible activity value
+
+'''
+Key names for key/value pairs. They are stored in hidden fields in form
+and used to set the proper defaults for composite entities. 
+'''
+ACTIVITY='activity'            # key to store the wiz name
+CO_ID = 'co_id'                # UID for company 
+POS_ID = 'pos_id'              # UID for position
+PER_ID = 'per_id'              # UID for person(contact)
 
 class Composite():
     _state = None
@@ -30,19 +49,19 @@ class Composite():
     @staticmethod
     def get_baseurl(next_cmd):
         url = None
-        if next_cmd == 'company':
+        if next_cmd == COMPANY:
             url = reverse('opportunity.tracker.views.companyView')
-        elif next_cmd == 'position':
+        elif next_cmd == POSITION:
             url = reverse('opportunity.tracker.views.positionView')
-        elif next_cmd == 'contact':
+        elif next_cmd == CONTACT:
             url = reverse('opportunity.tracker.views.personView')
-        elif next_cmd == 'interview':
+        elif next_cmd == INTERVIEW:
             url = reverse('opportunity.tracker.views.interviewView')
-        elif next_cmd == 'apply':
+        elif next_cmd == APPLY:
             url = reverse('opportunity.tracker.views.applyForView')
         elif next_cmd == 'networking':
             url = reverse('opportunity.tracker.views.networkingView')
-        elif next_cmd == 'conversation':
+        elif next_cmd == CONVERSATION:
             url = reverse('opportunity.tracker.views.conversationView')
         return url
 
@@ -52,13 +71,13 @@ class Composite():
         Given the activity name, return the right object.
         '''
         obj = None
-        if activity == 'apply':
+        if activity == APPLY:
             obj = Apply()
-        elif activity == 'conservation':
+        elif activity == CONVERSATION:
             obj = Conversation()
-        elif activity == 'interview':
+        elif activity == INTERVIEW:
             obj = Interview()
-        elif activity == 'networking':
+        elif activity == NETOWRKING:
             obj = Networking()
         else:
             raise Exception("activity doesn't map to a know wizard")
@@ -67,44 +86,44 @@ class Composite():
 
 class Interview(Composite):
     def __init__(self):
-        self._state = [('newactivity', {}),
-                       ('company', {'activity': 'interview'}),
-                       ('position', {'activity': None, 'co_id': None}),
-                       ('contact', {'activity': 'interview',
-                                    'co_id': None,
-                                    'pos_id': None}),
-                       ('interview', {'activity': 'interview',
-                                      'co_id': None,
-                                      'pos_id': None,
-                                      'per_id': None}),
-                       ('dashboard', {}), ]
+        self._state = [(NEW_ACTIVITY, {}),
+                       (COMPANY, {ACTIVITY: INTERVIEW}),
+                       (POSITION, {ACTIVITY: None, CO_ID: None}),
+                       (CONTACT, {ACTIVITY: INTERVIEW,
+                                    CO_ID: None,
+                                    POS_ID: None}),
+                       (INTERVIEW, {ACTIVITY: INTERVIEW,
+                                      CO_ID: None,
+                                      POS_ID: None,
+                                      PER_ID: None}),
+                       (DASHBOARD, {}), ]
 
 
 class Apply(Composite):
     def __init__(self):
-        self._state = [('newactivity', {}),
-                       ('company', {'activity': 'apply'}),
-                       ('position', {'activity': 'apply', 'co_id': None}),
-                       ('apply', {'activity': 'apply', 'co_id': None}),
-                       ('dashbord', {}), ]
+        self._state = [(NEW_ACTIVITY, {}),
+                       (COMPANY, {ACTIVITY: APPLY}),
+                       (POSITION, {ACTIVITY: APPLY, CO_ID: None}),
+                       (APPLY, {ACTIVITY: APPLY, CO_ID: None}),
+                       (DASHBOARD, {}), ]
 
 
 class Conversation(Composite):
     def __init__(self):
-        self._state = [('newactivity', {}),
-                       ('company', {'activity': 'conversation'}),
-                       ('contact', {'activity': 'conversation',
-                                    'co_id': None}),
-                       ('conversation', {'activity': 'conversation',
-                                         'co_id': None,
-                                         'per_id': None}),
-                       ('dashbord', {}), ]
+        self._state = [(NEW_ACTIVITY, {}),
+                       (COMPANY, {ACTIVITY: CONVERSATION}),
+                       (CONTACT, {ACTIVITY: CONVERSATION,
+                                    CO_ID: None}),
+                       (CONVERSATION, {ACTIVITY: CONVERSATION,
+                                         CO_ID: None,
+                                         PER_ID: None}),
+                       (DASHBOARD, {}), ]
 
 
 class Networking(Composite):
     def __init__(self):
-        self._state = [('newactivity', {}),
-                       ('company', {'activity': 'networking'}),
-                       ('networking', {'activity': 'networking',
-                                       'co_id': None}),
-                       ('dashbord', {}), ]
+        self._state = [(NEW_ACTIVITY, {}),
+                       (COMPANY, {ACTIVITY: NETOWRKING}),
+                       (NETOWRKING, {ACTIVITY: NETOWRKING,
+                                       CO_ID: None}),
+                       (DASHBOARD, {}), ]
