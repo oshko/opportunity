@@ -1,8 +1,8 @@
 '''
 These utility funtions allow us to present a sequence of forms(aka, wizard) to
 the user. The state for each view in the wizard is stored in a list. Each
-element in the list is a tuple will be a view name(string) and
-template(dictionary) of the expected values.
+element in the list is a tuple that has view name(string), template(dictionary)
+of the expected values and the key to store the UID for the entity just saved.
 '''
 import logging
 
@@ -12,26 +12,31 @@ logger = logging.getLogger(__name__)
 
 # parameter/value names based by initial GET request
 NEW_ACTIVITY = 'newactivity'   # initial dispatch
-APPLY='apply'                  # possible activity value
+APPLY = 'apply'                # possible activity value
 COMPANY = 'company'            # possible activity value
 CONVERSATION = 'conversation'  # possible activity value
 CONTACT = 'contact'            # possible activity value
 DASHBOARD = 'dashboard'        # possible activity value
 INTERVIEW = 'interview'        # possible activity value
-NETOWRKING = 'networking'      # possible activity value
+NETWORKING = 'networking'      # possible activity value
 POSITION = 'position'          # possible activity value
 
 '''
 Key names for key/value pairs. They are stored in hidden fields in form
-and used to set the proper defaults for composite entities. 
+and used to set the proper defaults for composite entities.
 '''
-ACTIVITY='activity'            # key to store the wiz name
-CO_ID = 'co_id'                # UID for company 
+ACTIVITY = 'activity'          # key to store the wiz name
+CO_ID = 'co_id'                # UID for company
 POS_ID = 'pos_id'              # UID for position
 PER_ID = 'per_id'              # UID for person(contact)
 
+# new hidden fields keys
+KNOWN_HF_KEYS = [ACTIVITY, CO_ID, POS_ID, PER_ID]
+
+
 class Composite():
     _state = None
+    _activity = None
 
     def get_state(self, view):
         '''
@@ -46,6 +51,17 @@ class Composite():
             obj = list_obj[0]
         return obj
 
+    def get_bindings(self, post_dict):
+        '''
+        Return a dictionary contain key/value pairs
+        of known HF keys.
+        '''
+        hidden_dict = {}
+        for key in KNOWN_HF_KEYS:
+            if key in post_dict:
+                hiden_dict[key] = post_dict[key]
+        return hidden_dict
+
     @staticmethod
     def get_baseurl(next_cmd):
         url = None
@@ -59,7 +75,7 @@ class Composite():
             url = reverse('opportunity.tracker.views.interviewView')
         elif next_cmd == APPLY:
             url = reverse('opportunity.tracker.views.applyForView')
-        elif next_cmd == 'networking':
+        elif next_cmd == NETWORKING:
             url = reverse('opportunity.tracker.views.networkingView')
         elif next_cmd == CONVERSATION:
             url = reverse('opportunity.tracker.views.conversationView')
@@ -77,7 +93,7 @@ class Composite():
             obj = Conversation()
         elif activity == INTERVIEW:
             obj = Interview()
-        elif activity == NETOWRKING:
+        elif activity == NETWORKING:
             obj = Networking()
         else:
             raise Exception("activity doesn't map to a know wizard")
@@ -86,44 +102,50 @@ class Composite():
 
 class Interview(Composite):
     def __init__(self):
+        self._activity = INTERVIEW
         self._state = [(NEW_ACTIVITY, {}),
-                       (COMPANY, {ACTIVITY: INTERVIEW}),
-                       (POSITION, {ACTIVITY: None, CO_ID: None}),
+                       (COMPANY, {ACTIVITY: INTERVIEW}, CO_ID),
+                       (POSITION, {ACTIVITY: None, CO_ID: None}, POS_ID),
                        (CONTACT, {ACTIVITY: INTERVIEW,
-                                    CO_ID: None,
-                                    POS_ID: None}),
+                                  CO_ID: None,
+                                  POS_ID: None}, POS_ID),
                        (INTERVIEW, {ACTIVITY: INTERVIEW,
-                                      CO_ID: None,
-                                      POS_ID: None,
-                                      PER_ID: None}),
+                                    CO_ID: None,
+                                    POS_ID: None,
+                                    PER_ID: None}, None),
                        (DASHBOARD, {}), ]
 
 
 class Apply(Composite):
     def __init__(self):
+        self._activity = APPLY
         self._state = [(NEW_ACTIVITY, {}),
-                       (COMPANY, {ACTIVITY: APPLY}),
-                       (POSITION, {ACTIVITY: APPLY, CO_ID: None}),
-                       (APPLY, {ACTIVITY: APPLY, CO_ID: None}),
+                       (COMPANY, {ACTIVITY: APPLY}, CO_ID),
+                       (POSITION, {ACTIVITY: APPLY, CO_ID: None}, POS_ID),
+                       (APPLY, {ACTIVITY: APPLY,
+                                CO_ID: None,
+                                POS_ID: None}, None),
                        (DASHBOARD, {}), ]
 
 
 class Conversation(Composite):
     def __init__(self):
+        self._activity = CONVERSATION
         self._state = [(NEW_ACTIVITY, {}),
-                       (COMPANY, {ACTIVITY: CONVERSATION}),
+                       (COMPANY, {ACTIVITY: CONVERSATION}, CO_ID),
                        (CONTACT, {ACTIVITY: CONVERSATION,
-                                    CO_ID: None}),
+                                  CO_ID: None}, PER_ID),
                        (CONVERSATION, {ACTIVITY: CONVERSATION,
-                                         CO_ID: None,
-                                         PER_ID: None}),
+                                       CO_ID: None,
+                                       PER_ID: None}, None),
                        (DASHBOARD, {}), ]
 
 
 class Networking(Composite):
     def __init__(self):
+        self._activity = NETWORKING
         self._state = [(NEW_ACTIVITY, {}),
-                       (COMPANY, {ACTIVITY: NETOWRKING}),
-                       (NETOWRKING, {ACTIVITY: NETOWRKING,
-                                       CO_ID: None}),
+                       (COMPANY, {ACTIVITY: NETWORKING}, CO_ID),
+                       (NETWORKING, {ACTIVITY: NETWORKING,
+                                     CO_ID: None}, None),
                        (DASHBOARD, {}), ]
