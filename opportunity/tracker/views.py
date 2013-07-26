@@ -9,16 +9,23 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 
-import httplib
+import six 
 import json
 import logging
-import urllib2
 import datetime
 
-from forms import *
-from models import *
-from crunchbase import CrunchProxy
-from access import may_access_control
+if six.PY3:
+    from urllib.error import HTTPError as http_error
+    from http.client import responses as http_responses
+else:
+    from urllib2 import HTTPError as http_error
+    from httplib import responses as http_responses
+
+
+from .forms import *
+from .models import *
+from .crunchbase import CrunchProxy
+from .access import may_access_control
 
 # The prettyNames are displayed to the user.
 prettyNames = [_("Company"), _("Person"), _("Position"), _("Interview"),
@@ -153,9 +160,9 @@ def populateCompany(aCompanyModel):
     try:
         crunch = CrunchProxy()
         companyData = crunch.get_company_details(aCompanyModel.name)
-    except urllib2.HTTPError as e:
+    except http_error as e:
         logging.error(str.format("HTTP Error: {0} - {1}", e.code,
-                                 httplib.responses[e.code]))
+                                 http_responses[e.code]))
         try:
             # Explicitly looking for company by this name failed.
             # Try a generic search for the company name
@@ -164,7 +171,7 @@ def populateCompany(aCompanyModel):
             # the value of 'company'. There can be multiple values.
             # Decide which one to use.
             companyData = [x for x in companyData
-                           if x['namespace'] == u'company']
+                           if x['namespace'] == 'company']
             companyAlternates = None  # a list of companies the search up.
             if not companyData:
                 # empty list. reset companyData
@@ -174,9 +181,9 @@ def populateCompany(aCompanyModel):
             else:
                 companyAlternates = companyData[1:]
                 companyData = companyData[0]
-        except urllib2.HTTPError as e:
+        except http_error as e:
             logging.error(str.format("HTTP Error: {0} - {1}",
-                                     e.code, httplib.responses[e.code]))
+                                     e.code, http_responses[e.code]))
             err_msg = e.read()
             if err_msg:
                 err_msg = json.loads(err_msg)

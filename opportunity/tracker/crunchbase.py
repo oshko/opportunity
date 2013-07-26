@@ -29,8 +29,14 @@ An error looks like
 
 import os
 import json
-import urllib
-import urllib2
+import six
+
+if six.PY3:
+    from  urllib.parse import quote_plus as quote_plus
+    from  urllib.request import urlopen as urlopen
+else:
+    from urllib import quote_plus as quote_plus
+    from urllib2 import urlopen as urlopen
 
 
 class CrunchProxy():
@@ -49,9 +55,9 @@ class CrunchProxy():
         """
         permalink = "company"
         url_request_co = (self.base_url + permalink + "/"
-                          + urllib.quote_plus(company)
+                          + quote_plus(company)
                           + ".js?api_key=" + self.api_key)
-        results = json.loads(urllib2.urlopen(url_request_co).read())
+        results = json.loads(urlopen(url_request_co).read())
         return results
 
     def generic_query(self, term):
@@ -62,7 +68,7 @@ class CrunchProxy():
         that.
         """
         url_request_query = (self.base_url + "search.js?query="
-                             + urllib.quote_plus(term)
+                             + quote_plus(term)
                              + "&api_key=" + self.api_key)
-        results = json.loads(urllib2.urlopen(url_request_query).read())
+        results = json.loads(urlopen(url_request_query).read())
         return results['results']

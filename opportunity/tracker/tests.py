@@ -3,9 +3,9 @@ from django.utils import unittest
 import datetime
 
 from django.contrib.auth.models import User
-from models import Company, UserProfile, Mentorship
-from views import populateCompany
-from access import may_access_control
+from .models import Company, UserProfile, Mentorship
+from .views import populateCompany
+from .access import may_access_control
 
 
 class FetchFromCrunch(unittest.TestCase):

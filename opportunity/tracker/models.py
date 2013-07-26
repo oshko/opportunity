@@ -1,10 +1,11 @@
+import calendar
+import datetime
+import six
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
-
-import calendar
-import datetime
 
 
 class UserProfile(models.Model):
@@ -56,7 +57,7 @@ class Mentorship(models.Model):
     expirationDate = models.DateField(blank=True, null=True)  # computed
 
     def __unicode__(self):
-        return u'%s / %s' % (self.jobseeker, self.mentor)
+        return six.u('%s / %s' % (self.jobseeker, self.mentor))
 
     def is_active(self):
         return not self.has_expired()
@@ -119,7 +120,7 @@ class Person(models.Model):
     user = models.ForeignKey(UserProfile)
 
     def __unicode__(self):
-        return u'%s %s' % (self.first_name, self.last_name)
+        return six.u('%s %s' % (self.first_name, self.last_name))
 
 
 class Position(models.Model):
@@ -130,7 +131,7 @@ class Position(models.Model):
     user = models.ForeignKey(UserProfile)
 
     def __unicode__(self):
-        return u'%s at %s' % (self.title, self.company)
+        return six.u('%s at %s' % (self.title, self.company))
 
     class Meta:
         ordering = ['title']
@@ -180,9 +181,9 @@ class Interview(Activity):
     tag = "interview"
 
     def __unicode__(self):
-        return u'Interview with %s %s at %s for %s' % (
+        return six.u('Interview with %s %s at %s for %s' % (
             self.withWhom.first_name, self.withWhom.last_name,
-            self.position.company.name, self.position.title)
+            self.position.company.name, self.position.title))
 
 
 class Apply(Activity):
@@ -194,8 +195,8 @@ class Apply(Activity):
     tag = "apply"
 
     def __unicode__(self):
-        return u'Applied for %s at %s' % (
-            self.position.title, self.position.company.name)
+        return six.u('Applied for %s at %s' % (
+            self.position.title, self.position.company.name))
 
 
 class Networking(Activity):
@@ -207,7 +208,7 @@ class Networking(Activity):
     tag = "networking"
 
     def __unicode__(self):
-        return u'Networking at %s' % (self.venue.name)
+        return six.u('Networking at %s' % (self.venue.name))
 
 
 class Lunch (Activity):
@@ -220,8 +221,8 @@ class Lunch (Activity):
     tag = "lunch"
 
     def __unicode__(self):
-        return u'Lunch(or coffee) with %s %s at %s' % (
-            self.withWhom.first_name, self.withWhom.last_name, self.venue)
+        return six.u('Lunch(or coffee) with %s %s at %s' % (
+            self.withWhom.first_name, self.withWhom.last_name, self.venue))
 
 
 class MentorMeeting(Activity):
@@ -234,7 +235,7 @@ class MentorMeeting(Activity):
     tag = "mentormeeting"
 
     def __unicode__(self):
-        return u'Met with %s' % (self.mentorship.mentor)
+        return six.u('Met with %s' % (self.mentorship.mentor))
 
 
 class Conversation(Activity):
@@ -252,8 +253,8 @@ class Conversation(Activity):
     tag = "conversation"
 
     def __unicode__(self):
-        return u'Spoke with %s %s via %s' % (
-            self.person.first_name, self.person.last_name, self.via)
+        return six.u('Spoke with %s %s via %s' % (
+            self.person.first_name, self.person.last_name, self.via))
 
 
 class Pitch(models.Model):
