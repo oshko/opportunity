@@ -1,10 +1,18 @@
 '''
-These utility funtions allow us to present a sequence of forms(aka, wizard) to
-the user. The state for each view in the wizard is stored in a list. Each
-element in the list is a tuple that has view name(string), template(dictionary)
-of the expected values and the key to store the UID for the entity just saved.
+
+These utility functions allow us to present a sequence of forms(aka,
+wizard) to the user. The state for each view in the wizard is stored
+in a list. Each element in the list is a tuple that has view
+name(string), template(dictionary) of the expected values and the key
+to store the UID for the entity just saved.
+
 '''
 import logging
+import six
+if six.PY3:
+    from urllib.parse import urlencode
+else:
+    from urllib import urlencode
 
 from django.core.urlresolvers import reverse
 
@@ -33,92 +41,119 @@ PER_ID = 'per_id'              # UID for person(contact)
 # new hidden fields keys
 KNOWN_HF_KEYS = [ACTIVITY, CO_ID, POS_ID, PER_ID]
 
+'''
+index for tuple 
+'''
+VIEW_INDEX = 0
+PARAM_INDEX = 1
+NEXT_INDEX = 2
 
 class Composite():
-    _state = None
-    _activity = None
+    _state = None          # state for wizard transitions
+    _state_index = None
+    _activity_name = None  # activity name 
+    _view_name = None
+    _url = None 
 
-    def get_state(self, view):
-        '''
-        Return a tuple which represents the state of the UI Wizard based
-        on the view for that class. Return None if view didn't map to
-        state.
-        '''
-        obj = None
+    def __init__(self, view):
+        self._view_name = None
+        self._state_index = None
+
         # select a list with the right tuple
-        list_obj = [self._state[i+1] for i, x in enumerate(self._state) if x[0] == view]
-        if len(list_obj) == 1:
-            obj = list_obj[0]
-        return obj
+        self._state_index = [i for i, x in enumerate(self._state) if x[VIEW_INDEX] == view]
+        self._state_index = self._state_index[0]
+        self._state_index += 1
+        self._view_name = self._state[self._state_index][VIEW_INDEX]
 
-    def get_bindings(self, post_dict):
+    def set(self, session, key, value):
         '''
-        Return a dictionary contain key/value pairs
-        of known HF keys.
+        Store value in key. 
         '''
-        hidden_dict = {}
-        for key in KNOWN_HF_KEYS:
-            if key in post_dict:
-                hiden_dict[key] = post_dict[key]
-        return hidden_dict
+        # store in session for next view
+        session[key] = value
+        # store in dict to allow us to compute url params
+        self._state[self._state_index][PARAM_INDEX][key] = value
+
+    def get_url(self):
+        self._url = None
+        if self._view_name == COMPANY:
+            self._url = reverse('opportunity.tracker.views.companyView',
+                                args=['add'])
+        elif self._view_name == POSITION:
+            self._url = reverse('opportunity.tracker.views.positionView',
+                                args=['add'])
+        elif self._view_name == CONTACT:
+            self._url = reverse('opportunity.tracker.views.personView',
+                                args=['add'])
+        elif self._view_name == INTERVIEW:
+            self._url = reverse('opportunity.tracker.views.interviewView',
+                                args=['add'])
+        elif self._view_name == APPLY:
+            self._url = reverse('opportunity.tracker.views.applyForView',
+                                args=['add'])
+        elif self._view_name == NETWORKING:
+            self._url = reverse('opportunity.tracker.views.networkingView',
+                                args=['add'])
+        elif self._view_name == CONVERSATION:
+            self._url = reverse('opportunity.tracker.views.conversationView',
+                                args=['add'])
+        return self._url
 
     @staticmethod
-    def get_baseurl(next_cmd):
-        url = None
-        if next_cmd == COMPANY:
-            url = reverse('opportunity.tracker.views.companyView')
-        elif next_cmd == POSITION:
-            url = reverse('opportunity.tracker.views.positionView')
-        elif next_cmd == CONTACT:
-            url = reverse('opportunity.tracker.views.personView')
-        elif next_cmd == INTERVIEW:
-            url = reverse('opportunity.tracker.views.interviewView')
-        elif next_cmd == APPLY:
-            url = reverse('opportunity.tracker.views.applyForView')
-        elif next_cmd == NETWORKING:
-            url = reverse('opportunity.tracker.views.networkingView')
-        elif next_cmd == CONVERSATION:
-            url = reverse('opportunity.tracker.views.conversationView')
-        return url
-
-    @staticmethod
-    def factory(activity):
+    def factory(activity, view):
         '''
         Given the activity name, return the right object.
         '''
         obj = None
         if activity == APPLY:
-            obj = Apply()
+            obj = Apply(view)
         elif activity == CONVERSATION:
-            obj = Conversation()
+            obj = Conversation(view)
         elif activity == INTERVIEW:
-            obj = Interview()
+            obj = Interview(view)
         elif activity == NETWORKING:
-            obj = Networking()
+            obj = Networking(view)
         else:
             raise Exception("activity doesn't map to a know wizard")
         return obj
 
 
 class Interview(Composite):
-    def __init__(self):
-        self._activity = INTERVIEW
+    def __init__(self, view):
+        self._activity_name = INTERVIEW
         self._state = [(NEW_ACTIVITY, {}),
                        (COMPANY, {ACTIVITY: INTERVIEW}, CO_ID),
-                       (POSITION, {ACTIVITY: None, CO_ID: None}, POS_ID),
+                       (POSITION, {ACTIVITY: INTERVIEW, CO_ID: None}, POS_ID),
                        (CONTACT, {ACTIVITY: INTERVIEW,
                                   CO_ID: None,
-                                  POS_ID: None}, POS_ID),
+                                  POS_ID: None}, PER_ID),
                        (INTERVIEW, {ACTIVITY: INTERVIEW,
                                     CO_ID: None,
                                     POS_ID: None,
                                     PER_ID: None}, None),
                        (DASHBOARD, {}), ]
+        super().__init__(view)
+
+    def get_url(self):
+        '''
+        see definition in parent class.
+        '''
+        super().get_url()
+        params =  self._state[self._state_index][PARAM_INDEX]
+        return "{0}?{1}".format(self._url,
+                                urlencode(params))
+
+    def set(self, session, key, value):
+        super().set(session, key, value)
+        # retrieve keys stored in session
+        for k in [CO_ID, POS_ID, PER_ID]:
+            if k in session:
+                self._state[self._state_index][PARAM_INDEX][k] = session[k]
 
 
 class Apply(Composite):
     def __init__(self):
-        self._activity = APPLY
+        self._activity_name = APPLY
         self._state = [(NEW_ACTIVITY, {}),
                        (COMPANY, {ACTIVITY: APPLY}, CO_ID),
                        (POSITION, {ACTIVITY: APPLY, CO_ID: None}, POS_ID),
@@ -130,7 +165,7 @@ class Apply(Composite):
 
 class Conversation(Composite):
     def __init__(self):
-        self._activity = CONVERSATION
+        self._activity_name = CONVERSATION
         self._state = [(NEW_ACTIVITY, {}),
                        (COMPANY, {ACTIVITY: CONVERSATION}, CO_ID),
                        (CONTACT, {ACTIVITY: CONVERSATION,
@@ -143,7 +178,7 @@ class Conversation(Composite):
 
 class Networking(Composite):
     def __init__(self):
-        self._activity = NETWORKING
+        self._activity_name = NETWORKING
         self._state = [(NEW_ACTIVITY, {}),
                        (COMPANY, {ACTIVITY: NETWORKING}, CO_ID),
                        (NETWORKING, {ACTIVITY: NETWORKING,
