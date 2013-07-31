@@ -1,19 +1,20 @@
 '''
 
 As always with django this defines the views for the application.
-Most are straight forward but to create, edit and manipulate
-entities to be stored we need a view to display it and one to
-delete it.
+Most are straight forward but to create, edit and manipulate composite
+entities via a UI Wizard, UIDs are stored, so that, they can be
+passed between views and deleted when the UI Wizard completes.
 
-Some entities are composed of other ones. For the user, it can
-be a pain if you simply display the form. Consider applying for
-a job. Yes we want to record the date but critically we need
-to know the position and at what company. This program presents
-composite entities in sequence. In this example, we first ask
-ask for the company, then the position and finally record meta
-data(e.g., data and comments). These sequences are enumerated below.
+Some entities are composed of other ones. For the user, it can be a
+pain if you simply display the form. Consider applying for a job. Yes
+we want to record the date but critically we need to know the position
+and the company. This program presents composite entities in
+sequence. In this example, we first ask for the company, then the
+position and finally record meta data(e.g., data and comments). These
+sequences are enumerated below.
 
 This design relies on a handful of keywords.
+
 * next_cmd = (string) name of next command in the sequence.
 * co_id = (int) uid for company which was created for the sequence.
 * pos_id = (int) uid for position which was created for the sequence.
