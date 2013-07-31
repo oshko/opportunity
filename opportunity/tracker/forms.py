@@ -147,7 +147,7 @@ class MeetingMentorForm(forms.ModelForm):
 
     class Meta:
         model = MentorMeeting
-        exclude = ('user',)
+        exclude = ('user', 'mentorship',)
 
     def __init__(self, *args, **kwargs):
         self._user = kwargs.pop('user')

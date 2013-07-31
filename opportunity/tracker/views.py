@@ -1,3 +1,47 @@
+'''
+
+As always with django this defines the views for the application.
+Most are straight forward but to create, edit and manipulate
+entities to be stored we need a view to display it and one to
+delete it.
+
+Some entities are composed of other ones. For the user, it can
+be a pain if you simply display the form. Consider applying for
+a job. Yes we want to record the date but critically we need
+to know the position and at what company. This program presents
+composite entities in sequence. In this example, we first ask
+ask for the company, then the position and finally record meta
+data(e.g., data and comments). These sequences are enumerated below.
+
+This design relies on a handful of keywords.
+* next_cmd = (string) name of next command in the sequence.
+* co_id = (int) uid for company which was created for the sequence.
+* pos_id = (int) uid for position which was created for the sequence.
+* per_id = (int) uid for contact which was created for the sequence.
+
+
+Interview
+company    /prospect/add
+position   /position/add  co_id=<d>
+contact      /contact/add   co_id=<d>, pos_id=<d>
+interview  /interview/add co_id=<d>, pos_id=<d>, per_id=<d>
+
+Apply
+company    /prospect/add
+position   /position/add  co_id=<d>
+apply      /apply/add     co_id=<d>. pos_id=<d>
+
+Networking
+company    /prospect/add
+networking /networking/add co_id=<d>
+
+Conversation
+company    /prospect/add
+contact       /contact/add      co_id=<d>
+conversation /conversation/add co_id=<d>, per_id=<d>
+
+'''
+
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
@@ -26,6 +70,7 @@ from .forms import *
 from .models import *
 from .crunchbase import CrunchProxy
 from .access import may_access_control
+from .wizard import Composite, Interview, Apply, Conversation, Networking
 
 # The prettyNames are displayed to the user.
 prettyNames = [_("Company"), _("Person"), _("Position"), _("Interview"),
@@ -454,7 +499,10 @@ def newactivity(request):
         a = mapNameToFunction[request.GET['activity']]
     else:
         a = request.GET['activity']
-    newURL = '/' + a + '/add'
+    ob = Composite.factory(a)
+    ob.get_state('newactivity')
+    view = compose_start_baseurl(a)
+    newURL = '/' + view + '/add/?activity=' + a
     return HttpResponseRedirect(newURL)
 
 
