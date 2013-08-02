@@ -123,7 +123,8 @@ class Composite():
     @staticmethod
     def factory(activity, view):
         '''
-        Given the activity name, return the right object.
+        Given the activity name, return the wiz object if one
+        is defined. If none are defined, return None. 
         '''
         obj = None
         if activity == APPLY:
@@ -134,8 +135,6 @@ class Composite():
             obj = Interview(view)
         elif activity == NETWORKING:
             obj = Networking(view)
-        else:
-            raise Exception("activity doesn't map to a know wizard")
         return obj
 
 

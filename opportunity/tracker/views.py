@@ -71,7 +71,7 @@ from .forms import *
 from .models import *
 from .crunchbase import CrunchProxy
 from .access import may_access_control
-from .wizard import Composite, Interview, Apply, Conversation, Networking
+from .wizard import *
 
 # The prettyNames are displayed to the user.
 prettyNames = [_("Company"), _("Person"), _("Position"), _("Interview"),
@@ -500,10 +500,11 @@ def newactivity(request):
         a = mapNameToFunction[request.GET['activity']]
     else:
         a = request.GET['activity']
-    ob = Composite.factory(a)
-    ob.get_state('newactivity')
-    view = compose_start_baseurl(a)
-    newURL = '/' + view + '/add/?activity=' + a
+    wiz = Composite.factory(a, NEW_ACTIVITY)
+    if wiz:
+        newURL = wiz.get_url()
+    else:
+        newURL = '/' + a + '/add'
     return HttpResponseRedirect(newURL)
 
 
