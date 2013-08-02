@@ -57,7 +57,10 @@ class CrunchProxy():
         url_request_co = (self.base_url + permalink + "/"
                           + quote_plus(company)
                           + ".js?api_key=" + self.api_key)
-        results = json.loads(urlopen(url_request_co).read())
+        results = {} 
+        results = urlopen(url_request_co)
+        if results.headers['content-type'] == 'text/javascript; charset=utf-8':
+            results = json.loads(results.read().decode("utf-8"))
         return results
 
     def generic_query(self, term):
@@ -70,5 +73,8 @@ class CrunchProxy():
         url_request_query = (self.base_url + "search.js?query="
                              + quote_plus(term)
                              + "&api_key=" + self.api_key)
-        results = json.loads(urlopen(url_request_query).read())
+        results = {}
+        results = urlopen(url_request_query)
+        if results.headers['content-type'] == 'text/javascript; charset=utf-8':
+            results = json.loads(results.read().decode('utf-8'))
         return results['results']

@@ -15,7 +15,7 @@ if not six.PY3:
     # boto is required 
     import opportunity.s3utils
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -169,8 +169,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'opportunity.tracker',
+    'django_nose',
     'south',
 )
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 if not six.PY3:
     INSTALLED_APPS += ('storages',)
