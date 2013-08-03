@@ -66,12 +66,13 @@ else:
     from urllib2 import HTTPError as http_error
     from httplib import responses as http_responses
 
+import opportunity.tracker.wizard as wizard
 
 from .forms import *
 from .models import *
 from .crunchbase import CrunchProxy
 from .access import may_access_control
-from .wizard import *
+
 
 # The prettyNames are displayed to the user.
 prettyNames = [_("Company"), _("Person"), _("Position"), _("Interview"),
@@ -275,6 +276,9 @@ def companyView(request, *args, **kwargs):
     """
     companyData = None  # results from crunchbase company search
     companyAlternates = None  # if mulitple hits, alternates go here
+    title = "Company"
+    description = "Record information about a prospective employer."
+    
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = CompanyForm(request.POST,
@@ -296,8 +300,15 @@ def companyView(request, *args, **kwargs):
             except:
                 return HttpResponseServerError("bad id")
         else:
+            wiz = None 
+            if wizard.ACTIVITY in request.GET:
+                activity = request.GET[wizard.ACTIVITY]
+                wiz = wizard.Composite.factory(activity, wizard.COMPANY)
+                if wiz:
+                    title = wiz.get_title()
+                    description = wiz.get_description()
             co = Company()
-            if 'company' in request.GET:
+            if wizard.COMPANY in request.GET:
                 co.name = request.GET['company'].strip()
                 populateCompany(co)
 
@@ -305,10 +316,8 @@ def companyView(request, *args, **kwargs):
                 instance=co,
                 user=request.user.get_profile())
     return render_to_response('company_form.html',
-                              {'title': _("Company"),
-                               'desc':
-                               _("Record information about"
-                                 " a prospective employer."),
+                              {'title': title,
+                               'desc': description,
                                'activity_name_list': prettyNames,
                                'alternate_co_list': companyAlternates,
                                'form': form},
@@ -500,9 +509,9 @@ def newactivity(request):
         a = mapNameToFunction[request.GET['activity']]
     else:
         a = request.GET['activity']
-    wiz = Composite.factory(a, NEW_ACTIVITY)
+    wiz = wizard.Composite.factory(a, wizard.NEW_ACTIVITY)
     if wiz:
-        newURL = wiz.get_url()
+        newURL = wiz.get_next_url()
     else:
         newURL = '/' + a + '/add'
     return HttpResponseRedirect(newURL)

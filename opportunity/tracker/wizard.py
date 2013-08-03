@@ -38,73 +38,82 @@ CO_ID = 'co_id'                # UID for company
 POS_ID = 'pos_id'              # UID for position
 PER_ID = 'per_id'              # UID for person(contact)
 
-# new hidden fields keys
-KNOWN_HF_KEYS = [ACTIVITY, CO_ID, POS_ID, PER_ID]
-
 '''
-index for tuple 
+index for tuple
 '''
 VIEW_INDEX = 0
 PARAM_INDEX = 1
-NEXT_INDEX = 2
+DESC_INDEX = 2
+
 
 class Composite():
-    _state = None          # state for wizard transitions
-    _state_index = None
-    _activity_name = None  # activity name 
+    _state = None             # state for wizard transitions
+    _state_index = None       # current state
+    _state_next_index = None  # index to next state
+    _activity_name = None     # activity name
     _view_name = None
-    _url = None 
+    _title = None             # set in subclass
 
     def __init__(self, view):
         self._view_name = None
         self._state_index = None
+        self._state_next_index = None
 
         # select a list with the right tuple
         self._state_index = [i for i, x in enumerate(self._state) if x[VIEW_INDEX] == view]
         self._state_index = self._state_index[0]
-        self._state_index += 1
-        self._view_name = self._state[self._state_index][VIEW_INDEX]
+        self._state_next_index = self._state_index + 1
+        self._view_name = self._state[self._state_next_index][VIEW_INDEX]
 
     def set(self, session, key, value):
         '''
-        Store value in key. 
+        Store value in key.
         '''
         # store in session for next view
         session[key] = value
         # store in dict to allow us to compute url params
-        self._state[self._state_index][PARAM_INDEX][key] = value
+        self._state[self._state_next_index][PARAM_INDEX][key] = value
 
-    def get_url(self):
-        self._url = None
+    def get_next_url(self):
+        '''
+        What is the url to the next view in the sequence?
+        '''
+        url = None
         if self._view_name == COMPANY:
-            self._url = reverse('opportunity.tracker.views.companyView',
+            url = reverse('opportunity.tracker.views.companyView',
                                 args=['add'])
         elif self._view_name == POSITION:
-            self._url = reverse('opportunity.tracker.views.positionView',
+            url = reverse('opportunity.tracker.views.positionView',
                                 args=['add'])
         elif self._view_name == CONTACT:
-            self._url = reverse('opportunity.tracker.views.personView',
+            url = reverse('opportunity.tracker.views.personView',
                                 args=['add'])
         elif self._view_name == INTERVIEW:
-            self._url = reverse('opportunity.tracker.views.interviewView',
+            url = reverse('opportunity.tracker.views.interviewView',
                                 args=['add'])
         elif self._view_name == APPLY:
-            self._url = reverse('opportunity.tracker.views.applyForView',
+            url = reverse('opportunity.tracker.views.applyForView',
                                 args=['add'])
         elif self._view_name == NETWORKING:
-            self._url = reverse('opportunity.tracker.views.networkingView',
+            url = reverse('opportunity.tracker.views.networkingView',
                                 args=['add'])
         elif self._view_name == CONVERSATION:
-            self._url = reverse('opportunity.tracker.views.conversationView',
+            url = reverse('opportunity.tracker.views.conversationView',
                                 args=['add'])
         elif self._view_name == DASHBOARD:
-            self._url = reverse('opportunity.tracker.views.dashboard')
-        # append params if any 
-        params =  self._state[self._state_index][PARAM_INDEX]
+            url = reverse('opportunity.tracker.views.dashboard')
+        # append params if any
+        params = self._state[self._state_next_index][PARAM_INDEX]
         if params:
-            self._url = "{0}?{1}".format(self._url,
+            url = "{0}?{1}".format(url,
                                        urlencode(self._convert_to_tuple(params)))
-        return self._url
+        return url
+
+    def get_title(self):
+        return self._title
+
+    def get_description(self):
+        return self._state[self._state_index][DESC_INDEX]
 
     def _convert_to_tuple(self, dict):
         '''
@@ -113,7 +122,7 @@ class Composite():
         difficult to write a test because you can't predict the order
         of the parameters. Return a tuple which will ensure the order
         of the parameters
-        
+
         '''
         params = []
         for t in iter(sorted(dict.items())):
@@ -124,7 +133,7 @@ class Composite():
     def factory(activity, view):
         '''
         Given the activity name, return the wiz object if one
-        is defined. If none are defined, return None. 
+        is defined. If none are defined, return None.
         '''
         obj = None
         if activity == APPLY:
@@ -141,17 +150,22 @@ class Composite():
 class Interview(Composite):
     def __init__(self, view):
         self._activity_name = INTERVIEW
-        self._state = [(NEW_ACTIVITY, {}),
-                       (COMPANY, {ACTIVITY: INTERVIEW}, CO_ID),
-                       (POSITION, {ACTIVITY: INTERVIEW, CO_ID: None}, POS_ID),
+        self._title = "Interview Wizard"
+        self._state = [(NEW_ACTIVITY, {}, "Unk"),
+                       (COMPANY, {ACTIVITY: INTERVIEW},
+                        "With which company are you interview?"),
+                       (POSITION, {ACTIVITY: INTERVIEW, CO_ID: None},
+                        "For which position are you interviewing?"),
                        (CONTACT, {ACTIVITY: INTERVIEW,
                                   CO_ID: None,
-                                  POS_ID: None}, PER_ID),
+                                  POS_ID: None},
+                        "With whom will you be speeking?"),
                        (INTERVIEW, {ACTIVITY: INTERVIEW,
                                     CO_ID: None,
                                     POS_ID: None,
-                                    PER_ID: None}, None),
-                       (DASHBOARD, {}), ]
+                                    PER_ID: None},
+                        "When is the interview?"),
+                       (DASHBOARD, {}, ""), ]
         super().__init__(view)
 
     def set(self, session, key, value):
@@ -159,19 +173,23 @@ class Interview(Composite):
         # retrieve keys stored in session
         for k in [CO_ID, POS_ID, PER_ID]:
             if k in session:
-                self._state[self._state_index][PARAM_INDEX][k] = session[k]
+                self._state[self._state_next_index][PARAM_INDEX][k] = session[k]
 
 
 class Apply(Composite):
     def __init__(self, view):
         self._activity_name = APPLY
-        self._state = [(NEW_ACTIVITY, {}),
-                       (COMPANY, {ACTIVITY: APPLY}, CO_ID),
-                       (POSITION, {ACTIVITY: APPLY, CO_ID: None}, POS_ID),
+        self._title = 'Apply Wizard'
+        self._state = [(NEW_ACTIVITY, {}, ""),
+                       (COMPANY, {ACTIVITY: APPLY},
+                        'At which company did you apply?'),
+                       (POSITION, {ACTIVITY: APPLY, CO_ID: None},
+                        'For which position did you apply?'),
                        (APPLY, {ACTIVITY: APPLY,
                                 CO_ID: None,
-                                POS_ID: None}, None),
-                       (DASHBOARD, {}), ]
+                                POS_ID: None},
+                        'When did you apply?'),
+                       (DASHBOARD, {}, ""), ]
         super().__init__(view)
 
     def set(self, session, key, value):
@@ -179,20 +197,24 @@ class Apply(Composite):
         # retrieve keys stored in session
         for k in [CO_ID, POS_ID]:
             if k in session:
-                self._state[self._state_index][PARAM_INDEX][k] = session[k]
+                self._state[self._state_next_index][PARAM_INDEX][k] = session[k]
 
 
 class Conversation(Composite):
     def __init__(self, view):
+        self._title = "Conversation Wizard"
         self._activity_name = CONVERSATION
-        self._state = [(NEW_ACTIVITY, {}),
-                       (COMPANY, {ACTIVITY: CONVERSATION}, CO_ID),
+        self._state = [(NEW_ACTIVITY, {}, ""),
+                       (COMPANY, {ACTIVITY: CONVERSATION},
+                        "What company ? "),
                        (CONTACT, {ACTIVITY: CONVERSATION,
-                                  CO_ID: None}, PER_ID),
+                                  CO_ID: None},
+                        "With whom did you speak?"),
                        (CONVERSATION, {ACTIVITY: CONVERSATION,
                                        CO_ID: None,
-                                       PER_ID: None}, None),
-                       (DASHBOARD, {}), ]
+                                       PER_ID: None},
+                        "When was the conversation?"),
+                       (DASHBOARD, {}, ""), ]
         super().__init__(view)
 
     def set(self, session, key, value):
@@ -200,17 +222,20 @@ class Conversation(Composite):
         # retrieve keys stored in session
         for k in [CO_ID, POS_ID, PER_ID]:
             if k in session:
-                self._state[self._state_index][PARAM_INDEX][k] = session[k]
+                self._state[self._state_next_index][PARAM_INDEX][k] = session[k]
 
 
 class Networking(Composite):
     def __init__(self, view):
         self._activity_name = NETWORKING
-        self._state = [(NEW_ACTIVITY, {}),
-                       (COMPANY, {ACTIVITY: NETWORKING}, CO_ID),
+        self._title = 'Networking wizard'
+        self._state = [(NEW_ACTIVITY, {}, ""),
+                       (COMPANY, {ACTIVITY: NETWORKING},
+                        "Where is the newtorking venue?"),
                        (NETWORKING, {ACTIVITY: NETWORKING,
-                                     CO_ID: None}, None),
-                       (DASHBOARD, {}), ]
+                                     CO_ID: None},
+                        "When? "),
+                       (DASHBOARD, {}, ""), ]
         super().__init__(view)
 
     def set(self, session, key, value):
@@ -218,4 +243,4 @@ class Networking(Composite):
         # retrieve keys stored in session
         for k in [CO_ID]:
             if k in session:
-                self._state[self._state_index][PARAM_INDEX][k] = session[k]
+                self._state[self._state_next_index][PARAM_INDEX][k] = session[k]
