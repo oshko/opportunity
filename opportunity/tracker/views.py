@@ -1,45 +1,8 @@
 '''
 
 As always with django this defines the views for the application.
-Most are straight forward but to create, edit and manipulate composite
-entities via a UI Wizard, UIDs are stored, so that, they can be
-passed between views and deleted when the UI Wizard completes.
-
-Some entities are composed of other ones. For the user, it can be a
-pain if you simply display the form. Consider applying for a job. Yes
-we want to record the date but critically we need to know the position
-and the company. This program presents composite entities in
-sequence. In this example, we first ask for the company, then the
-position and finally record meta data(e.g., data and comments). These
-sequences are enumerated below.
-
-This design relies on a handful of keywords.
-
-* next_cmd = (string) name of next command in the sequence.
-* co_id = (int) uid for company which was created for the sequence.
-* pos_id = (int) uid for position which was created for the sequence.
-* per_id = (int) uid for contact which was created for the sequence.
-
-
-Interview
-company    /prospect/add
-position   /position/add  co_id=<d>
-contact      /contact/add   co_id=<d>, pos_id=<d>
-interview  /interview/add co_id=<d>, pos_id=<d>, per_id=<d>
-
-Apply
-company    /prospect/add
-position   /position/add  co_id=<d>
-apply      /apply/add     co_id=<d>. pos_id=<d>
-
-Networking
-company    /prospect/add
-networking /networking/add co_id=<d>
-
-Conversation
-company    /prospect/add
-contact       /contact/add      co_id=<d>
-conversation /conversation/add co_id=<d>, per_id=<d>
+Wizards (or a sequence of forms) is more complex. See the wizard
+module for more detail. 
 
 '''
 

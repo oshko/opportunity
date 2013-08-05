@@ -13,26 +13,26 @@ class InterviewTest(unittest.TestCase):
         mock_session = {}
         obj = Composite.factory(INTERVIEW, NEW_ACTIVITY)
         # user selected interview from dashboard
-        self.assertEqual(obj.get_url(),
+        self.assertEqual(obj.get_next_url(),
             '/prospect/add?activity=interview')
 
         obj = Composite.factory(INTERVIEW, COMPANY)
         obj.set(mock_session, CO_ID, 3)
-        self.assertEqual(obj.get_url(),
+        self.assertEqual(obj.get_next_url(),
                          '/position/add?activity=interview&co_id=3')
 
         obj = Composite.factory(INTERVIEW, POSITION)
         obj.set(mock_session, POS_ID, 4)
-        self.assertEqual(obj.get_url(),
+        self.assertEqual(obj.get_next_url(),
                          '/contact/add?activity=interview&co_id=3&pos_id=4')
 
         obj = Composite.factory(INTERVIEW, CONTACT)
         obj.set(mock_session, PER_ID, 5)
-        self.assertEqual(obj.get_url(),
+        self.assertEqual(obj.get_next_url(),
                          '/interview/add?activity=interview&co_id=3&per_id=5&pos_id=4')
 
         obj = Composite.factory(INTERVIEW, INTERVIEW)
-        self.assertEqual(obj.get_url(),
+        self.assertEqual(obj.get_next_url(),
                          '/dashboard/')
 
 

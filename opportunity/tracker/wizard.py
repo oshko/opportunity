@@ -1,12 +1,50 @@
 '''
 
+Some entities are composed of other ones. For the user, it can be a
+pain if you simply display the form. Consider applying for a job. Yes
+we want to record the date but critically we need to know the position
+and the company. This program presents composite entities in
+sequence. In this example, we first ask for the company, then the
+position and finally record meta data(e.g., data and comments).
+
 These utility functions allow us to present a sequence of forms(aka,
 wizard) to the user. The state for each view in the wizard is stored
 in a list. Each element in the list is a tuple that has view
-name(string), template(dictionary) of the expected values and the key
-to store the UID for the entity just saved.
+name(string), template(dictionary) of the parameters and a
+description.
+
+These sequences are enumerated below.
+
+This design relies on a handful of keywords.
+
+* activity = (string) name of the wizard UI
+* co_id = (int) uid for company which was created for the sequence.
+* pos_id = (int) uid for position which was created for the sequence.
+* per_id = (int) uid for contact which was created for the sequence.
+
+
+Interview
+company    /prospect/add
+position   /position/add  co_id=<d>
+contact      /contact/add   co_id=<d>, pos_id=<d>
+interview  /interview/add co_id=<d>, pos_id=<d>, per_id=<d>
+
+Apply
+company    /prospect/add
+position   /position/add  co_id=<d>
+apply      /apply/add     co_id=<d>. pos_id=<d>
+
+Networking
+company    /prospect/add
+networking /networking/add co_id=<d>
+
+Conversation
+company    /prospect/add
+contact       /contact/add      co_id=<d>
+conversation /conversation/add co_id=<d>, per_id=<d>
 
 '''
+
 import logging
 import six
 if six.PY3:
@@ -53,6 +91,7 @@ class Composite():
     _activity_name = None     # activity name
     _view_name = None
     _title = None             # set in subclass
+    _expected_keys = None     # keys which are expected 
 
     def __init__(self, view):
         self._view_name = None
@@ -73,6 +112,18 @@ class Composite():
         session[key] = value
         # store in dict to allow us to compute url params
         self._state[self._state_next_index][PARAM_INDEX][key] = value
+        # if any values are stored in session, copy them. 
+        for k in self._expected_keys:
+            if k in session:
+                self._state[self._state_next_index][PARAM_INDEX][k] = session[k]
+
+    def delete_keys(self,session):
+        '''
+        When the wizard completes, delete keys from session
+        '''
+        for k in self._expected_keys:
+            if k in session:
+                del session[k]
 
     def get_next_url(self):
         '''
@@ -151,6 +202,7 @@ class Interview(Composite):
     def __init__(self, view):
         self._activity_name = INTERVIEW
         self._title = "Interview Wizard"
+        self._expected_keys = [CO_ID, POS_ID, PER_ID]
         self._state = [(NEW_ACTIVITY, {}, "Unk"),
                        (COMPANY, {ACTIVITY: INTERVIEW},
                         "With which company are you interview?"),
@@ -168,18 +220,12 @@ class Interview(Composite):
                        (DASHBOARD, {}, ""), ]
         super().__init__(view)
 
-    def set(self, session, key, value):
-        super().set(session, key, value)
-        # retrieve keys stored in session
-        for k in [CO_ID, POS_ID, PER_ID]:
-            if k in session:
-                self._state[self._state_next_index][PARAM_INDEX][k] = session[k]
-
 
 class Apply(Composite):
     def __init__(self, view):
         self._activity_name = APPLY
         self._title = 'Apply Wizard'
+        self._expected_keys = [CO_ID, POS_ID]
         self._state = [(NEW_ACTIVITY, {}, ""),
                        (COMPANY, {ACTIVITY: APPLY},
                         'At which company did you apply?'),
@@ -192,18 +238,12 @@ class Apply(Composite):
                        (DASHBOARD, {}, ""), ]
         super().__init__(view)
 
-    def set(self, session, key, value):
-        super().set(session, key, value)
-        # retrieve keys stored in session
-        for k in [CO_ID, POS_ID]:
-            if k in session:
-                self._state[self._state_next_index][PARAM_INDEX][k] = session[k]
-
 
 class Conversation(Composite):
     def __init__(self, view):
-        self._title = "Conversation Wizard"
         self._activity_name = CONVERSATION
+        self._title = "Conversation Wizard"
+        self._expected_keys = [CO_ID, POS_ID, PER_ID]
         self._state = [(NEW_ACTIVITY, {}, ""),
                        (COMPANY, {ACTIVITY: CONVERSATION},
                         "What company ? "),
@@ -217,18 +257,12 @@ class Conversation(Composite):
                        (DASHBOARD, {}, ""), ]
         super().__init__(view)
 
-    def set(self, session, key, value):
-        super().set(session, key, value)
-        # retrieve keys stored in session
-        for k in [CO_ID, POS_ID, PER_ID]:
-            if k in session:
-                self._state[self._state_next_index][PARAM_INDEX][k] = session[k]
-
 
 class Networking(Composite):
     def __init__(self, view):
         self._activity_name = NETWORKING
         self._title = 'Networking wizard'
+        self._expected_keys = [CO_ID]
         self._state = [(NEW_ACTIVITY, {}, ""),
                        (COMPANY, {ACTIVITY: NETWORKING},
                         "Where is the newtorking venue?"),
@@ -237,10 +271,3 @@ class Networking(Composite):
                         "When? "),
                        (DASHBOARD, {}, ""), ]
         super().__init__(view)
-
-    def set(self, session, key, value):
-        super().set(session, key, value)
-        # retrieve keys stored in session
-        for k in [CO_ID]:
-            if k in session:
-                self._state[self._state_next_index][PARAM_INDEX][k] = session[k]
