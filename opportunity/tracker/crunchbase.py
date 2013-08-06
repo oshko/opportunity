@@ -27,9 +27,11 @@ An error looks like
 
 '''
 
+from django.utils import six
+
 import os
 import json
-import six
+
 
 if six.PY3:
     from  urllib.parse import quote_plus as quote_plus
