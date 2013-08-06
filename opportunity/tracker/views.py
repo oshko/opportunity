@@ -771,12 +771,18 @@ def networkingView(request, *args, **kwargs):
                 return HttpResponseServerError("bad id")
         else:
             wiz = None
+            net_obj = Networking()
             if activity:
                 wiz = wizard.Composite.factory(activity, wizard.NETWORKING)
                 if wiz:
                     title = wiz.get_title()
                     description = wiz.get_description()
+                if wizard.CO_ID in request.GET:
+                    cobj = Company.objects.get(
+                        pk=request.GET[wizard.CO_ID])
+                    net_obj.venue = cobj
             form = NetworkingForm(
+                instance=net_obj,
                 user=request.user.get_profile())
     return render_to_response('tracker_form.html',
                               {'title': title,
@@ -961,11 +967,16 @@ def conversationView(request, *args, **kwargs):
                 return HttpResponseServerError("bad id")
         else:
             wiz = None
+            conv_obj = Conversation()
             if activity:
-                wiz = wizard.Composite.factory(activity, wizard.CONSERVATION)
+                wiz = wizard.Composite.factory(activity, wizard.CONVERSATION)
                 if wiz:
                     title = wiz.get_title()
                     description = wiz.get_description()
+                if wizard.PER_ID in request.GET:
+                    per_obj = Person.objects.get(
+                        pk=request.GET[wizard.PER_ID])
+                    conv_obj.person = per_obj
             form = ConversationForm(user=request.user.get_profile())
     return render_to_response('tracker_form.html',
                               {'title': title,

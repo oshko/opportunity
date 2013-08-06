@@ -245,15 +245,11 @@ class Conversation(Composite):
     def __init__(self, view):
         self._activity_name = CONVERSATION
         self._title = "Conversation Wizard"
-        self._expected_keys = [CO_ID, POS_ID, PER_ID]
+        self._expected_keys = [PER_ID]
         self._state = [(NEW_ACTIVITY, {}, ""),
-                       (COMPANY, {ACTIVITY: CONVERSATION},
-                        "What company ? "),
-                       (CONTACT, {ACTIVITY: CONVERSATION,
-                                  CO_ID: None},
+                       (CONTACT, {ACTIVITY: CONVERSATION },
                         "With whom did you speak?"),
                        (CONVERSATION, {ACTIVITY: CONVERSATION,
-                                       CO_ID: None,
                                        PER_ID: None},
                         "When was the conversation?"),
                        (DASHBOARD, {}, ""), ]
