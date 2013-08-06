@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h1>{{ title }}</h1>
+    
+    {{ desc }} 
+    <br/>
+    <div id="select-existing">
+      <fieldset>
+	<legend>existing:</legend>
+	<form action="/contact/existing">
+	  <select name="per_id">
+	    {% for p in people_list %}
+	     <option value="{{ p.id }}">
+	        {{ p.first_name }} {{ p.last_name }}</option>
+	    {% endfor %}
+	  </select>
+          {% if activity %}
+	  <input type="hidden" name="activity" value="{{ activity }}" >
+          {% endif %}
+	  <input type="submit" value="Submit">
+	</form>
+      </fieldset>
+    </div>
+    <br/>
+    <div style="text-align: center;font-size: large"> Or </div>
+    <fieldset>
+      <legend>New:</legend>
+	
+      {% if form.errors %}
+      <p style="color: red;">
+        Please correct the error{{ form.errors|pluralize }} below.
+      </p>
+      {% endif %}
+
+      <form action="" method="post">
+        <table>
+	  {{ form.as_table }}
+        </table>
+        <input type="submit" value="Submit">
+      </form>
+    </fieldset>
+            
+{% endblock %}

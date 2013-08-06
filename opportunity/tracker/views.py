@@ -346,6 +346,24 @@ def companyDelete(request, *args, **kwargs):
 
 
 @login_required
+def personDispatch(request, *args, **kwargs):
+    '''
+    When a users selects an existing person from a form,
+    this function calls the next view in the sequence with
+    the uid for that person.
+    '''
+    activity = None
+    p_id = None
+    if wizard.ACTIVITY in request.GET:
+        activity = request.GET[wizard.ACTIVITY]
+    if wizard.PER_ID in request.GET:
+        p_id = request.GET[wizard.PER_ID]
+    wiz = wizard.Composite.factory(activity, wizard.CONTACT)
+    wiz.set(request.session, wizard.PER_ID, p_id)
+    return HttpResponseRedirect(wiz.get_next_url())
+
+
+@login_required
 def personView(request, *args, **kwargs):
     """
     A form to enter information about a person of interest.
@@ -387,6 +405,8 @@ def personView(request, *args, **kwargs):
         else:
             wiz = None
             pobj = Person()
+            people = Person.objects.filter(
+                user=_get_user_id(request))
             if activity:
                 wiz = wizard.Composite.factory(activity, wizard.CONTACT)
                 if wiz:
@@ -397,10 +417,11 @@ def personView(request, *args, **kwargs):
                         pk=request.GET[wizard.CO_ID])
                     pobj.company = cobj
             form = PersonForm(user=request.user.get_profile())
-    return render_to_response('tracker_form.html',
+    return render_to_response('person_form.html',
                               {'title': title,
                                'desc': description,
-                               'activity_name_list': prettyNames,
+                               'people_list': people,
+                               'activity': activity, 
                                'form': form},
                               context_instance=RequestContext(request))
 

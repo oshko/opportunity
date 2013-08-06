@@ -33,36 +33,22 @@ copy this template and extend it.
 
 -->
 
-			<h1>{{ title }}</h1>
+    <h1>{{ title }}</h1>
+    
+    {{ desc }} 
 
-			{{ desc }} 
 
+    {% if form.errors %}
+    <p style="color: red;">
+      Please correct the error{{ form.errors|pluralize }} below.
+    </p>
+    {% endif %}
+    
+    <form action="" method="post">
+      <table>
+	{{ form.as_table }}
+      </table>
+      <input type="submit" value="Submit">
+    </form>
 
-			{% if form.errors %}
-				<p style="color: red;">
-				    Please correct the error{{ form.errors|pluralize }} below.
-				</p>
-			{% endif %}
-
-			<form action="" method="post">
-				<table>
-				    {{ form.as_table }}
-				</table>
-				<input type="submit" value="Submit">
-			</form>
-            <hr/>
-            When entering information, sometimes a field doesn't have the company, person or position you desire. You can add it here. 
-            <div id="add-something">
-				<fieldset>
-					<legend>add:</legend>
-					<form action="/newactivity/">
-						<select name="activity">
-			{% for activity in activity_name_list %}
-						<option value="{{ activity }}">{{ activity }}</option>
-			{% endfor %}
-						</select>
-						<input type="submit" value="Submit">
-					</form>
-				</fieldset>
-            </div>
 {% endblock %}

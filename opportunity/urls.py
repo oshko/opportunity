@@ -20,7 +20,8 @@ urlpatterns = patterns('',
     (r'^prospect/(?P<op>add)', 'opportunity.tracker.views.companyView'),
     (r'^prospect/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.companyView'),
     (r'^prospect/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.companyDelete'),
-    
+
+    (r'^contact/(?P<op>existing)', 'opportunity.tracker.views.personDispatch'),
     (r'^contact/(?P<op>add)$', 'opportunity.tracker.views.personView'),
     (r'^contact/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.personView'),
     (r'^contact/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.personDelete'),
