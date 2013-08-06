@@ -1,13 +1,16 @@
+from __future__ import unicode_literals
 import calendar
 import datetime
-import six
 
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils import six
 
 
+@python_2_unicode_compatible
 class UserProfile(models.Model):
     """
     A UserProfile is a person which uses our system.
@@ -27,7 +30,7 @@ class UserProfile(models.Model):
                             choices=ROLES_AT_UPGLO,
                             default=JOB_SEEKER)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
 
 
@@ -46,6 +49,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 post_save.connect(create_user_profile, sender=User)
 
 
+@python_2_unicode_compatible
 class Mentorship(models.Model):
     """
     A mentor assists a mentee with respect to finding a job.
@@ -56,8 +60,8 @@ class Mentorship(models.Model):
     startDate = models.DateField()  # should be set in UI
     expirationDate = models.DateField(blank=True, null=True)  # computed
 
-    def __unicode__(self):
-        return six.u('%s / %s' % (self.jobseeker, self.mentor))
+    def __str__(self):
+        return '%s / %s' % (self.jobseeker, self.mentor)
 
     def is_active(self):
         return not self.has_expired()
@@ -84,6 +88,7 @@ class Mentorship(models.Model):
         ordering = ['-startDate']
 
 
+@python_2_unicode_compatible
 class Company(models.Model):
     name = models.CharField(_('Name'), max_length=32)
     division = models.CharField(_('Division'),
@@ -102,13 +107,14 @@ class Company(models.Model):
         _('Comment'), max_length=256, blank=True, null=True)
     user = models.ForeignKey(UserProfile)
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return '%s' % self.name
 
     class Meta:
         ordering = ['name']
 
 
+@python_2_unicode_compatible
 class Person(models.Model):
     """
     People a job seeker has met along the way.
@@ -119,10 +125,11 @@ class Person(models.Model):
     company = models.ForeignKey(Company, unique=True, blank=True, null=True)
     user = models.ForeignKey(UserProfile)
 
-    def __unicode__(self):
-        return six.u('%s %s' % (self.first_name, self.last_name))
+    def __str__(self):
+        return '%s %s' % (self.first_name, self.last_name)
 
 
+@python_2_unicode_compatible
 class Position(models.Model):
     company = models.ForeignKey(Company, unique=True)
     title = models.CharField(max_length=64)
@@ -130,8 +137,8 @@ class Position(models.Model):
     comment = models.CharField(max_length=256, blank=True, null=True)
     user = models.ForeignKey(UserProfile)
 
-    def __unicode__(self):
-        return six.u('%s at %s' % (self.title, self.company))
+    def __str__(self):
+        return '%s at %s' % (self.title, self.company)
 
     class Meta:
         ordering = ['title']
@@ -174,18 +181,20 @@ activities in the template code.
 '''
 
 
+@python_2_unicode_compatible
 class Interview(Activity):
     position = models.ForeignKey(Position, unique=True)
     withWhom = models.ForeignKey(Person)
 
     tag = "interview"
 
-    def __unicode__(self):
-        return six.u('Interview with %s %s at %s for %s' % (
+    def __str__(self):
+        return 'Interview with %s %s at %s for %s' % (
             self.withWhom.first_name, self.withWhom.last_name,
-            self.position.company.name, self.position.title))
+            self.position.company.name, self.position.title)
 
 
+@python_2_unicode_compatible
 class Apply(Activity):
     """
     applied for job
@@ -194,11 +203,12 @@ class Apply(Activity):
 
     tag = "apply"
 
-    def __unicode__(self):
-        return six.u('Applied for %s at %s' % (
-            self.position.title, self.position.company.name))
+    def __str__(self):
+        return 'Applied for %s at %s' % (
+            self.position.title, self.position.company.name)
 
 
+@python_2_unicode_compatible
 class Networking(Activity):
     """
     networking at professional event. Company.name is the venue.
@@ -207,10 +217,11 @@ class Networking(Activity):
 
     tag = "networking"
 
-    def __unicode__(self):
-        return six.u('Networking at %s' % (self.venue.name))
+    def __str__(self):
+        return 'Networking at %s' % (self.venue.name)
 
 
+@python_2_unicode_compatible
 class Lunch (Activity):
     """
     Lunch with colleague
@@ -220,11 +231,12 @@ class Lunch (Activity):
 
     tag = "lunch"
 
-    def __unicode__(self):
-        return six.u('Lunch(or coffee) with %s %s at %s' % (
-            self.withWhom.first_name, self.withWhom.last_name, self.venue))
+    def __str__(self):
+        return 'Lunch(or coffee) with %s %s at %s' % (
+            self.withWhom.first_name, self.withWhom.last_name, self.venue)
 
 
+@python_2_unicode_compatible
 class MentorMeeting(Activity):
     """
     Meet with Mentor. Assumption: The Mentorship should have been
@@ -234,10 +246,11 @@ class MentorMeeting(Activity):
 
     tag = "mentormeeting"
 
-    def __unicode__(self):
-        return six.u('Met with %s' % (self.mentorship.mentor))
+    def __str__(self):
+        return 'Met with %s' % (self.mentorship.mentor)
 
 
+@python_2_unicode_compatible
 class Conversation(Activity):
     """
     Conversation can be via email, phone, in-person, etc.
@@ -252,11 +265,12 @@ class Conversation(Activity):
 
     tag = "conversation"
 
-    def __unicode__(self):
-        return six.u('Spoke with %s %s via %s' % (
-            self.person.first_name, self.person.last_name, self.via))
+    def __str__(self):
+        return 'Spoke with %s %s via %s' % (
+            self.person.first_name, self.person.last_name, self.via)
 
 
+@python_2_unicode_compatible
 class Pitch(models.Model):
     """
     This Models Simply Stores An Elevator Pitch.
@@ -265,10 +279,11 @@ class Pitch(models.Model):
     thePitch = models.CharField(_('Pitch'), max_length=256)
     user = models.ForeignKey(UserProfile)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.thePitch
 
 
+@python_2_unicode_compatible
 class OnlinePresence(models.Model):
     """
     Other websites are useful for the job hunt. Everyone has an online
@@ -279,7 +294,7 @@ class OnlinePresence(models.Model):
     url = models.URLField(_('URL'), blank=True)
     user = models.ForeignKey(UserProfile)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
