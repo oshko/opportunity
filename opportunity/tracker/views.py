@@ -2,7 +2,7 @@
 
 As always with django this defines the views for the application.
 Wizards (or a sequence of forms) is more complex. See the wizard
-module for more detail. 
+module for more detail.
 
 '''
 
@@ -16,8 +16,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.utils import six
 
-import six 
 import json
 import logging
 import datetime
@@ -56,6 +56,17 @@ mapNameToFunction = {_("Company"): "prospect",
                      _("Mentor Meeting"): "mentormeeting",
                      _("Lunch"): "lunch",
                      _("Conversation"): "conversation"}
+
+
+def _get_user_id(request):
+    '''
+    return the user id for the job seeker.
+    Return -1 if not a job seeker
+    '''
+    profile_id = -1
+    if request.user.userprofile.role == request.user.userprofile.JOB_SEEKER:
+        profile_id = request.user.userprofile.id
+    return profile_id
 
 
 def toplevelView(request):
@@ -233,15 +244,34 @@ def populateCompany(aCompanyModel):
 
 
 @login_required
+def companyDispatch(request, *args, **kwargs):
+    '''
+    When a users selects an existing company from a form,
+    this function calls the next view in the sequence with
+    the uid for the company.
+    '''
+    activity = None
+    if wizard.ACTIVITY in request.GET:
+        activity = request.GET[wizard.ACTIVITY]
+    if wizard.CO_ID in request.GET:
+        c_id = request.GET[wizard.CO_ID]
+    wiz = wizard.Composite.factory(activity, wizard.COMPANY)
+    wiz.set(request.session, wizard.CO_ID, c_id)
+    return HttpResponseRedirect(wiz.get_next_url())
+
+
+@login_required
 def companyView(request, *args, **kwargs):
     """
     A form to enter information about the company.
     """
-    companyData = None  # results from crunchbase company search
-    companyAlternates = None  # if mulitple hits, alternates go here
     title = "Company"
     description = "Record information about a prospective employer."
-    
+    activity = None
+    companies = None
+    if wizard.ACTIVITY in request.GET:
+        activity = request.GET[wizard.ACTIVITY]
+
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = CompanyForm(request.POST,
@@ -251,9 +281,16 @@ def companyView(request, *args, **kwargs):
         else:
             form = CompanyForm(request.POST, user=request.user.get_profile())
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(
-                reverse('opportunity.tracker.views.dashboard'))
+            c = form.save()
+            url = None
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.COMPANY)
+                if wiz:
+                    wiz.set(request.session, wizard.CO_ID, c.id)
+                    url = wiz.get_next_url()
+            if not url:
+                url = reverse('opportunity.tracker.views.dashboard')
+            return HttpResponseRedirect(url)
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -263,13 +300,14 @@ def companyView(request, *args, **kwargs):
             except:
                 return HttpResponseServerError("bad id")
         else:
-            wiz = None 
-            if wizard.ACTIVITY in request.GET:
-                activity = request.GET[wizard.ACTIVITY]
+            wiz = None
+            if activity:
                 wiz = wizard.Composite.factory(activity, wizard.COMPANY)
                 if wiz:
                     title = wiz.get_title()
                     description = wiz.get_description()
+            companies = Company.objects.filter(
+                user=_get_user_id(request))
             co = Company()
             if wizard.COMPANY in request.GET:
                 co.name = request.GET['company'].strip()
@@ -281,8 +319,9 @@ def companyView(request, *args, **kwargs):
     return render_to_response('company_form.html',
                               {'title': title,
                                'desc': description,
+                               'company_list': companies,
                                'activity_name_list': prettyNames,
-                               'alternate_co_list': companyAlternates,
+                               'activity': activity,
                                'form': form},
                               context_instance=RequestContext(request))
 
@@ -311,19 +350,32 @@ def personView(request, *args, **kwargs):
     """
     A form to enter information about a person of interest.
     """
+    title = "Person"
+    description = "Record a contact you met on the job hunt."
+    activity = None
+    if wizard.ACTIVITY in request.GET:
+        activity = request.GET[wizard.ACTIVITY]
+
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = PersonForm(request.POST,
-                              instance=Person.objects.get(pk=
-                                                          int(kwargs['id'])),
+                              instance=Person.objects.get(
+                                  pk=int(kwargs['id'])),
                               user=request.user.get_profile())
         else:
             form = PersonForm(request.POST,
                               user=request.user.get_profile())
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(
-                reverse('opportunity.tracker.views.dashboard'))
+            p = form.save()
+            url = None
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.CONTACT)
+                if wiz:
+                    wiz.set(request.session, wizard.PER_ID, p.id)
+                    url = wiz.get_next_url()
+            if not url:
+                url = reverse('opportunity.tracker.views.dashboard')
+            return HttpResponseRedirect(url)
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -333,11 +385,21 @@ def personView(request, *args, **kwargs):
             except:
                 return HttpResponseServerError("bad id")
         else:
+            wiz = None
+            pobj = Person()
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.CONTACT)
+                if wiz:
+                    title = wiz.get_title()
+                    description = wiz.get_description()
+                if wizard.CO_ID in request.GET:
+                    cobj = Company.objects.get(
+                        pk=request.GET[wizard.CO_ID])
+                    pobj.company = cobj
             form = PersonForm(user=request.user.get_profile())
     return render_to_response('tracker_form.html',
-                              {'title': _("Person"),
-                               'desc': _("Record a contact you"
-                                         " met on the job hunt."),
+                              {'title': title,
+                               'desc': description,
                                'activity_name_list': prettyNames,
                                'form': form},
                               context_instance=RequestContext(request))
@@ -415,6 +477,12 @@ def positionView(request, *args, **kwargs):
     """
     A form to enter information about a position
     """
+    title = "Position"
+    description = "Record a position in which you are interested."
+    activity = None
+    if wizard.ACTIVITY in request.GET:
+        activity = request.GET[wizard.ACTIVITY]
+
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = PositionForm(request.POST,
@@ -425,9 +493,16 @@ def positionView(request, *args, **kwargs):
             form = PositionForm(request.POST,
                                 user=request.user.get_profile())
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(
-                reverse('opportunity.tracker.views.dashboard'))
+            pos = form.save()
+            url = None
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.POSITION)
+                if wiz:
+                    wiz.set(request.session, wizard.POS_ID, pos.id)
+                    url = wiz.get_next_url()
+            if not url:
+                url = reverse('opportunity.tracker.views.dashboard')
+            return HttpResponseRedirect(url)
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -437,11 +512,23 @@ def positionView(request, *args, **kwargs):
             except:
                 return HttpResponseServerError("bad id")
         else:
-            form = PositionForm(user=request.user.get_profile())
+            wiz = None
+            pos = Position()
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.POSITION)
+                if wiz:
+                    title = wiz.get_title()
+                    description = wiz.get_description()
+                if wizard.CO_ID in request.GET:
+                    cobj = Company.objects.get(
+                        pk=request.GET[wizard.CO_ID])
+                    pos.company = cobj
+            form = PositionForm(
+                instance=pos,
+                user=request.user.get_profile())
     return render_to_response('tracker_form.html',
-                              {'title': _("Position"),
-                               'desc': _("Record a position in "
-                                         "which you are interested."),
+                              {'title': title,
+                               'desc': description,
                                'activity_name_list': prettyNames,
                                'form': form},
                               context_instance=RequestContext(request))
@@ -485,6 +572,12 @@ def interviewView(request, *args, **kwargs):
     """
     form to enter information about an interview
     """
+    title = "Interview"
+    description = "Record a pertinent interview."
+    activity = None
+    if wizard.ACTIVITY in request.GET:
+        activity = request.GET[wizard.ACTIVITY]
+
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = InterviewForm(request.POST,
@@ -496,8 +589,16 @@ def interviewView(request, *args, **kwargs):
                                  user=request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(
-                reverse('opportunity.tracker.views.dashboard'))
+            url = None
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.INTERVIEW)
+                if wiz:
+                    # no need to call wiz.set() because this is the last
+                    # in the sequence.
+                    url = wiz.get_next_url()
+            if not url:
+                url = reverse('opportunity.tracker.views.dashboard')
+            return HttpResponseRedirect(url)
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -507,10 +608,27 @@ def interviewView(request, *args, **kwargs):
             except:
                 return HttpResponseServerError("bad id")
         else:
-            form = InterviewForm(user=request.user.get_profile())
+            wiz = None
+            iobj = Interview()
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.INTERVIEW)
+                if wiz:
+                    title = wiz.get_title()
+                    description = wiz.get_description()
+                if wizard.PER_ID in request.GET:
+                    per_obj = Person.objects.get(
+                        pk=request.GET[wizard.PER_ID])
+                    iobj.withWhom = per_obj
+                if wizard.POS_ID in request.GET:
+                    pos_obj = Position.objects.get(
+                        pk=request.GET[wizard.POS_ID])
+                    iobj.position = pos_obj
+            form = InterviewForm(
+                instance=iobj, user=request.user.get_profile())
+
     return render_to_response('tracker_form.html',
-                              {'title': _("Interview"),
-                               'desc': _("Record a pertinent interview."),
+                              {'title': title,
+                               'desc': description,
                                'activity_name_list': prettyNames,
                                'form': form},
                               context_instance=RequestContext(request))
@@ -539,6 +657,12 @@ def applyForView(request, *args, **kwargs):
     /apply/(?P<op>add) - a new application
     /apply/(?P<op>edit)/(?P<id>\d+) - edit apply with id.
     """
+    title = "Apply"
+    description = "Record information about a job for which you applied."
+    activity = None
+    if wizard.ACTIVITY in request.GET:
+        activity = request.GET[wizard.ACTIVITY]
+
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = ApplyForm(request.POST,
@@ -549,8 +673,16 @@ def applyForView(request, *args, **kwargs):
                              user=request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(
-                reverse('opportunity.tracker.views.dashboard'))
+            url = None
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.APPLY)
+                if wiz:
+                    # no need to call wiz.set() because this is the last
+                    # in the sequence.
+                    url = wiz.get_next_url()
+            if not url:
+                url = reverse('opportunity.tracker.views.dashboard')
+            return HttpResponseRedirect(url)
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -560,11 +692,23 @@ def applyForView(request, *args, **kwargs):
             except:
                 return HttpResponseServerError("bad id")
         else:
-            form = ApplyForm(user=request.user.get_profile())
+            wiz = None
+            app_obj = Apply()
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.APPLY)
+                if wiz:
+                    title = wiz.get_title()
+                    description = wiz.get_description()
+                if wizard.CO_ID in request.GET:
+                    pos_obj = Position.objects.get(
+                        pk=request.GET[wizard.CO_ID])
+                    app.position = pos_obj
+            form = ApplyForm(
+                instance=app_obj,
+                user=request.user.get_profile())
     return render_to_response('tracker_form.html',
-                              {'title': _("Apply"),
-                               'desc': _("Record information about"
-                                         " a job for which you applied."),
+                              {'title': title,
+                               'desc': description,
                                'activity_name_list': prettyNames,
                                'form': form},
                               context_instance=RequestContext(request))
@@ -591,6 +735,12 @@ def networkingView(request, *args, **kwargs):
     """
     A form to document a networking event
     """
+    title = "Networking"
+    description = "Record information about a networking event."
+    activity = None
+    if wizard.ACTIVITY in request.GET:
+        activity = request.GET[wizard.ACTIVITY]
+
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = NetworkingForm(request.POST,
@@ -602,8 +752,15 @@ def networkingView(request, *args, **kwargs):
                                   user=request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(
-                reverse('opportunity.tracker.views.dashboard'))
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.NETWORKING)
+                if wiz:
+                    # no need to call wiz.set() because this is the last
+                    # in the sequence.
+                    url = wiz.get_next_url()
+            if not url:
+                url = reverse('opportunity.tracker.views.dashboard')
+            return HttpResponseRedirect(url)
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -613,12 +770,17 @@ def networkingView(request, *args, **kwargs):
             except:
                 return HttpResponseServerError("bad id")
         else:
+            wiz = None
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.NETWORKING)
+                if wiz:
+                    title = wiz.get_title()
+                    description = wiz.get_description()
             form = NetworkingForm(
                 user=request.user.get_profile())
     return render_to_response('tracker_form.html',
-                              {'title': _("Networking"),
-                               'desc': _("Record information "
-                                         " about a networking event."),
+                              {'title': title,
+                               'desc': description,
                                'activity_name_list': prettyNames,
                                'form': form},
                               context_instance=RequestContext(request))
@@ -762,6 +924,12 @@ def conversationView(request, *args, **kwargs):
     """
     A form to setup a meeting with mentor.
     """
+    title = "Conversation"
+    description = "Record a pertinent conversation."
+    activity = None
+    if wizard.ACTIVITY in request.GET:
+        activity = request.GET[wizard.ACTIVITY]
+
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = ConversationForm(request.POST,
@@ -773,8 +941,16 @@ def conversationView(request, *args, **kwargs):
                                     user=request.user.get_profile())
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(
-                reverse('opportunity.tracker.views.dashboard'))
+            url = None
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.CONVERSATION)
+                if wiz:
+                    # no need to call wiz.set() because this is the last
+                    # in the sequence.
+                    url = wiz.get_next_url()
+            if not url:
+                url = reverse('opportunity.tracker.views.dashboard')
+            return HttpResponseRedirect(url)
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -784,10 +960,16 @@ def conversationView(request, *args, **kwargs):
             except:
                 return HttpResponseServerError("bad id")
         else:
+            wiz = None
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.CONSERVATION)
+                if wiz:
+                    title = wiz.get_title()
+                    description = wiz.get_description()
             form = ConversationForm(user=request.user.get_profile())
     return render_to_response('tracker_form.html',
-                              {'title': _("Conversation"),
-                               'desc': _("Record a pertinent conversation."),
+                              {'title': title,
+                               'desc': description,
                                'activity_name_list': prettyNames,
                                'form': form},
                               context_instance=RequestContext(request))

@@ -32,7 +32,7 @@ interview  /interview/add co_id=<d>, pos_id=<d>, per_id=<d>
 Apply
 company    /prospect/add
 position   /position/add  co_id=<d>
-apply      /apply/add     co_id=<d>. pos_id=<d>
+apply      /apply/add     co_id=<d>, pos_id=<d>
 
 Networking
 company    /prospect/add
@@ -45,8 +45,10 @@ conversation /conversation/add co_id=<d>, per_id=<d>
 
 '''
 
+from django.utils import six
+
 import logging
-import six
+
 if six.PY3:
     from urllib.parse import urlencode
 else:
