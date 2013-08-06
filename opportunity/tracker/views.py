@@ -702,7 +702,7 @@ def applyForView(request, *args, **kwargs):
                 if wizard.CO_ID in request.GET:
                     pos_obj = Position.objects.get(
                         pk=request.GET[wizard.CO_ID])
-                    app.position = pos_obj
+                    app_obj.position = pos_obj
             form = ApplyForm(
                 instance=app_obj,
                 user=request.user.get_profile())
