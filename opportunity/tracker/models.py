@@ -131,7 +131,7 @@ class Person(models.Model):
 
 @python_2_unicode_compatible
 class Position(models.Model):
-    company = models.ForeignKey(Company, unique=True)
+    company = models.ForeignKey(Company)
     title = models.CharField(max_length=64)
     website = models.URLField()
     comment = models.CharField(max_length=256, blank=True, null=True)
