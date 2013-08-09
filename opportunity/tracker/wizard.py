@@ -93,7 +93,7 @@ class Composite():
     _activity_name = None     # activity name
     _view_name = None
     _title = None             # set in subclass
-    _expected_keys = None     # keys which are expected 
+    _expected_keys = None     # keys which are expected
 
     def __init__(self, view):
         self._view_name = None
@@ -114,12 +114,12 @@ class Composite():
         session[key] = value
         # store in dict to allow us to compute url params
         self._state[self._state_next_index][PARAM_INDEX][key] = value
-        # if any values are stored in session, copy them. 
+        # if any values are stored in session, copy them.
         for k in self._expected_keys:
             if k in session:
                 self._state[self._state_next_index][PARAM_INDEX][k] = session[k]
 
-    def delete_keys(self,session):
+    def delete_keys(self, session):
         '''
         When the wizard completes, delete keys from session
         '''
@@ -163,9 +163,15 @@ class Composite():
         return url
 
     def get_title(self):
+        '''
+        get title for this wizard. 
+        '''
         return self._title
 
     def get_description(self):
+        '''
+        get description of this wizard. 
+        '''
         return self._state[self._state_index][DESC_INDEX]
 
     def _convert_to_tuple(self, dict):
@@ -247,7 +253,7 @@ class Conversation(Composite):
         self._title = "Conversation Wizard"
         self._expected_keys = [PER_ID]
         self._state = [(NEW_ACTIVITY, {}, ""),
-                       (CONTACT, {ACTIVITY: CONVERSATION },
+                       (CONTACT, {ACTIVITY: CONVERSATION},
                         "With whom did you speak?"),
                        (CONVERSATION, {ACTIVITY: CONVERSATION,
                                        PER_ID: None},

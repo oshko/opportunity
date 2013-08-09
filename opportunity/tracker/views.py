@@ -172,36 +172,36 @@ def dashboard(request, *args, **kwargs):
                               context_instance=RequestContext(request))
 
 
-def populateCompany(aCompanyModel):
+def populateCompany(company_model):
     """
     Populate a Company model. It is factored out of the companyView()
     method to make it easier to test.
     """
-    companyData = {}
+    company_data = {}
     try:
         crunch = CrunchProxy()
-        companyData = crunch.get_company_details(aCompanyModel.name)
+        company_data = crunch.get_company_details(company_model.name)
     except http_error as e:
         logging.error(str.format("HTTP Error: {0} - {1}", e.code,
                                  http_responses[e.code]))
         try:
             # Explicitly looking for company by this name failed.
             # Try a generic search for the company name
-            companyData = crunch.generic_query(aCompanyModel.name)
+            company_data = crunch.generic_query(company_model.name)
             # returns a list. Look at 'namespace' keys with
             # the value of 'company'. There can be multiple values.
             # Decide which one to use.
-            companyData = [x for x in companyData
+            company_data = [x for x in company_data
                            if x['namespace'] == 'company']
             companyAlternates = None  # a list of companies the search up.
-            if not companyData:
-                # empty list. reset companyData
-                companyData = {}
-            elif len(companyData) == 1:
-                companyData = companyData[0]
+            if not company_data:
+                # empty list. reset company_data
+                company_data = {}
+            elif len(company_data) == 1:
+                company_data = company_data[0]
             else:
-                companyAlternates = companyData[1:]
-                companyData = companyData[0]
+                companyAlternates = company_data[1:]
+                company_data = company_data[0]
         except http_error as e:
             logging.error(str.format("HTTP Error: {0} - {1}",
                                      e.code, http_responses[e.code]))
@@ -214,33 +214,33 @@ def populateCompany(aCompanyModel):
         logging.warning(
             str.format("Company, {0}, not found in crunchbase."
                        "Ignoring and continuing.",
-                       aCompanyModel.name))
+                       company_model.name))
     # ignore result if there was api error.
-    if not 'error' in companyData:
-        if 'name' in companyData:
-            aCompanyModel.name = companyData['name']
-        if 'homepage_url' in companyData:
-            aCompanyModel.website = companyData['homepage_url']
+    if not 'error' in company_data:
+        if 'name' in company_data:
+            company_model.name = company_data['name']
+        if 'homepage_url' in company_data:
+            company_model.website = company_data['homepage_url']
 
         # todo: there can be multiple offices. For now we just use one.
         office = {}
-        if 'offices' in companyData and companyData['offices']:
-            office = companyData['offices'][0]
+        if 'offices' in company_data and company_data['offices']:
+            office = company_data['offices'][0]
         if 'address1' in office and office['address1'] is not None:
-            aCompanyModel.address = office['address1'].strip()
+            company_model.address = office['address1'].strip()
         if 'address2' in office and office['address2'] is not None:
             tmp = office['address2'].strip()
             if tmp is not None and len(tmp) > 0:
-                aCompanyModel.address += ", " + tmp
+                company_model.address += ", " + tmp
         if 'city' in office and office['city'] is not None:
-            aCompanyModel.city = office['city'].strip()
+            company_model.city = office['city'].strip()
         if 'state_code' in office and office['state_code'] is not None:
-            aCompanyModel.state_province = office['state_code'].strip()
+            company_model.state_province = office['state_code'].strip()
         if 'country_code' in office and office['country_code'] is not None:
-            aCompanyModel.country = office['country_code'].strip()
+            company_model.country = office['country_code'].strip()
         if 'zip_code' in office and office['zip_code'] is not None:
-            aCompanyModel.zipCode = office['zip_code'].strip()
-    return aCompanyModel
+            company_model.zipCode = office['zip_code'].strip()
+    return company_model
 
 
 @login_required
@@ -421,7 +421,7 @@ def personView(request, *args, **kwargs):
                               {'title': title,
                                'desc': description,
                                'people_list': people,
-                               'activity': activity, 
+                               'activity': activity,
                                'form': form},
                               context_instance=RequestContext(request))
 
@@ -1030,9 +1030,9 @@ def pitchView(request, *args, **kwargs):
     """
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
-            fi = Pitch.objects.get(pk=int(kwargs['id']))
+            pitch = Pitch.objects.get(pk=int(kwargs['id']))
             form = PitchForm(request.POST,
-                             instance=fi, user=request.user.get_profile())
+                             instance=pitch, user=request.user.get_profile())
         else:
             form = PitchForm(request.POST, user=request.user.get_profile())
         if form.is_valid():
@@ -1042,8 +1042,9 @@ def pitchView(request, *args, **kwargs):
     else:
         if kwargs['op'] == 'edit':
             try:
-                fi = Pitch.objects.get(pk=int(kwargs['id']))
-                form = PitchForm(instance=fi, user=request.user.get_profile())
+                pitch = Pitch.objects.get(pk=int(kwargs['id']))
+                form = PitchForm(instance=pitch,
+                                 user=request.user.get_profile())
             except:
                 return HttpResponseServerError("bad id")
         else:
