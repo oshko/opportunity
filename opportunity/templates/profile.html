@@ -1,4 +1,44 @@
 {% extends "base.html" %}
+
+{% block page_specific_js %}
+<style>
+  /* IE has layout issues when sorting (see #5413) */
+  .group { zoom: 1 }
+  </style>
+  <script>
+  $(function() {
+    $( "#pitch-container" )
+      .accordion({
+        header: "> div > h3"
+      })
+      .sortable({
+        axis: "y",
+        handle: "h3",
+        stop: function( event, ui ) {
+          // IE doesn't register the blur when sorting
+          // so trigger focusout handlers to remove .ui-state-focus
+          ui.item.children( "h3" ).triggerHandler( "focusout" );
+        }
+      });
+  });
+  $(function() {
+    $( "#story-container" )
+      .accordion({
+        header: "> div > h3"
+      })
+      .sortable({
+        axis: "y",
+        handle: "h3",
+        stop: function( event, ui ) {
+          // IE doesn't register the blur when sorting
+          // so trigger focusout handlers to remove .ui-state-focus
+          ui.item.children( "h3" ).triggerHandler( "focusout" );
+        }
+      });
+  });
+  </script>
+{% endblock %}
+
 {% block content %}
  
 	<h1>Profile - skills the job seeker has on offer.</h1>
@@ -37,18 +77,20 @@
 	<p> When you meet a new person on the job hunt, the elevator pitch 
     allows you to convey your value proposition. </p>
     <a class="button" href="/pitch/add">Add a pitch</a>
-    <a class="button" onclick="deleteCheckedEntries('pitch','/pitch/del/')">Delete</a>
     <br/>
       <p> 
     <div id="pitch-container">
         {% if pitch_list %}
-            <ul>
             {% for pitch in pitch_list %}
-                <div id="pitch-{{ pitch.id }}">
-                    <li><input type="checkbox" value={{ pitch.id }} /> {{ pitch.thePitch }} (<a href="/pitch/edit/{{ pitch.id }}">edit</a>)</li>
-                </div>
+	<div class='group' id="pitch-{{ pitch.id }}">
+	  <h3> {{ pitch.role }} </h3>
+	  <div>
+	    <p> 
+	      (<a href=javascript:deleteEntry("/pitch/del/{{ pitch.id }}/pitch")>delete</a>|<a href="/pitch/edit/{{ pitch.id }}">edit</a>) {{ pitch.thePitch }} 
+	    </p>
+	  </div>
+	</div>
             {% endfor %}
-            </ul>
         {% else %}
             No elevator pitch.
         {% endif %}
@@ -73,22 +115,20 @@
 	</p> 
     <div id="story-cmd" >
     <a class="button" href="/par/add">Add a story</a>  
-    <a class="button" onclick="deleteCheckedEntries('story','/par/del/')">Delete</a>
     </div>
    <br/>
     <p>
 <div id="story-container"> 
     {% if story_list %}
-    <ul>
         {% for story in story_list %}
-        <div id="story-{{ story.id }}">
-            <li> <input type="checkbox" value={{ story.id }} /> <b>Question</b> (<a href="/par/edit/{{ story.id }}">edit</a>): {{ story.question }}
-            <br/>
+        <div class='group' id="story-{{ story.id }}">
+            <h3> Q: {{ story.question|truncatechars:32 }} </h3>
+	  <p>
+                <b>Question</b>(<a href=javascript:deleteEntry("/par/del/{{ story.id }}/story")>delete</a>|<a href="/par/edit/{{ story.id }}">edit</a>): {{ story.question }} </br>
                 <b>Response</b>: {{ story.par_response }}
-            </li>
+            </p>
         </div>
         {% endfor %}
-    </ul>
     {% else %} 
                 There are no links to PAR based stories at this time. 
     {% endif %} 

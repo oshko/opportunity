@@ -1063,9 +1063,10 @@ def pitchView(request, *args, **kwargs):
 def pitchDelete(request, *args, **kwargs):
     """
     Delete a elevator pitch.
-    /pitch/(?P<op>del)/(?P<id>\d+) - delete pitch with id.
+    /pitch/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+) - delete pitch with id.
     """
-    rc = {'id': kwargs['id'], 'idName': 'pitch',
+    rc = {'id': kwargs['id'], 'divId': kwargs['divId'],
+          'idName': 'pitch',
           'noElements': "No elevator pitch."}
     try:
         obj = Pitch.objects.get(pk=int(kwargs['id']))
@@ -1144,9 +1145,10 @@ def onlinePresenceDelete(request, *args, **kwargs):
 def parDelete(request, *args, **kwargs):
     """
     Delete a PAR story.
-    /par/(?P<op>del)/(?P<id>\d+) - delete story with id.
+    /par/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+) - delete story with id.
     """
-    rc = {'id': kwargs['id'], 'idName': 'story',
+    rc = {'id': kwargs['id'], 'divId': kwargs['divId'],
+          'idName': 'story',
           'noElements': "There are no links to PAR"
           " based stories at this time."}
     try:

@@ -71,7 +71,7 @@ urlpatterns = patterns('',
     
     (r'^pitch/(?P<op>add)$', 'opportunity.tracker.views.pitchView'), 
     (r'^pitch/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.pitchView'),  
-    (r'^pitch/(?P<op>del)/(?P<id>\d+)$', 'opportunity.tracker.views.pitchDelete'),  
+    (r'^pitch/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.pitchDelete'),  
     
     (r'^onlinePresence/(?P<op>add)$', 'opportunity.tracker.views.onlinePresenceView'),
     (r'^onlinePresence/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.onlinePresenceView'),
@@ -79,7 +79,7 @@ urlpatterns = patterns('',
     
     (r'^par/(?P<op>add)$', 'opportunity.tracker.views.parView'),
     (r'^par/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.parView'),
-    (r'^par/(?P<op>del)/(?P<id>\d+)$', 'opportunity.tracker.views.parDelete'),
+    (r'^par/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.parDelete'),
     
     (r'^login/$', 'opportunity.tracker.views.loginRequest'),
     (r'^logout/$', 'opportunity.tracker.views.logoutRequest'),
