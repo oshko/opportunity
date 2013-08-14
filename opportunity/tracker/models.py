@@ -33,6 +33,15 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
 
+    def is_job_seeker(self):
+        return self.role == self.JOB_SEEKER
+
+    def is_mentor(self):
+        return self.role == self.MENTOR
+
+    def is_coordinator(self):
+        return self.role == self.COORDINATOR
+
 
 # UserProfile is associated with the User table. Listen for the post_save
 # signal. Create a profile when new User added.

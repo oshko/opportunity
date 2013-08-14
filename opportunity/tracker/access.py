@@ -34,3 +34,24 @@ def may_access_control(requester_id, target_id):
         if len(m_rel) == 1:
             ret = True
     return ret
+
+def has_meetee(mentor_userprofile):
+    '''
+    Has this mentor been assigned to work with a job seeker?
+    Given a user, return job seek id of mentee if any, else None
+    '''
+    rc = None
+    err_msg = None 
+    if mentor_userprofile.is_mentor():
+        m_rel = Mentorship.objects.filter(
+            mentor__id = mentor_userprofile.id)
+        if len(m_rel) >= 1:
+            rc = m_rel[0].jobseeker_id
+        else:
+            err_msg = 'No meetee has been assigned, yet.'
+    else:
+        err_msg = 'You must be a mentor to view this page'
+    return rc, err_msg
+            
+    
+    

@@ -34,7 +34,7 @@ import opportunity.tracker.wizard as wizard
 from .forms import *
 from .models import *
 from .crunchbase import CrunchProxy
-from .access import may_access_control
+from .access import may_access_control, has_meetee
 
 
 # The prettyNames are displayed to the user.
@@ -140,35 +140,64 @@ def dashboard(request, *args, **kwargs):
     companies = None
     activities = None
     mentee_id = None
+    page = None
+    page_options = {}
     page_owner_p = False
-    page_owner_name = 'My'
+    page_owner_name = 'Unauthorized'
+    perm_p = False
+    err_message = 'You do not have permission to access this page.'
+    
     if 'mentee_id' in kwargs:
         mentee_id = kwargs['mentee_id']
 
-    if request.user.userprofile.role == request.user.userprofile.JOB_SEEKER:
+    if request.user.userprofile.is_job_seeker():
+        # meetee_id is ignored for jobseeker. Always display their page. 
         profile_id = request.user.userprofile.id
         page_owner_p = True
-    else:
+        page_owner_name = 'My'
+        
+        perm_p = True
+    elif request.user.userprofile.is_coordinator():
+        if mentee_id:
+            profile_id = mentee_id
+            mentee = UserProfile.objects.get(pk=mentee_id)
+            page_owner_name = mentee.user.username.strip() + "'s"
+            perm_p = True
+        else:
+            err_message = 'No job seeker id provided'
+    elif request.user.userprofile.is_mentor():
         # Does the user have permission to access this mentee?
+        
+        if mentee_id is None:
+            # has mentor been assigned a job seeker?
+            mentee_id,err_message = has_meetee(request.user.userprofile)
         if mentee_id and may_access_control(request.user.userprofile.id,
                                             mentee_id):
             profile_id = mentee_id
             mentee = UserProfile.objects.get(pk=mentee_id)
             page_owner_name = mentee.user.username.strip() + "'s"
+            perm_p = True
 
-    positions = Position.objects.filter(user=profile_id)
-    people = Person.objects.filter(user=profile_id)
-    companies = Company.objects.filter(user=profile_id)
-    activities = Activity.getAll(profile_id)
-
-    return render_to_response('dashboard.html',
-                              {'activity_name_list': prettyNames,
+    if perm_p:
+        page = 'dashboard.html'
+        page_options = {'activity_name_list': prettyNames,
                                'activity_list': activities,
                                'contact_list': people,
                                'position_list': positions,
                                'prospect_list': companies,
                                'page_owner_name': page_owner_name,
-                               'page_owner_p': page_owner_p},
+                               'page_owner_p': page_owner_p}
+        
+        positions = Position.objects.filter(user=profile_id)
+        people = Person.objects.filter(user=profile_id)
+        companies = Company.objects.filter(user=profile_id)
+        activities = Activity.getAll(profile_id)
+    else:
+        page = 'perm_problem.html'
+        page_options['err_message'] = err_message
+
+    return render_to_response(page,
+                              page_options,
                               context_instance=RequestContext(request))
 
 
