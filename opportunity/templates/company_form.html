@@ -16,6 +16,7 @@ new model/form, that is the place to start.
     
     {{ desc }} 
     <br/>
+{% if activity %}
     <div id="select-existing">
       <fieldset>
 	<legend>existing:</legend>
@@ -34,6 +35,7 @@ new model/form, that is the place to start.
     </div>
     <br/>
     <div style="text-align: center;font-size: large"> Or </div>
+{% endif %}
     <fieldset>
       <legend>New:</legend>
 	
