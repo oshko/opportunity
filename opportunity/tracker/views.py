@@ -34,7 +34,6 @@ import opportunity.tracker.wizard as wizard
 from .forms import *
 from .models import *
 from .crunchbase import CrunchProxy
-from .access import may_access_control, has_meetee
 
 
 # The prettyNames are displayed to the user.
@@ -151,11 +150,10 @@ def dashboard(request, *args, **kwargs):
         mentee_id = kwargs['mentee_id']
 
     if request.user.userprofile.is_job_seeker():
-        # meetee_id is ignored for jobseeker. Always display their page. 
+        # mentee_id is ignored for jobseeker. Always display their page. 
         profile_id = request.user.userprofile.id
         page_owner_p = True
-        page_owner_name = 'My'
-        
+        page_owner_name = 'My'        
         perm_p = True
     elif request.user.userprofile.is_coordinator():
         if mentee_id:
@@ -170,7 +168,7 @@ def dashboard(request, *args, **kwargs):
         
         if mentee_id is None:
             # has mentor been assigned a job seeker?
-            mentee_id,err_message = has_meetee(request.user.userprofile)
+            mentee_id, err_message = request.user.userprofile.has_mentee()
         if mentee_id and may_access_control(request.user.userprofile.id,
                                             mentee_id):
             profile_id = mentee_id
@@ -178,24 +176,73 @@ def dashboard(request, *args, **kwargs):
             page_owner_name = mentee.user.username.strip() + "'s"
             perm_p = True
 
-    if perm_p:
-        page = 'dashboard.html'
-        page_options = {'activity_name_list': prettyNames,
-                               'activity_list': activities,
-                               'contact_list': people,
-                               'position_list': positions,
-                               'prospect_list': companies,
-                               'page_owner_name': page_owner_name,
-                               'page_owner_p': page_owner_p}
-        
+    if perm_p:        
         positions = Position.objects.filter(user=profile_id)
         people = Person.objects.filter(user=profile_id)
         companies = Company.objects.filter(user=profile_id)
         activities = Activity.getAll(profile_id)
+        page = 'dashboard.html'
+        page_options = {'activity_name_list': prettyNames,
+                        'activity_list': activities,
+                        'contact_list': people,
+                        'position_list': positions,
+                        'prospect_list': companies,
+                        'page_owner_name': page_owner_name,
+                        'page_owner_p': page_owner_p}
+
     else:
         page = 'perm_problem.html'
         page_options['err_message'] = err_message
 
+    return render_to_response(page,
+                              page_options,
+                              context_instance=RequestContext(request))
+
+
+@login_required
+def profileView(request, *args, **kwargs):
+    """
+    This is a profile page. It contains the elevator pitch and responses to
+    behavioral interview questions.
+    """
+    page = 'perm_problem.html'
+    page_options = {}
+    page_owner_p = False
+    page_owner_name = 'Unauthorized'
+    
+    mentee_id = None
+    if 'mentee_id' in kwargs:
+        mentee_id = kwargs['mentee_id']
+
+    if mentee_id is None and request.user.userprofile.is_mentor():
+        mentee_id, err_message = request.user.userprofile.has_mentee()
+
+    if (request.user.userprofile.is_job_seeker()
+        or request.user.userprofile.is_mentor_of(mentee_id)
+        or request.user.userprofile.is_coordinator()):
+
+        if request.user.userprofile.is_job_seeker():
+            page_owner_name = 'My'
+            page_owner_p = True
+            profile_id = request.user.userprofile.id
+        elif mentee_id:
+            profile_id = mentee_id
+            mentee = UserProfile.objects.get(pk=mentee_id)
+            page_owner_name = mentee.user.username.strip() + "'s"
+
+        ref_list = OnlinePresence.objects.filter(user=profile_id)
+        story_list = PAR.objects.filter(user=profile_id)
+        pitch_list = Pitch.objects.filter(user=profile_id)
+
+        page = 'profile.html'
+        page_options = {'page_owner_name': page_owner_name,
+                        'page_owner_p': page_owner_p,
+                        'pitch_list': pitch_list,
+                        'ref_list': ref_list,
+                        'story_list': story_list}
+    else:
+        page_options['err_message'] = 'You do not have permission to access this page.'
+            
     return render_to_response(page,
                               page_options,
                               context_instance=RequestContext(request))
@@ -1229,23 +1276,6 @@ def parView(request, *args, **kwargs):
                                          " question in PAR format."),
                                'activity_name_list': prettyNames,
                                'form': form},
-                              context_instance=RequestContext(request))
-
-
-@login_required
-def profileView(request):
-    """
-    This is a profile page. It contains the elevator pitch and responses to
-    behavioral interview questions.
-    """
-    profile_id = request.user.userprofile.id
-    ref_list = OnlinePresence.objects.filter(user=profile_id)
-    story_list = PAR.objects.filter(user=profile_id)
-    pitch_list = Pitch.objects.filter(user=profile_id)
-    return render_to_response('profile.html',
-                              {'ref_list': ref_list,
-                               'story_list': story_list,
-                               'pitch_list': pitch_list},
                               context_instance=RequestContext(request))
 
 

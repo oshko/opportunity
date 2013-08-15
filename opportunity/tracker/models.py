@@ -10,6 +10,33 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils import six
 
 
+def may_access_control(requester_id, target_id):
+    '''
+    can user with requester_id access a page for target_id?
+
+    requester_id - is user profile id who wants access
+    target_id - is user profile id owns the data.
+
+    '''
+    ret = False
+    # find UserProfile for requestor
+    user_req = UserProfile.objects.get(pk=requester_id)
+    if user_req.is_upglo_staff:
+        # UpGlo staff can access any page.
+        ret = True
+    elif requester_id == target_id:
+        # Requester owns requested page
+        ret = True
+    else:
+        # is there a mentorship relationship between aRequester and aTarget?
+        m_rel = Mentorship.objects.filter(
+            jobseeker__id=target_id,
+            mentor__id=requester_id)
+        if len(m_rel) == 1:
+            ret = True
+    return ret
+
+
 @python_2_unicode_compatible
 class UserProfile(models.Model):
     """
@@ -33,14 +60,50 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
 
+    def is_coordinator(self):
+        '''
+        Is a coordinator? 
+        '''
+        return self.role == self.COORDINATOR
+
     def is_job_seeker(self):
+        '''
+        is a job seeker? 
+        '''
         return self.role == self.JOB_SEEKER
 
     def is_mentor(self):
+        '''
+        Is a mentor?
+        '''
         return self.role == self.MENTOR
 
-    def is_coordinator(self):
-        return self.role == self.COORDINATOR
+    def is_mentor_of(self, js_id):
+        '''
+        Is this user the mentor of id? 
+        '''
+        if js_id:
+            rc = True if may_access_control(self.id, js_id) else False
+        else:
+            rc = False
+        return rc
+
+    def has_mentee(self):
+        '''
+        Has this user been assigned to work with a job seeker?
+        Given a user id return job seek id of mentee if any, else None
+        '''
+        rc = None
+        err_msg = None
+        if self.is_mentor():
+            m_rel = Mentorship.objects.filter(mentor__id = self.id)
+            if len(m_rel) >= 1:
+                rc = m_rel[0].jobseeker_id
+            else:
+                err_msg = 'No mentee has been assigned, yet.'
+        else:
+            err_msg = 'You must be a mentor to view this page'
+        return rc, err_msg
 
 
 # UserProfile is associated with the User table. Listen for the post_save

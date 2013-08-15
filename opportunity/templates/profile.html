@@ -41,7 +41,7 @@
 
 {% block content %}
  
-	<h1>Profile - skills the job seeker has on offer.</h1>
+	<h1>{{ page_owner_name }} Profile - skills the job seeker has on offer.</h1>
 
 	<p> 
 	On the job hunt, you often tell stories. This profile page is design 
@@ -54,16 +54,26 @@
     <p> You may find it convenient to store the URL to your resume here. 
     That way it is aggregated with related data. 
     </p>
+    {% if page_owner_p %}
     <a class="button" href="/onlinePresence/add">Add a link</a>
      <a class="button" onclick="deleteCheckedEntries('presence', '/onlinePresence/del/')">Delete</a>
     <br/>
+    {% endif %}
     <p>
 <div id="presence-container">    
     {% if ref_list %}
 <ul>
         {% for ref in ref_list %}
          <div id="presence-{{ ref.id }}">
-            <li><input type="checkbox" value={{ ref.id }} /><a href="{{ ref.url }}">{{ ref.name }}</a> (<a href="/onlinePresence/edit/{{ ref.id }}">edit</a>) </li>
+	  <li>
+	   {% if page_owner_p %}
+	  <input type="checkbox" value={{ ref.id }} />
+	  {% endif %}
+	  <a href="{{ ref.url }}">{{ ref.name }}</a> 
+	  {% if page_owner_p %}
+	  (<a href="/onlinePresence/edit/{{ ref.id }}">edit</a>) 
+	  {% endif %}
+	</li>
          </div>
         {% endfor %}
 </ul>
@@ -76,8 +86,10 @@
     <h3>Pitch: give them something to remember you by.  </h3>
 	<p> When you meet a new person on the job hunt, the elevator pitch 
     allows you to convey your value proposition. </p>
+{% if page_owner_p %}
     <a class="button" href="/pitch/add">Add a pitch</a>
     <br/>
+{% endif %}
       <p> 
     <div id="pitch-container">
         {% if pitch_list %}
@@ -86,7 +98,10 @@
 	  <h3> {{ pitch.role }} </h3>
 	  <div>
 	    <p> 
-	      (<a href=javascript:deleteEntry("/pitch/del/{{ pitch.id }}/pitch")>delete</a>|<a href="/pitch/edit/{{ pitch.id }}">edit</a>) {{ pitch.thePitch }} 
+	      {% if page_owner_p %}
+	      (<a href=javascript:deleteEntry("/pitch/del/{{ pitch.id }}/pitch")>delete</a>|<a href="/pitch/edit/{{ pitch.id }}">edit</a>) 
+	      {% endif %}
+	      {{ pitch.thePitch }} 
 	    </p>
 	  </div>
 	</div>
@@ -114,7 +129,9 @@
     overcome it. Finally, you should talk about <b>results</b>. [A similar approach is called STAR. ST stands for situation/task. AR is the same. ]
 	</p> 
     <div id="story-cmd" >
-    <a class="button" href="/par/add">Add a story</a>  
+      {% if page_owner_p %}
+      <a class="button" href="/par/add">Add a story</a>  
+      {% endif %}
     </div>
    <br/>
     <p>
@@ -124,7 +141,11 @@
         <div class='group' id="story-{{ story.id }}">
             <h3> Q: {{ story.question|truncatechars:32 }} </h3>
 	  <p>
-                <b>Question</b>(<a href=javascript:deleteEntry("/par/del/{{ story.id }}/story")>delete</a>|<a href="/par/edit/{{ story.id }}">edit</a>): {{ story.question }} </br>
+                <b>Question</b>
+{% if page_owner_p %}
+(<a href=javascript:deleteEntry("/par/del/{{ story.id }}/story")>delete</a>|<a href="/par/edit/{{ story.id }}">edit</a>)
+{% endif %}
+: {{ story.question }} </br>
                 <b>Response</b>: {{ story.par_response }}
             </p>
         </div>

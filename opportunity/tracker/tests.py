@@ -3,8 +3,7 @@ from django.utils import unittest
 import datetime
 
 from django.contrib.auth.models import User
-from .models import UserProfile, Mentorship
-from .access import may_access_control
+from .models import UserProfile, Mentorship, may_access_control
 
 
 def create_a_user(dict):
