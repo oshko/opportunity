@@ -82,6 +82,10 @@ def toplevelView(request):
         return render_to_response('about.html',
                                   context_instance=RequestContext(request))
 
+def about(request):
+    """ references to books which may help the job seeker """
+    return render_to_response('about.html',
+                              context_instance=RequestContext(request))
 
 def books(request):
     """ references to books which may help the job seeker """
