@@ -11,11 +11,7 @@ AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
 AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
 
-if not six.PY3:
-    # boto is required 
-    import opportunity.s3utils
-
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -32,18 +28,6 @@ MANAGERS = ADMINS
 # DATABASES = { 'default': {} } 
 # DATABASES['default'] = dj_database_url.config()
 # DATABASES['default']['TEST_NAME'] = 'test_opportunity'
-
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'test',                      # Or path to database file if using sqlite3.
-        'USER': 'user',                      # Not used with sqlite3.
-        'PASSWORD': 'password',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
-    }
-}
 
 AUTH_PROFILE_MODULE = "tracker.UserProfile"
 
@@ -86,18 +70,6 @@ MEDIA_ROOT = ''
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = ''
-
-if not six.PY3:
-    DEFAULT_FILE_STORAGE='storages.backends.s3boto.S3BotoStorage'
-    # DEFAULT_FILE_STORAGE='opportunity.s3utils.MediaRootS3BotoStorage'
-
-
-
-# To allow django-admin.py collectstatic to automatically put your static 
-# files in your S3 bucket
-if not six.PY3:
-    STATICFILES_STORAGE = "opportunity.s3utils.StaticRootS3BotoStorage"
-    # STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -156,7 +128,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(os.path.dirname(__file__), 'templates').replace('\\','/'),
+    os.path.join(os.path.dirname(__file__),'..', 'templates').replace('\\','/'),
 )
 
 INSTALLED_APPS = (
@@ -173,10 +145,12 @@ INSTALLED_APPS = (
     'south',
 )
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
 if not six.PY3:
     INSTALLED_APPS += ('storages',)
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+
 
 if DEBUG:
     EMAIL_HOST = 'localhost'
