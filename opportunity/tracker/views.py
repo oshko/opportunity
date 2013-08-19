@@ -1325,7 +1325,7 @@ def loginRequest(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
+            username = form.cleaned_data['username'].strip()
             password = form.cleaned_data['password']
             userprofile = authenticate(username=username, password=password)
             if userprofile is not None:
