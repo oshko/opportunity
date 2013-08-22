@@ -77,17 +77,12 @@ class ConversationText(unittest.TestCase):
         obj = Composite.factory(CONVERSATION, NEW_ACTIVITY)
         # user selected interview from dashboard
         self.assertEqual(obj.get_next_url(),
-            '/prospect/add?activity=conversation')
-
-        obj = Composite.factory(CONVERSATION, COMPANY)
-        obj.set(mock_session, CO_ID, 3)
-        self.assertEqual(obj.get_next_url(),
-            '/contact/add?activity=conversation&co_id=3')
+            '/contact/add?activity=conversation')
 
         obj = Composite.factory(CONVERSATION, CONTACT)
         obj.set(mock_session, PER_ID, 4)
         self.assertEqual(obj.get_next_url(),
-            '/conversation/add?activity=conversation&co_id=3&per_id=4')
+            '/conversation/add?activity=conversation&per_id=4')
 
         obj = Composite.factory(CONVERSATION, CONVERSATION)
         self.assertEqual(obj.get_next_url(),

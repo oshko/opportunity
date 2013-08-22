@@ -39,9 +39,8 @@ company    /prospect/add
 networking /networking/add co_id=<d>
 
 Conversation
-company    /prospect/add
-contact       /contact/add      co_id=<d>
-conversation /conversation/add co_id=<d>, per_id=<d>
+contact       /contact/add      
+conversation /conversation/add per_id=<d>
 
 '''
 
