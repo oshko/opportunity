@@ -169,7 +169,11 @@ class MentorshipForm(forms.ModelForm):
 
     class Meta:
         model = Mentorship
-        exclude = ('expirationDate',)
+        fields = (
+            'jobseeker',
+            'mentor',
+            'startDate',
+            )
 
 
 class ConversationForm(forms.ModelForm):
