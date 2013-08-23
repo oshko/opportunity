@@ -3,12 +3,14 @@ from django.utils import unittest
 import datetime
 
 from django.contrib.auth.models import User
-from .models import UserProfile, Mentorship, may_access_control
+from .models import UserProfile, Mentorship, may_access_control, secret_society
 
 
 def create_a_user(dict):
     user = User.objects.create_user(
         username=dict['username'],
+        first_name=dict['first_name'],
+        last_name=dict['last_name'],
         email=dict['email'],
         password=dict['password'])
     user.save()
@@ -21,6 +23,7 @@ def create_a_user(dict):
 
 class ValidateModels(unittest.TestCase):
     mentorship = None
+    jobseeker_profile = None
     # cast
     emily = "Emily"  # upglo staff
     emilyId = None
@@ -32,6 +35,7 @@ class ValidateModels(unittest.TestCase):
     elenaId = None
     jose = "Jose"  # unrelated mentor
     joseId = None
+    
 
     def setUp(self):
         '''
@@ -39,45 +43,59 @@ class ValidateModels(unittest.TestCase):
         '''
         self.emilyId, coordinator_profile = create_a_user(
             {'username': self.emily,
-             'email': self.emily + "@gmail.com",
-             'password': "secret",
-             'is_upglo': True,
-             'role': "coordinator",
-             'title': "UpGlo Coordinator"})
-        self.yohannesId, jobseeker_profile = create_a_user(
-            {'username': self.yohannes,
-             'email': self.yohannes + "@gmail.com",
-             'password': "secret",
-             'is_upglo': False,
-             'role': "jobseeker",
-             'title': "Research Assoicate "})
+            'first_name' : 'Diego',
+            'last_name' : 'Hernandez', 
+            'email': self.emily + "@gmail.com",
+            'password': "secret",
+            'is_upglo': True,
+            'role': "coordinator",
+            'title': "UpGlo Coordinator"})
+        self.yohannesId, self.jobseeker_profile = create_a_user(
+            {
+            'username': self.yohannes,
+            'first_name' : 'Yohannes',
+            'last_name' : 'Smith', 
+            'email': self.yohannes + "@gmail.com",
+            'password': "secret",
+            'is_upglo': False,
+            'role': "jobseeker",
+            'title': "Research Assoicate "})
         self.diegoId, mentor_profile = create_a_user(
-            {'username': self.diego,
-             'email': self.diego + "@gmail.com",
+            {
+            'username': self.diego,
+            'first_name' : 'Diego',
+            'last_name' : 'Hernandez', 
+            'email': self.diego + "@gmail.com",
              'password': "secret",
              'is_upglo': False,
              'role': "mentor",
              'title': "Human Resources"})
         # establish a mentorship
-        self.mentorship = Mentorship(jobseeker=jobseeker_profile,
+        self.mentorship = Mentorship(jobseeker=self.jobseeker_profile,
                                      mentor=mentor_profile,
                                      startDate=datetime.date.today())
         self.mentorship.set_expiration()
         self.mentorship.save()
         self.elenaId, dontcare = create_a_user(
-            {'username': self.elena,
-             'email': self.elena + "@gmail.com",
-             'password': "secret",
-             'is_upglo': False,
-             'role': "jobseeker",
-             'title': "Research Assoicate "})
+            {
+            'username': self.elena,
+            'first_name' : 'Elena',
+            'last_name' : 'Brown', 
+            'email': self.elena + "@gmail.com",
+            'password': "secret",
+            'is_upglo': False,
+            'role': "jobseeker",
+            'title': "Research Assoicate "})
         self.joseId, dontcare = create_a_user(
-            {'username': self.jose,
-             'email': self.jose + "@gmail.com",
-             'password': "secret",
-             'is_upglo': False,
-             'role': "mentor",
-             'title': "Human Resources"})
+            {
+            'username': self.jose,
+            'first_name' : 'Jose',
+            'last_name' : 'Mendez', 
+            'email': self.jose + "@gmail.com",
+            'password': "secret",
+            'is_upglo': False,
+            'role': "mentor",
+            'title': "Human Resources"})
 
     def test_mentorship(self):
         # Is the mentorship active?
@@ -93,3 +111,7 @@ class ValidateModels(unittest.TestCase):
         # Ensure UpGlo staff can access jobseeker.
         self.assertTrue(
             may_access_control(self.emilyId, self.yohannesId))
+        ss = secret_society(self.jobseeker_profile)
+        # list of tuples. one for mentor, self and other. 
+        self.assertEqual(len(ss),3)
+        
