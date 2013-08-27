@@ -7,6 +7,18 @@
   </style>
   <script>
   $(function() {
+    $( "#dialog-confirm" ).dialog({
+      resizable: false,
+      height:140,
+      modal: true,
+      buttons: {
+        "Ok": function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+  });
+  $(function() {
     $( "#pitch-container" )
       .accordion({
         header: "> div > h3"
@@ -40,14 +52,40 @@
 {% endblock %}
 
 {% block content %}
- 
 	<h1>{{ page_owner_name }} Profile - skills the job seeker has on offer.</h1>
+{% if warning_message %} 
+<div id="dialog-confirm" title="{{ warning_message }}">
+  <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span> </p>
+<br/>
+</div>
+{% endif %}
 
 	<p> 
 	On the job hunt, you often tell stories. This profile page is design 
     to help you organize your elevator pitch and response to behavior 
     interview questions. 
 	</p>
+<div id='member-nav' >
+      {% if user.is_authenticated %}
+	{% if society %}
+      <fieldset>
+	<legend>Member:</legend>
+	<form  method="get">
+	viewing: <select name="mentee_id">
+	  {% for m in society %}
+	  <option {% if m.2 %} selected {% endif %} value="{{ m.1 }}">
+	    {{ m.0 }}
+	  </option>
+	{% endfor %}
+      </select>
+	  <input type="submit" class="button" value="Go"> 
+	</form>
+	<a href="/members/">Connect with a member</a>
+      </fieldset>
+      {% endif %}
+      {% endif %}
+    </div>
+
 <hr/>
     <h3>Background</h3>
     <p>A frequent indirect question asked of a job applicant is 'tell me about yourself'. Today people often have a variety of sites to help the prospective employer understand their background. These include LindedIn, Twitter and for software developers Github. [aside: If you haven't done so already, you'll want to put together a resume. There are a number of good sites for this purpose. So, this site doesn't replicate it.] </p>

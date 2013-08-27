@@ -2,9 +2,55 @@
 
 {% block content %}
 
-			<h1>{{ page_owner_name }} Dashboard</h1>
+{% block page_specific_js %} 
+
+ <script>
+  $(function() {
+    $( "#dialog-confirm" ).dialog({
+      resizable: false,
+      height:140,
+      modal: true,
+      buttons: {
+        "Ok": function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+  });
+  </script>
+
+{% endblock %}
+
+    <h1>{{ page_owner_name }} Dashboard</h1>
+
+{% if warning_message %} 
+<div id="dialog-confirm" title="{{ warning_message }}">
+  <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span> </p>
+<br/>
+</div>
+{% endif %}
+
 This dashboard offers the job seeker an aggregated view of their job hunt. 
-               
+<div id='member-nav' >
+      {% if user.is_authenticated %}
+	{% if society %}
+      <fieldset>
+	<legend>Member:</legend>
+	<form  method="get">
+	viewing: <select name="mentee_id">
+	  {% for m in society %}
+	  <option {% if m.2 %} selected {% endif %} value="{{ m.1 }}">
+	    {{ m.0 }}
+	  </option>
+	{% endfor %}
+      </select>
+	  <input type="submit" class="button" value="Go"> 
+	</form>
+	<a href="/members/">Connect with a member</a>
+      </fieldset>
+      {% endif %}
+      {% endif %}
+    </div>
             <h3>Positions</h2> 
     {% if page_owner_p %}
     <a class="button" href="/position/add">Add a position</a>
@@ -29,7 +75,6 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
 	{% endif %} 
 			</div>
             <hr/>
-            
 	<h3>Activities</h3> 
     {% if page_owner_p %}
         <fieldset>
