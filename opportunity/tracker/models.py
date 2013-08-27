@@ -1,14 +1,104 @@
 from __future__ import unicode_literals
 import calendar
 import datetime
+import logging
 
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils import six
 
+logger = logging.getLogger(__name__)
+
+def secret_society(user_profile, veiwing_profile_id):
+    '''
+    Given the UserProfile for the current user, compute a list of UserProfiles which
+    are either mentors to and job seekers supported by this user.  
+    
+    viewing_profile_id used to determine which page is being viewed and set
+    the selectors default. 
+    '''
+    ret = [('self', user_profile.id, 
+        True if user_profile.id == veiwing_profile_id else False)]
+    # Retrieves all mentorships in which the current user is either 
+    # a jobseeker or mentor? 
+    m_list = Mentorship.objects.filter(Q(jobseeker=user_profile)|Q(mentor=user_profile))
+   
+    for m in m_list:
+        if m.jobseeker != user_profile:
+            ret.append( (m.jobseeker.user.first_name.strip() 
+                        + ' ' + m.jobseeker.user.last_name.strip(),
+                        m.jobseeker.id,
+                        True if m.jobseeker.id == veiwing_profile_id else False) )
+        else:
+            ret.append((m.mentor.user.first_name.strip() 
+                        + ' ' + m.mentor.user.last_name.strip(), 
+                        m.mentor.id,
+                        True if m.mentor.id == veiwing_profile_id else False))
+    return ret
+
+def perm_and_params(requester, target_id):
+    '''
+    Given a UserProfile and a target uid, return a dict which contains 
+    permission and parameters with respect to whether the requestion can 
+    view the page. 
+    'perm_p' - boolean - can requester view this page? 
+    'page_owner_p' - boolean - Who owns the page ? 
+    'page_owner_name' - What is the name of the page owner? 
+    'profile_id' - What is the uid of the content to display? 
+    'warning_message' - Warning message to display if any ? 
+    '''
+    page_options = {}
+    page_options['perm_p']  = False
+    page_options['page_owner_p'] = False
+    page_options['page_owner_name'] = 'Unauthorized'
+    page_options['profile_id'] = -1
+    page_options['warning_message'] = None
+
+    if target_id:
+        # request to view someone elses page
+        # perm_p is false by default. So, no need for else block
+
+        if target_id and may_access_control(requester.id,
+                                            target_id):
+            if target_id == requester.id:
+                page_options['profile_id'] = requester.id
+                page_options['page_owner_p'] = True
+                page_options['page_owner_name'] = 'My'        
+                page_options['perm_p'] = True
+            else:
+                page_options['profile_id']  = target_id
+                mentee = UserProfile.objects.get(pk=target_id)
+                page_options['page_owner_name'] = mentee.user.username.strip() + "'s"
+                page_options['perm_p'] = True
+    else:
+        # no target id - what's the right default?
+        # perm_p is false by default. Coordinator should always
+        # be associated mentee id. if not, the default generates an error.
+        if requester.is_job_seeker():
+                page_options['profile_id']  = requester.id
+                page_options['page_owner_p'] = True
+                page_options['page_owner_name'] = 'My'        
+                page_options['perm_p'] = True
+        elif requester.is_mentor():
+            mentee_id, err_message = requester.has_mentee()
+            if mentee_id and may_access_control(requester.id,
+                                            mentee_id):
+                page_options['profile_id']  = mentee_id
+                mentee = UserProfile.objects.get(pk=mentee_id)
+                page_options['page_owner_name'] = mentee.user.username.strip() + "'s"
+                page_options['perm_p'] = True
+            else: 
+                # mentor is logged in but has no mentee. 
+                page_options['profile_id']  = requester.id
+                page_options['page_owner_p'] = True
+                page_options['page_owner_name'] = 'My'        
+                page_options['perm_p'] = True
+                warning_message='No mentee assigned, yet.'
+    return page_options
 
 def may_access_control(requester_id, target_id):
     '''
@@ -19,6 +109,10 @@ def may_access_control(requester_id, target_id):
 
     '''
     ret = False
+    # urls pass ints as strings. What if someone forgets to convert them? 
+    if not (isinstance(requester_id, int) and isinstance(target_id, int)):
+        logger.error('mentor ids must be ints')
+        return False
     # find UserProfile for requestor
     user_req = UserProfile.objects.get(pk=requester_id)
     if user_req.is_upglo_staff:
@@ -30,8 +124,9 @@ def may_access_control(requester_id, target_id):
     else:
         # is there a mentorship relationship between aRequester and aTarget?
         m_rel = Mentorship.objects.filter(
-            jobseeker__id=target_id,
-            mentor__id=requester_id)
+            (Q(jobseeker=requester_id)&Q(mentor=target_id)) |
+            (Q(jobseeker=target_id)&Q(mentor=requester_id))
+            )
         if len(m_rel) == 1:
             ret = True
     return ret
@@ -123,10 +218,10 @@ post_save.connect(create_user_profile, sender=User)
 
 @python_2_unicode_compatible
 class Mentorship(models.Model):
-    """
+    '''
     A mentor assists a mentee with respect to finding a job.
     UpGlo Mentorships last five months.
-    """
+    '''
     jobseeker = models.ForeignKey(UserProfile, related_name='jobseeker')
     mentor = models.ForeignKey(UserProfile, related_name='mentor')
     startDate = models.DateField()  # should be set in UI

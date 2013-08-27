@@ -111,7 +111,10 @@ class ValidateModels(unittest.TestCase):
         # Ensure UpGlo staff can access jobseeker.
         self.assertTrue(
             may_access_control(self.emilyId, self.yohannesId))
-        ss = secret_society(self.jobseeker_profile)
-        # list of tuples. one for mentor, self and other. 
-        self.assertEqual(len(ss),3)
+        # ensure you can see your own page?
+        self.assertTrue(
+            may_access_control( self.yohannesId, self.yohannesId))
+        ss = secret_society(self.jobseeker_profile, self.yohannesId )
+        # list of tuples. one for mentor and self. 
+        self.assertEqual(len(ss),2)
         

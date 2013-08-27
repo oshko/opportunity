@@ -145,12 +145,11 @@ def dashboard(request, *args, **kwargs):
     mentee_id = None
     page = None
     page_options = {}
-    page_owner_p = False
-    page_owner_name = 'Unauthorized'
-    perm_p = False
+    #page_owner_p = False
+    #page_owner_name = 'Unauthorized'
+    #perm_p = False
     society = None
-    err_message = 'You do not have permission to access this page.'
-    warning_message = None 
+    # warning_message = None 
     
     if 'mentee_id' in request.GET:
         try: 
@@ -160,67 +159,24 @@ def dashboard(request, *args, **kwargs):
             logger.error('mentee_id must be an int')
             mentee_id = None
     
-    if mentee_id:
-        # request to view someone elses page
-        # perm_p is false by default. So, no need for else block
+    page_options = perm_and_params(request.user.userprofile, mentee_id)
 
-        if mentee_id and may_access_control(request.user.userprofile.id,
-                                            mentee_id):
-            if mentee_id == request.user.userprofile.id:
-                profile_id = request.user.userprofile.id
-                page_owner_p = True
-                page_owner_name = 'My'        
-                perm_p = True
-            else:
-                profile_id = mentee_id
-                mentee = UserProfile.objects.get(pk=mentee_id)
-                page_owner_name = mentee.user.username.strip() + "'s"
-                perm_p = True
-    else:
-        # no target id - what's the right default?
-        # perm_p is false by default. Coordinator should always
-        # be associated mentee id. if not, the default generates an error.
-        if request.user.userprofile.is_job_seeker():
-                profile_id = request.user.userprofile.id
-                page_owner_p = True
-                page_owner_name = 'My'        
-                perm_p = True
-        elif request.user.userprofile.is_mentor():
-            mentee_id, err_message = request.user.userprofile.has_mentee()
-            if mentee_id and may_access_control(request.user.userprofile.id,
-                                            mentee_id):
-                profile_id = mentee_id
-                mentee = UserProfile.objects.get(pk=mentee_id)
-                page_owner_name = mentee.user.username.strip() + "'s"
-                perm_p = True
-            else: 
-                # mentor is logged in but has no mentee. 
-                profile_id = request.user.userprofile.id
-                page_owner_p = True
-                page_owner_name = 'My'        
-                perm_p = True
-                warning_message='No mentee assigned, yet.'
-
-    if perm_p:        
-        positions = Position.objects.filter(user=profile_id)
-        people = Person.objects.filter(user=profile_id)
-        companies = Company.objects.filter(user=profile_id)
-        activities = Activity.getAll(profile_id)
-        society = secret_society(request.user.get_profile(), profile_id)
+    if page_options['perm_p']:
         page = 'dashboard.html'
-        page_options = {'activity_name_list': prettyNames,
-                        'activity_list': activities,
-                        'contact_list': people,
-                        'position_list': positions,
-                        'prospect_list': companies,
-                        'page_owner_name': page_owner_name,
-                        'page_owner_p': page_owner_p,
-                        'society': society,
-                        'warning_message': warning_message}
-
+        page_options['position_list'] = \
+            Position.objects.filter(user=page_options['profile_id'])
+        page_options['contact_list'] = \
+            Person.objects.filter(user=page_options['profile_id'])
+        page_options['prospect_list'] = \
+            Company.objects.filter(user=page_options['profile_id'])
+        page_options['activity_list'] = \
+            Activity.getAll(page_options['profile_id'])
+        page_options['society'] = secret_society(request.user.get_profile(),
+            page_options['profile_id'])
+        page_options['activity_name_list'] = prettyNames
     else:
         page = 'perm_problem.html'
-        page_options['err_message'] = err_message
+        page_options['err_message'] = 'You do not have permission to access this page.'
 
     return render_to_response(page,
                               page_options,
@@ -233,46 +189,34 @@ def profileView(request, *args, **kwargs):
     This is a profile page. It contains the elevator pitch and responses to
     behavioral interview questions.
     """
-    page = 'perm_problem.html'
-    page_options = {}
-    page_owner_p = False
-    page_owner_name = 'Unauthorized'
-    warning_message = None
-    
     mentee_id = None
-    if 'mentee_id' in kwargs:
-        mentee_id = kwargs['mentee_id']
+    page_options = {}
+    
+    if 'mentee_id' in request.GET:
+        try: 
+            # should always be an int. 
+            mentee_id = int(request.GET['mentee_id'])
+        except:
+            logger.error('mentee_id must be an int')
+            mentee_id = None
 
-    if mentee_id is None and request.user.userprofile.is_mentor():
-        mentee_id, err_message = request.user.userprofile.has_mentee()
+    page_options = perm_and_params(request.user.userprofile, mentee_id) 
 
-    if request.user.userprofile.is_job_seeker():
-        page_owner_name = 'My'
-        page_owner_p = True
-        profile_id = request.user.userprofile.id
-    elif (request.user.userprofile.is_mentor_of(mentee_id) or
-        request.user.userprofile.is_coordinator()):
-        profile_id = mentee_id
-        mentee = UserProfile.objects.get(pk=mentee_id)
-        page_owner_name = mentee.user.username.strip() + "'s"
-    elif request.user.userprofile.is_mentor():
-        page_owner_name = 'My'
-        page_owner_p = True
-        profile_id = request.user.userprofile.id
-        warning_message = 'No mentee assigned, yet.'
-
-    ref_list = OnlinePresence.objects.filter(user=profile_id)
-    story_list = PAR.objects.filter(user=profile_id)
-    pitch_list = Pitch.objects.filter(user=profile_id)
-
-    page = 'profile.html'
-    page_options = {'page_owner_name': page_owner_name,
-                    'page_owner_p': page_owner_p,
-                    'pitch_list': pitch_list,
-                    'ref_list': ref_list,
-                    'story_list': story_list,
-                    'warning_message': warning_message }
-
+    if page_options['perm_p']:
+        page = 'profile.html'
+        page_options['pitch_list'] = \
+            Pitch.objects.filter(user=page_options['profile_id'])
+        page_options['ref_list'] = \
+            OnlinePresence.objects.filter(user=page_options['profile_id'])
+        page_options['story_list'] = \
+            PAR.objects.filter(user=page_options['profile_id'])
+        page_options['society'] = \
+            secret_society(
+                request.user.get_profile(), 
+                page_options['profile_id'])
+    else: 
+        page = 'perm_problem.html'
+        page_options['err_message'] = 'You do not have permission to access this page.'
     return render_to_response(page,
                               page_options,
                               context_instance=RequestContext(request))
