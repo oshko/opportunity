@@ -84,7 +84,7 @@ def toplevelView(request):
 
 def about(request):
     """ references to books which may help the job seeker """
-    return render_to_response('about.html',
+    return render_to_response('about.html', 
                               context_instance=RequestContext(request))
 
 def books(request):
@@ -148,43 +148,65 @@ def dashboard(request, *args, **kwargs):
     page_owner_p = False
     page_owner_name = 'Unauthorized'
     perm_p = False
+    society = None
     err_message = 'You do not have permission to access this page.'
+    warning_message = None 
     
-    if 'mentee_id' in kwargs:
-        mentee_id = kwargs['mentee_id']
+    if 'mentee_id' in request.GET:
+        try: 
+            # should always be an int. 
+            mentee_id = int(request.GET['mentee_id'])
+        except:
+            logger.error('mentee_id must be an int')
+            mentee_id = None
+    
+    if mentee_id:
+        # request to view someone elses page
+        # perm_p is false by default. So, no need for else block
 
-    if request.user.userprofile.is_job_seeker():
-        # mentee_id is ignored for jobseeker. Always display their page. 
-        profile_id = request.user.userprofile.id
-        page_owner_p = True
-        page_owner_name = 'My'        
-        perm_p = True
-    elif request.user.userprofile.is_coordinator():
-        if mentee_id:
-            profile_id = mentee_id
-            mentee = UserProfile.objects.get(pk=mentee_id)
-            page_owner_name = mentee.user.username.strip() + "'s"
-            perm_p = True
-        else:
-            err_message = 'No job seeker id provided'
-    elif request.user.userprofile.is_mentor():
-        # Does the user have permission to access this mentee?
-        
-        if mentee_id is None:
-            # has mentor been assigned a job seeker?
-            mentee_id, err_message = request.user.userprofile.has_mentee()
         if mentee_id and may_access_control(request.user.userprofile.id,
                                             mentee_id):
-            profile_id = mentee_id
-            mentee = UserProfile.objects.get(pk=mentee_id)
-            page_owner_name = mentee.user.username.strip() + "'s"
-            perm_p = True
+            if mentee_id == request.user.userprofile.id:
+                profile_id = request.user.userprofile.id
+                page_owner_p = True
+                page_owner_name = 'My'        
+                perm_p = True
+            else:
+                profile_id = mentee_id
+                mentee = UserProfile.objects.get(pk=mentee_id)
+                page_owner_name = mentee.user.username.strip() + "'s"
+                perm_p = True
+    else:
+        # no target id - what's the right default?
+        # perm_p is false by default. Coordinator should always
+        # be associated mentee id. if not, the default generates an error.
+        if request.user.userprofile.is_job_seeker():
+                profile_id = request.user.userprofile.id
+                page_owner_p = True
+                page_owner_name = 'My'        
+                perm_p = True
+        elif request.user.userprofile.is_mentor():
+            mentee_id, err_message = request.user.userprofile.has_mentee()
+            if mentee_id and may_access_control(request.user.userprofile.id,
+                                            mentee_id):
+                profile_id = mentee_id
+                mentee = UserProfile.objects.get(pk=mentee_id)
+                page_owner_name = mentee.user.username.strip() + "'s"
+                perm_p = True
+            else: 
+                # mentor is logged in but has no mentee. 
+                profile_id = request.user.userprofile.id
+                page_owner_p = True
+                page_owner_name = 'My'        
+                perm_p = True
+                warning_message='No mentee assigned, yet.'
 
     if perm_p:        
         positions = Position.objects.filter(user=profile_id)
         people = Person.objects.filter(user=profile_id)
         companies = Company.objects.filter(user=profile_id)
         activities = Activity.getAll(profile_id)
+        society = secret_society(request.user.get_profile(), profile_id)
         page = 'dashboard.html'
         page_options = {'activity_name_list': prettyNames,
                         'activity_list': activities,
@@ -192,7 +214,9 @@ def dashboard(request, *args, **kwargs):
                         'position_list': positions,
                         'prospect_list': companies,
                         'page_owner_name': page_owner_name,
-                        'page_owner_p': page_owner_p}
+                        'page_owner_p': page_owner_p,
+                        'society': society,
+                        'warning_message': warning_message}
 
     else:
         page = 'perm_problem.html'
@@ -213,6 +237,7 @@ def profileView(request, *args, **kwargs):
     page_options = {}
     page_owner_p = False
     page_owner_name = 'Unauthorized'
+    warning_message = None
     
     mentee_id = None
     if 'mentee_id' in kwargs:
@@ -221,37 +246,52 @@ def profileView(request, *args, **kwargs):
     if mentee_id is None and request.user.userprofile.is_mentor():
         mentee_id, err_message = request.user.userprofile.has_mentee()
 
-    if (request.user.userprofile.is_job_seeker()
-        or request.user.userprofile.is_mentor_of(mentee_id)
-        or request.user.userprofile.is_coordinator()):
+    if request.user.userprofile.is_job_seeker():
+        page_owner_name = 'My'
+        page_owner_p = True
+        profile_id = request.user.userprofile.id
+    elif (request.user.userprofile.is_mentor_of(mentee_id) or
+        request.user.userprofile.is_coordinator()):
+        profile_id = mentee_id
+        mentee = UserProfile.objects.get(pk=mentee_id)
+        page_owner_name = mentee.user.username.strip() + "'s"
+    elif request.user.userprofile.is_mentor():
+        page_owner_name = 'My'
+        page_owner_p = True
+        profile_id = request.user.userprofile.id
+        warning_message = 'No mentee assigned, yet.'
 
-        if request.user.userprofile.is_job_seeker():
-            page_owner_name = 'My'
-            page_owner_p = True
-            profile_id = request.user.userprofile.id
-        elif mentee_id:
-            profile_id = mentee_id
-            mentee = UserProfile.objects.get(pk=mentee_id)
-            page_owner_name = mentee.user.username.strip() + "'s"
+    ref_list = OnlinePresence.objects.filter(user=profile_id)
+    story_list = PAR.objects.filter(user=profile_id)
+    pitch_list = Pitch.objects.filter(user=profile_id)
 
-        ref_list = OnlinePresence.objects.filter(user=profile_id)
-        story_list = PAR.objects.filter(user=profile_id)
-        pitch_list = Pitch.objects.filter(user=profile_id)
+    page = 'profile.html'
+    page_options = {'page_owner_name': page_owner_name,
+                    'page_owner_p': page_owner_p,
+                    'pitch_list': pitch_list,
+                    'ref_list': ref_list,
+                    'story_list': story_list,
+                    'warning_message': warning_message }
 
-        page = 'profile.html'
-        page_options = {'page_owner_name': page_owner_name,
-                        'page_owner_p': page_owner_p,
-                        'pitch_list': pitch_list,
-                        'ref_list': ref_list,
-                        'story_list': story_list}
-    else:
-        page_options['err_message'] = 'You do not have permission to access this page.'
-            
     return render_to_response(page,
                               page_options,
                               context_instance=RequestContext(request))
 
 
+@login_required
+def membersView(request, *args, **kwargs):
+    page = 'members.html'
+    page_options = {} 
+    # get list of users
+    page_options['people'] = UserProfile.objects.all()
+    # subtracting existing Mentorship relations
+    # mentee's 
+    # mentor's
+    return render_to_response(page,
+                              page_options,
+                              context_instance=RequestContext(request))
+
+@login_required
 def populateCompany(company_model):
     """
     Populate a Company model. It is factored out of the companyView()
@@ -1297,6 +1337,8 @@ def registration(request):
                 username=form.cleaned_data['username'],
                 email=form.cleaned_data['email'],
                 password=form.cleaned_data['password'])
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name = form.cleaned_data['last_name']
             user.save()
             profile = user.get_profile()
             profile.title = form.cleaned_data['title']

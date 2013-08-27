@@ -255,6 +255,8 @@ class PARForm(forms.ModelForm):
 
 class RegistrationForm(forms.ModelForm):
     username = forms.CharField(label=_('User Name'))
+    first_name = forms.CharField(label=_('First name'), max_length=30)
+    last_name = forms.CharField(label=_('Last name'), max_length=30)
     email = forms.EmailField(label=_('Email Address'))
     password = forms.CharField(
         label=_('Password'),
@@ -274,15 +276,14 @@ class RegistrationForm(forms.ModelForm):
         model = UserProfile
         fields = (
             'username',
+            'first_name',
+            'last_name',
             'title',
             'role',
             'email',
             'password',
             'password_verify'
         )
-        # is_upglo_staff is False by default. No UI will set it to True.
-        # I script will set UpGlo staff to True.
-        exclude = ('user', 'is_upglo_staff',)
 
     def clean_username(self):
         '''
