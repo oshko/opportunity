@@ -235,7 +235,6 @@ def membersView(request, *args, **kwargs):
                               page_options,
                               context_instance=RequestContext(request))
 
-@login_required
 def populateCompany(company_model):
     """
     Populate a Company model. It is factored out of the companyView()
