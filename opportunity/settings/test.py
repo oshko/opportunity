@@ -2,6 +2,8 @@ import os
 
 from .base import *
 
+INSTALLED_APPS += ('django_nose',)
+
 # When I move this block into base.py this error is generated
 #   ImproperlyConfigured: The SECRET_KEY setting must not be empty.
 # Leaving it here for now. 

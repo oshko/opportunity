@@ -83,7 +83,7 @@ STATIC_ROOT = '/static/'
 # Example: "http://media.lawrence.com/static/"
 # STATIC_URL = '/static/'
 # STATIC_URL = 'http://opportunity3020.s3.amazonaws.com/static/'
-STATIC_URL = 'http://%s.s3.amazonaws.com/' % AWS_STORAGE_BUCKET_NAME
+# STATIC_URL = 'http://%s.s3.amazonaws.com/' % AWS_STORAGE_BUCKET_NAME
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -141,24 +141,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'opportunity.tracker',
-    'django_nose',
     'south',
 )
 
-if not six.PY3:
-    INSTALLED_APPS += ('storages',)
-
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
-
-
-if DEBUG:
-    EMAIL_HOST = 'localhost'
-    EMAIL_PORT = 1025
-    EMAIL_HOST_USER = ''
-    EMAIL_HOST_PASSWORD = ''
-    EMAIL_USE_TLS = False
-    DEFAULT_FROM_EMAIL = 'testing@localhost'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
