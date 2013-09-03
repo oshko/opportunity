@@ -85,7 +85,7 @@ PARAM_INDEX = 1
 DESC_INDEX = 2
 
 
-class Composite():
+class Composite(object):
     _state = None             # state for wizard transitions
     _state_index = None       # current state
     _state_next_index = None  # index to next state
@@ -225,7 +225,7 @@ class Interview(Composite):
                                     PER_ID: None},
                         "When is the interview?"),
                        (DASHBOARD, {}, ""), ]
-        super().__init__(view)
+        super(Interview, self).__init__(view)
 
 
 class Apply(Composite):
@@ -243,7 +243,7 @@ class Apply(Composite):
                                 POS_ID: None},
                         'When did you apply?'),
                        (DASHBOARD, {}, ""), ]
-        super().__init__(view)
+        super(Apply, self).__init__(view)
 
 
 class Conversation(Composite):
@@ -258,7 +258,7 @@ class Conversation(Composite):
                                        PER_ID: None},
                         "When was the conversation?"),
                        (DASHBOARD, {}, ""), ]
-        super().__init__(view)
+        super(Conversation, self).__init__(view)
 
 
 class Networking(Composite):
@@ -273,4 +273,4 @@ class Networking(Composite):
                                      CO_ID: None},
                         "When? "),
                        (DASHBOARD, {}, ""), ]
-        super().__init__(view)
+        super(Networking, self).__init__(view)
