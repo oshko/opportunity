@@ -783,9 +783,9 @@ def applyForView(request, *args, **kwargs):
                 if wiz:
                     title = wiz.get_title()
                     description = wiz.get_description()
-                if wizard.CO_ID in request.GET:
+                if wizard.POS_ID in request.GET:
                     pos_obj = Position.objects.get(
-                        pk=request.GET[wizard.CO_ID])
+                        pk=request.GET[wizard.POS_ID])
                     app_obj.position = pos_obj
             form = ApplyForm(
                 instance=app_obj,
