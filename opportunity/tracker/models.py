@@ -310,7 +310,7 @@ class Position(models.Model):
     class Meta:
         ordering = ['title']
 
-
+@python_2_unicode_compatible
 class Activity(models.Model):
     """
     The job seeker can record activities. When is the interview?
@@ -334,12 +334,12 @@ class Activity(models.Model):
         rc.extend(Conversation.objects.filter(user=profile_id))
         rc.extend(MentorMeeting.objects.filter(user=profile_id))
         rc.extend(Lunch.objects.filter(user=profile_id))
-        rc.reverse()
+        rc = sorted(rc, key=lambda act: act.time,reverse=True) # 2nd - time
+        rc = sorted(rc, key=lambda act: act.when,reverse=True) # primary - date
         return rc
 
     class Meta:
         abstract = True
-        ordering = ['-when', 'time']
 
 '''
 NB:  You may notice that the tag field is not used in the python code.
