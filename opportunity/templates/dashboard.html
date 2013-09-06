@@ -17,6 +17,9 @@
       }
     });
   });
+  $(function() {
+      $("#positions-tabs").tabs(); 
+  });
   </script>
 
 {% endblock %}
@@ -56,24 +59,51 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
     <a class="button" href="/position/add">Add a position</a>
     {% endif %}
 <p/> 
-			<div id="position-container" >
-	{% if position_list %}
-					<ul>
-		{% for position in position_list %}
-                        <div id="position-{{ position.id }}">
-                            <li>
+
+<div id="position-container" >
+    <div id="positions-tabs"> 
+        <ul>
+            <li> <a href="#active">Active</a></li>
+            <li><a href="#inactive">Inactive</a></li>
+        </ul>
+        <div id="active"> 
+	{% if position_list_active %}
+            <ul>
+		{% for position in position_list_active %}
+                <div id="position-{{ position.id }}">
+                <li>
                 {% if page_owner_p %}
-                            (<a href="/position/edit/{{ position.id }}">edit</a> | <a href=javascript:deleteEntry("/position/del/{{ position.id }}/position")>delete</a>)
+                    (<a href="/position/edit/{{ position.id }}">edit</a> | <a href=javascript:deleteEntry("/position/del/{{ position.id }}/position")>delete</a>)
                 {% endif %}
-                            <a href="{{ position.website }}">{{ position.title }}</a> at 
-                            <a href="{{ position.company.website }}">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  </li>
-                        </div>
+                    <a href="{{ position.website }}">{{ position.title }}</a> at 
+                    <a href="{{ position.company.website }}">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  </li>
+                </div>
 		{% endfor %}
-					</ul>
+            </ul>
 	{% else %} 
 		No positions being tracked. 
 	{% endif %} 
-			</div>
+        </div> <!-- close active tab --> 
+        <div id="inactive"> 
+	{% if position_list_inactive %}
+            <ul>
+		{% for position in position_list_inactive %}
+                <div id="position-{{ position.id }}">
+                <li>
+                {% if page_owner_p %}
+                    (<a href="/position/edit/{{ position.id }}">edit</a> | <a href=javascript:deleteEntry("/position/del/{{ position.id }}/position")>delete</a>)
+                {% endif %}
+                    <a href="{{ position.website }}">{{ position.title }}</a> at 
+                    <a href="{{ position.company.website }}">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  </li>
+                </div>
+		{% endfor %}
+            </ul>
+	{% else %} 
+		No positions being tracked. 
+	{% endif %} 
+        </div> <!-- close inactive tab --> 
+    </div>  <!-- close positions-tabs -->
+</div> <!-- close position-container  -->
             <hr/>
 	<h3>Activities</h3> 
     {% if page_owner_p %}

@@ -303,6 +303,7 @@ class Position(models.Model):
     website = models.URLField()
     comment = models.CharField(max_length=256, blank=True, null=True)
     user = models.ForeignKey(UserProfile)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return '%s at %s' % (self.title, self.company)

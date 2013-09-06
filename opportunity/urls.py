@@ -27,6 +27,8 @@ urlpatterns = patterns('',
     (r'^contact/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.personDelete'),
     
     (r'^position/(?P<op>add)$', 'opportunity.tracker.views.positionView'),
+    (r'^position/(?P<op>active)/(?P<id>\d+)$', 'opportunity.tracker.views.positionActivation'),
+    (r'^position/(?P<op>inactive)/(?P<id>\d+)$', 'opportunity.tracker.views.positionActivation'),
     (r'^position/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.positionView'),
     (r'^position/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.positionDelete'),
     

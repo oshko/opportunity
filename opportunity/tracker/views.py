@@ -138,18 +138,10 @@ def dashboard(request, *args, **kwargs):
     employers and activities in which the job hunter is engaged.
     """
     profile_id = None
-    positions = None
-    people = None
-    companies = None
-    activities = None
     mentee_id = None
     page = None
     page_options = {}
-    #page_owner_p = False
-    #page_owner_name = 'Unauthorized'
-    #perm_p = False
     society = None
-    # warning_message = None 
     
     if 'mentee_id' in request.GET:
         try: 
@@ -163,8 +155,10 @@ def dashboard(request, *args, **kwargs):
 
     if page_options['perm_p']:
         page = 'dashboard.html'
-        page_options['position_list'] = \
-            Position.objects.filter(user=page_options['profile_id'])
+        page_options['position_list_active'] = \
+            Position.objects.filter(user=page_options['profile_id'], active=True)
+        page_options['position_list_inactive'] = \
+            Position.objects.filter(user=page_options['profile_id'], active=False)
         page_options['contact_list'] = \
             Person.objects.filter(user=page_options['profile_id'])
         page_options['prospect_list'] = \
@@ -617,6 +611,27 @@ def positionView(request, *args, **kwargs):
                                'form': form},
                               context_instance=RequestContext(request))
 
+@login_required
+def positionActivation(request, *args, **kwargs):
+    '''
+    When applying for a position, we do not always get it. 
+    The dashboard shows active and inactive positions on 
+    separate tabs. When the user toggles betwen they two, this
+    function is called. 
+    '''
+    rc = {'id': kwargs['id'], 'divId': kwargs['divId'],
+          'noElements': "No positions being tracked."}
+    try: 
+        obj = Position.objects.get(pk=int('id'))
+        if kwargs['op'] == 'active':
+            obj.active = True
+            obj.save()
+        elif kwargs['op'] == 'inactive':
+            obj.active = False
+            obj.save()
+    except:
+        logging.warning("unable to update active field for position")
+    return HttpResponse(json.dumps(rc))
 
 @login_required
 def positionDelete(request, *args, **kwargs):
