@@ -54,3 +54,63 @@ deleteEntry = function (aRestUrl) {
         } 
     }); 
 }
+
+/*
+
+ * A section in the dashboard manages positions of interest for this
+ * job search. They are separated into active and inactive. This
+ * function toggles between the two. 
+
+ * aRestUrl - is used to update the database. /position/{active|inactive}/{id}
+
+ */
+
+  toggleActiveStatus = function (aRestUrl) {
+
+    $.ajax({
+          url: aRestUrl,
+	  dataType: 'json',
+	  success:  function (data) { 
+	  var source_tag = 'unk';
+	  var new_id = 'unk';
+	  var dest_tag = "unk";
+	    
+	  if (data['divId'] == 'position-inactive-container') {
+	    // move from active to inactive list
+	    source_tag = '#position-active-' + data['id'];
+	    dest_tag = '#position-inactive-ul';
+	    $(source_tag).appendTo(dest_tag);
+
+	    // update href 
+	    tag = $(source_tag + " li a:first");
+	    tag.text("active");
+	    tag.attr("href", "javascript:toggleActiveStatus(\"/position/active/" + data['id']+ "\")");
+
+	    // update id
+	    $(source_tag).attr("id", "position-inactive-"+ data['id']);
+	  } else {
+	    // move from inactive to active list 
+	    source_tag = '#position-inactive-' + data['id'];
+	    dest_tag = '#position-active-ul';
+	    $(source_tag).appendTo(dest_tag);
+
+	    // update href 
+	    tag = $(source_tag + " li a:first");
+	    tag.text("inactive");
+	    tag.attr("href", "javascript:toggleActiveStatus(\"/position/inactive/" + data['id']+ "\")");
+
+	    // update id
+	    $(source_tag).attr("id", "position-active-"+ data['id']);
+	  }
+	      
+	  if ($("#"+ data['divId'] +"-container ul div").length == 0) {
+	      $("#" + data['divId'] + "-container ul").remove();
+	      $("#" + data['divId'] + "-container").text(data['noElements']);
+	    }
+          },
+	  error: function (xhr, ajaxOptions, thrownError) {
+	    alert(xhr.status);
+	    alert(thrownError);
+          } 
+      });
+  }

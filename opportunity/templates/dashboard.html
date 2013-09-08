@@ -60,20 +60,20 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
     {% endif %}
 <p/> 
 
-<div id="position-container" >
+<div >
     <div id="positions-tabs"> 
         <ul>
-            <li> <a href="#active">Active</a></li>
-            <li><a href="#inactive">Inactive</a></li>
+            <li> <a href="#position-active-container">Active</a></li>
+            <li><a href="#position-inactive-container">Inactive</a></li>
         </ul>
-        <div id="active"> 
+        <div id="position-active-container"> 
 	{% if position_list_active %}
-            <ul>
+            <ul id="position-active-ul">
 		{% for position in position_list_active %}
-                <div id="position-{{ position.id }}">
+                <div id="position-active-{{ position.id }}">
                 <li>
                 {% if page_owner_p %}
-                    (<a href="/position/edit/{{ position.id }}">edit</a> | <a href=javascript:deleteEntry("/position/del/{{ position.id }}/position")>delete</a>)
+                    (<a id='toggle' href=javascript:toggleActiveStatus("/position/inactive/{{ position.id }}")>inactive</a> | <a href="/position/edit/{{ position.id }}">edit</a> | <a href=javascript:deleteEntry("/position/del/{{ position.id }}/position")>delete</a>)
                 {% endif %}
                     <a href="{{ position.website }}">{{ position.title }}</a> at 
                     <a href="{{ position.company.website }}">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  </li>
@@ -84,14 +84,14 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
 		No positions being tracked. 
 	{% endif %} 
         </div> <!-- close active tab --> 
-        <div id="inactive"> 
+        <div id="position-inactive-container"> 
 	{% if position_list_inactive %}
-            <ul>
+            <ul id='position-inactive-ul'>
 		{% for position in position_list_inactive %}
-                <div id="position-{{ position.id }}">
+                <div id="position-inactive-{{ position.id }}">
                 <li>
                 {% if page_owner_p %}
-                    (<a href="/position/edit/{{ position.id }}">edit</a> | <a href=javascript:deleteEntry("/position/del/{{ position.id }}/position")>delete</a>)
+                    (<a id='toggle' href=javascript:toggleActiveStatus("/position/active/{{ position.id }}")>active</a> | <a href="/position/edit/{{ position.id }}">edit</a> | <a href=javascript:deleteEntry("/position/del/{{ position.id }}/position")>delete</a>)
                 {% endif %}
                     <a href="{{ position.website }}">{{ position.title }}</a> at 
                     <a href="{{ position.company.website }}">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  </li>

@@ -619,19 +619,28 @@ def positionActivation(request, *args, **kwargs):
     separate tabs. When the user toggles betwen they two, this
     function is called. 
     '''
-    rc = {'id': kwargs['id'], 'divId': kwargs['divId'],
+    rc = {'id': kwargs['id'], 'divId': "unknown",
           'noElements': "No positions being tracked."}
-    try: 
-        obj = Position.objects.get(pk=int('id'))
+    try:
+        code = 200
+        obj = Position.objects.get(pk=int(kwargs['id']))
         if kwargs['op'] == 'active':
+            # remember we toggling between inactive to active. 
+            # mark it active
             obj.active = True
             obj.save()
+            # moving to active list. 
+            rc['divId'] = "position-active-container"
         elif kwargs['op'] == 'inactive':
+            # mark it inactive
             obj.active = False
             obj.save()
+            # moving to INactive list. 
+            rc['divId'] = "position-inactive-container"
     except:
+        code = 500
         logging.warning("unable to update active field for position")
-    return HttpResponse(json.dumps(rc))
+    return HttpResponse(json.dumps(rc), status=code)
 
 @login_required
 def positionDelete(request, *args, **kwargs):
