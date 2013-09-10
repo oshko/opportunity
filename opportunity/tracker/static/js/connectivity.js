@@ -79,6 +79,17 @@ deleteEntry = function (aRestUrl) {
 	    // move from active to inactive list
 	    source_tag = '#position-active-' + data['id'];
 	    dest_tag = '#position-inactive-ul';
+        dest_el = $(dest_tag)
+        
+        if(dest_el && dest_el.length==0) {
+            // The inactive tab just contains a msg telling
+            // the user it is empty. Replace the text with a list.
+            
+            // remove text message
+            $('#position-inactive-container').text("");
+            $('#position-inactive-container').append('<ul id="position-inactive-ul"></ul>');
+            dest_el = $(dest_tag)
+        }
 	    $(source_tag).appendTo(dest_tag);
 
 	    // update href 
@@ -92,6 +103,17 @@ deleteEntry = function (aRestUrl) {
 	    // move from inactive to active list 
 	    source_tag = '#position-inactive-' + data['id'];
 	    dest_tag = '#position-active-ul';
+        dest_el = $(dest_tag)
+        
+        if(dest_el && dest_el.length==0) {
+            // The active tab just contains a msg telling
+            // the user it is empty. Replace the text with a list.
+            
+            // remove text message
+            $('#position-active-container').text("");
+            $('#position-active-container').append('<ul id="position-active-ul"></ul>');
+            dest_el = $(dest_tag)
+        }
 	    $(source_tag).appendTo(dest_tag);
 
 	    // update href 
