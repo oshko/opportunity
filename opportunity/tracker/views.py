@@ -152,7 +152,6 @@ def dashboard(request, *args, **kwargs):
             mentee_id = None
     
     page_options = perm_and_params(request.user.userprofile, mentee_id)
-
     if page_options['perm_p']:
         page = 'dashboard.html'
         page_options['position_list_active'] = \
@@ -1344,7 +1343,10 @@ def loginRequest(request):
                 return HttpResponseRedirect(reverse(view_str))
             else:
                 return render_to_response(
-                    "login.html", {'form': form},
+                    "login.html", 
+                    {'form': form, 
+                    'err_pwd': 'Incorrect pasword or username/password mismatch',
+                    },
                     context_instance=RequestContext(request))
         else:
             return render_to_response("login.html", {'form': form},

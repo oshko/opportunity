@@ -3,7 +3,11 @@
 Welcome. Please login. 
 	<form action="" method="post">
 	{% csrf_token %}
-	
+        {% if err_pwd %}
+            <p style="color: red;">
+            {{ err_pwd }} 
+            </p>
+        {% endif %} 
 		{% if form.errors %}
 			<p style="color: red;">
 				Please correct the error{{ form.errors|pluralize }} below.
