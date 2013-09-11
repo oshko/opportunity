@@ -1,6 +1,5 @@
 Cython==0.19.1
 Django==1.5.1
-distribute==0.6.49
 dj-database-url==0.2.1
 gunicorn==18.0
 psycopg2==2.5.1
@@ -9,9 +8,7 @@ virtualenv==1.8.4
 wsgiref==0.1.2
 six==1.3.0
 south==0.8.1
-# use dj_static
 dj-static==0.0.5
 static==0.4
 werkzeug==0.9.4
 requests==1.2.3
-staticserve==0.1.4
