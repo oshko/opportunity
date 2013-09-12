@@ -13,16 +13,8 @@ BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..')
 STATIC_ROOT = 'staticfiles' 
 STATIC_URL = '/static/'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'opportunity',                      # Or path to database file if using sqlite3.
-        'USER': 'jkern',                      # Not used with sqlite3.
-        'PASSWORD': 'password',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
-    }
-}
+DATABASES = { 'default': {} }
+DATABASES['default'] = dj_database_url.config()
 
 INSTALLED_APPS += ('django_extensions',)
 # INSTALLED_APPS += ("debug_toolbar",)

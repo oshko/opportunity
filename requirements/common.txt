@@ -1,5 +1,5 @@
 Cython==0.19.1
-Django==1.5.1
+Django==1.5.3
 dj-database-url==0.2.1
 gunicorn==18.0
 psycopg2==2.5.1
