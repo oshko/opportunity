@@ -25,7 +25,7 @@ class CompanyForm(forms.ModelForm):
 class PersonForm(forms.ModelForm):
     class Meta:
         model = Person
-        exclude = ('user',)
+        fields = ('first_name', 'last_name', 'title', 'company')
 
     def __init__(self, *args, **kwargs):
         self._user = kwargs.pop('user')
@@ -42,7 +42,7 @@ class PersonForm(forms.ModelForm):
 class PositionForm(forms.ModelForm):
     class Meta:
         model = Position
-        exclude = ('user',)
+        fields = ('company', 'title', 'website', 'comment')
 
     def __init__(self, *args, **kwargs):
         self._user = kwargs.pop('user')
