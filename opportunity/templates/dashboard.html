@@ -20,6 +20,9 @@
   $(function() {
       $("#positions-tabs").tabs(); 
   });
+  $(function() {
+     $("#accordion").accordion();
+  });
   </script>
 
 {% endblock %}
@@ -27,14 +30,6 @@
 
     <h1>{{ page_owner_name }} Dashboard</h1>
 
-{% if warning_message %} 
-<div id="dialog-confirm" title="{{ warning_message }}">
-  <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span> </p>
-<br/>
-</div>
-{% endif %}
-
-This dashboard offers the job seeker an aggregated view of their job hunt. 
 <div id='member-nav' >
       {% if user.is_authenticated %}
 	{% if society %}
@@ -55,7 +50,23 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
       {% endif %}
       {% endif %}
     </div>
+<div> <!-- overview -->
+{% if warning_message %} 
+<div id="dialog-confirm" title="{{ warning_message }}">
+  <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span> </p>
+<br/>
+</div>
+{% endif %}
+<p>
+This dashboard offers the job seeker an aggregated view of their job hunt. 
+It is broken down into four sections: Positions, Activies, Prospective Employers and 
+People.  This allows you to tracker your job hunt progress. 
+</p>
+</div> 
+<hr/>
+<div id="accordion"> <!-- root accordion div -->
             <h3>Positions</h3> 
+<div> <!-- accordion container -->
     {% if page_owner_p %}
     <a class="button" href="/position/add">Add a position</a>
     {% endif %}
@@ -105,8 +116,9 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
         </div> <!-- close inactive tab --> 
     </div>  <!-- close positions-tabs -->
 </div> <!-- close position-container  -->
-            <hr/>
+</div> <!-- close accordion container --> 
 	<h3>Activities</h3> 
+<div> <!-- activities accordion container -->
     {% if page_owner_p %}
         <fieldset>
             <legend>add:</legend>
@@ -145,8 +157,9 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
         There are no activities at this time. You can add them below. 
     {% endif %}
 			</div>
-    <hr/>
+</div> <!-- closing activities accordion --> 
  <h3>Prospective employers </h3>
+<div> <!-- prospective accordian container -->
      {% if page_owner_p %}
       <p/> 
      
@@ -194,8 +207,9 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
             No companies.
         {% endif %}
     </div>
-    <hr/>
+</div> <!-- closing accordion --> 
        <h3>People </h3>
+<div> <!-- People accordion -->
     {% if page_owner_p %}
     <a class="button" href="/contact/add">Add a person</a>
       <p/> 
@@ -218,5 +232,6 @@ This dashboard offers the job seeker an aggregated view of their job hunt.
             No contacts.
         {% endif %}
     </div>
-
+</div> <!-- closing accordion container --> 
+</div> <!-- closing root accordion div tag --> 
 {% endblock %}
