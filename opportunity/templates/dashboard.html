@@ -23,6 +23,13 @@
   $(function() {
      $("#accordion").accordion();
   });
+  $(function() {
+	$( "input[type=submit], #jquery_button" )
+	.button()
+	.click(function( event ) {
+	     event.preventDefault();
+	});
+  });
   </script>
 
 {% endblock %}
@@ -43,7 +50,7 @@
 	  </option>
 	{% endfor %}
       </select>
-	  <input type="submit" class="button" value="Go"> 
+	  <input type="submit" value="Go"> 
 	</form>
 	<a href="/members/">Connect with a member</a>
       </fieldset>
@@ -68,7 +75,7 @@ People.  This allows you to tracker your job hunt progress.
             <h3>Positions</h3> 
 <div> <!-- accordion container -->
     {% if page_owner_p %}
-    <a class="button" href="/position/add">Add a position</a>
+    <a id="jquery_button"  href="/position/add">Add</a>
     {% endif %}
 <p/> 
 
@@ -129,7 +136,7 @@ People.  This allows you to tracker your job hunt progress.
                 <input type="radio" name="activity" value="interview">Interview with someone<br/>
                 <input type="radio" name="activity" value="apply" checked>Apply for a position <br/>
                 <input type="radio" name="activity" value="conversation">Note an interesting conversation <br/>
-                <input type="submit" class="button" value="Add Selected"> 
+                <input type="submit" value="Add"> 
             </form>
         </fieldset>
     {% endif %}
@@ -168,7 +175,7 @@ People.  This allows you to tracker your job hunt progress.
             <form id="company_form" action="/prospect/add/" method="get">
                 <label for="id_company">Company:</label>
                 <input id="id_company" type="text" name="company" />
-                <input type="submit" class="button" value="Add" onclick='$("#spinner").show();return true;' /> 
+                <input type="submit"  value="Add" onclick='$("#spinner").show();return true;' /> 
                 <div id="spinner" ><img src="{{ STATIC_URL }}gif/loadinfo.net.gif"/></div>        
             </form>
         </fieldset>
@@ -211,7 +218,7 @@ People.  This allows you to tracker your job hunt progress.
        <h3>People </h3>
 <div> <!-- People accordion -->
     {% if page_owner_p %}
-    <a class="button" href="/contact/add">Add a person</a>
+    <a id="jquery_button" href="/contact/add">Add</a>
       <p/> 
     {% endif %}
     <div id="contact-container">
