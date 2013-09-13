@@ -11,9 +11,9 @@ Heroku
 =====================
 
 At the root level, you'll see three Heroku specific files. 
-* Procfile - invoke the webserver.
-* requirements.txt - This is a well-known filename for pip. Heroku expects to see it at the root. 
-* runtime.txt - Heroku specific file which defines python runtime.
+ * Procfile - invoke the webserver.
+ * requirements.txt - This is a well-known filename for pip. Heroku expects to see it at the root. 
+ * runtime.txt - Heroku specific file which defines python runtime.
 
 At the time of writing, there are some quirks to getting static files
 served up correctly. Heroku expects to see a static at in the project
