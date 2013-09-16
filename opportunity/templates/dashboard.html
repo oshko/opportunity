@@ -92,7 +92,7 @@ People.  This allows you to tracker your job hunt progress.
                     (<a id='toggle' href=javascript:toggleActiveStatus("/position/inactive/{{ position.id }}")>inactive</a> | <a href="/position/edit/{{ position.id }}">edit</a> | <a href=javascript:deleteEntry("/position/del/{{ position.id }}/position")>delete</a>)
                 {% endif %}
                     <a href="{{ position.website }}">{{ position.title }}</a> at 
-                    <a href="{{ position.company.website }}">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  </li>
+                    <a href="{{ position.company.website }}"  target="_blank">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  </li>
                 </div>
 		{% endfor %}
             </ul>
@@ -110,7 +110,7 @@ People.  This allows you to tracker your job hunt progress.
                     (<a id='toggle' href=javascript:toggleActiveStatus("/position/active/{{ position.id }}")>active</a> | <a href="/position/edit/{{ position.id }}">edit</a> | <a href=javascript:deleteEntry("/position/del/{{ position.id }}/position")>delete</a>)
                 {% endif %}
                     <a href="{{ position.website }}">{{ position.title }}</a> at 
-                    <a href="{{ position.company.website }}">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  </li>
+                    <a href="{{ position.company.website }}" target="_blank">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  </li>
                 </div>
 		{% endfor %}
             </ul>
@@ -203,7 +203,7 @@ People.  This allows you to tracker your job hunt progress.
                 {% if page_owner_p %}
                     (<a href="/prospect/edit/{{ prospect.id }}">edit</a> | <a href=javascript:deleteEntry("/prospect/del/{{ prospect.id }}/prospect")>delete</a>) 
                 {% endif %}
-                    <a href="{{ prospect.website }}">{{ prospect.name }}</a> in {{ prospect.city }}, {{ prospect.state_province }}  </li>
+                    <a href="{{ prospect.website }}" target="_blank">{{ prospect.name }}</a> in {{ prospect.city }}, {{ prospect.state_province }}  </li>
                 </div>
             {% endfor %}
             </ul>
