@@ -271,6 +271,6 @@ class Networking(Composite):
                         "Where is the newtorking venue?"),
                        (NETWORKING, {ACTIVITY: NETWORKING,
                                      CO_ID: None},
-                        "When? "),
+                        "When and where is the event? "),
                        (DASHBOARD, {}, ""), ]
         super(Networking, self).__init__(view)

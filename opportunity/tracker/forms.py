@@ -8,7 +8,9 @@ from .models import *
 class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
-        exclude = ('user',)
+        fields = ('name', 'division', 'address', 'city',
+                  'state_province', 'country', 'zipCode',
+                  'website', 'comment')
 
     def __init__(self, *args, **kwargs):
         self._user = kwargs.pop('user')

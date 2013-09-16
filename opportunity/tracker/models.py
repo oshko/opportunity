@@ -273,6 +273,8 @@ class Company(models.Model):
     comment = models.CharField(
         _('Comment'), max_length=256, blank=True, null=True)
     user = models.ForeignKey(UserProfile)
+    # is this company a prospective employer or simply a networking venue? 
+    is_prospective = models.BooleanField(default=True)
 
     def __str__(self):
         return '%s' % self.name

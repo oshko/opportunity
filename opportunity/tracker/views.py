@@ -161,7 +161,7 @@ def dashboard(request, *args, **kwargs):
         page_options['contact_list'] = \
             Person.objects.filter(user=page_options['profile_id'])
         page_options['prospect_list'] = \
-            Company.objects.filter(user=page_options['profile_id'])
+            Company.objects.filter(user=page_options['profile_id'],is_prospective=True)
         page_options['activity_list'] = \
             Activity.getAll(page_options['profile_id'])
         page_options['society'] = secret_society(request.user.get_profile(),
@@ -340,6 +340,8 @@ def companyView(request, *args, **kwargs):
             c = form.save()
             url = None
             if activity:
+                c.is_prospective = False
+                c.save()
                 wiz = wizard.Composite.factory(activity, wizard.COMPANY)
                 if wiz:
                     wiz.set(request.session, wizard.CO_ID, c.id)
