@@ -152,12 +152,17 @@ def dashboard(request, *args, **kwargs):
             mentee_id = None
     
     page_options = perm_and_params(request.user.userprofile, mentee_id)
+    position_list_active = []
+    position_list_inactive = []
+    for p in Position.objects.filter(user=page_options['profile_id']):
+        if p.active:
+            position_list_active.append(p)
+        else:
+            position_list_inactive.append(p)
     if page_options['perm_p']:
         page = 'dashboard.html'
-        page_options['position_list_active'] = \
-            Position.objects.filter(user=page_options['profile_id'], active=True)
-        page_options['position_list_inactive'] = \
-            Position.objects.filter(user=page_options['profile_id'], active=False)
+        page_options['position_list_active'] = position_list_active
+        page_options['position_list_inactive'] = position_list_inactive
         page_options['contact_list'] = \
             Person.objects.filter(user=page_options['profile_id'])
         page_options['prospect_list'] = \
