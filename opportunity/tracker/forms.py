@@ -10,7 +10,7 @@ class CompanyForm(forms.ModelForm):
         model = Company
         fields = ('name', 'division', 'address', 'city',
                   'state_province', 'country', 'zipCode',
-                  'website', 'comment')
+                  'website')
 
     def __init__(self, *args, **kwargs):
         self._user = kwargs.pop('user')
@@ -44,7 +44,7 @@ class PersonForm(forms.ModelForm):
 class PositionForm(forms.ModelForm):
     class Meta:
         model = Position
-        fields = ('company', 'title', 'website', 'comment')
+        fields = ('company', 'title', 'website')
 
     def __init__(self, *args, **kwargs):
         self._user = kwargs.pop('user')

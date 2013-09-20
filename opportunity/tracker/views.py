@@ -1,9 +1,7 @@
 '''
-
 As always with django this defines the views for the application.
 Wizards (or a sequence of forms) is more complex. See the wizard
 module for more detail.
-
 '''
 
 from django.utils.translation import ugettext as _
@@ -328,6 +326,7 @@ def companyView(request, *args, **kwargs):
     """
     title = "Company"
     description = "Record information about a prospective employer."
+    legend_label = "New:"
     activity = None
     companies = None
     if wizard.ACTIVITY in request.GET:
@@ -360,6 +359,7 @@ def companyView(request, *args, **kwargs):
                 form = CompanyForm(
                     instance=Company.objects.get(pk=int(kwargs['id'])),
                     user=request.user.get_profile())
+                legend_label = "Update:"
             except:
                 return HttpResponseServerError("bad id")
         else:
@@ -382,6 +382,7 @@ def companyView(request, *args, **kwargs):
     return render_to_response('company_form.html',
                               {'title': title,
                                'desc': description,
+                               'legend': legend_label,
                                'company_list': companies,
                                'activity_name_list': prettyNames,
                                'activity': activity,
@@ -433,6 +434,7 @@ def personView(request, *args, **kwargs):
     """
     title = "Person"
     description = "Record a contact you met on the job hunt."
+    legend_label = "New:"
     activity = None
     if wizard.ACTIVITY in request.GET:
         activity = request.GET[wizard.ACTIVITY]
@@ -463,6 +465,7 @@ def personView(request, *args, **kwargs):
                 form = PersonForm(
                     instance=Person.objects.get(pk=int(kwargs['id'])),
                     user=request.user.get_profile())
+                legend_label = "Update:"
             except:
                 return HttpResponseServerError("bad id")
         else:
@@ -483,6 +486,7 @@ def personView(request, *args, **kwargs):
     return render_to_response('person_form.html',
                               {'title': title,
                                'desc': description,
+                               'legend': legend_label,
                                'people_list': people,
                                'activity': activity,
                                'form': form},
