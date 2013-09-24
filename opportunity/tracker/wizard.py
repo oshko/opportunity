@@ -132,25 +132,25 @@ class Composite(object):
         '''
         url = None
         if self._view_name == COMPANY:
-            url = reverse('opportunity.tracker.views.companyView',
+            url = reverse('opportunity.tracker.views.companyEdit',
                                 args=['add'])
         elif self._view_name == POSITION:
-            url = reverse('opportunity.tracker.views.positionView',
+            url = reverse('opportunity.tracker.views.positionEdit',
                                 args=['add'])
         elif self._view_name == CONTACT:
-            url = reverse('opportunity.tracker.views.personView',
+            url = reverse('opportunity.tracker.views.personEdit',
                                 args=['add'])
         elif self._view_name == INTERVIEW:
-            url = reverse('opportunity.tracker.views.interviewView',
+            url = reverse('opportunity.tracker.views.interviewEdit',
                                 args=['add'])
         elif self._view_name == APPLY:
-            url = reverse('opportunity.tracker.views.applyForView',
+            url = reverse('opportunity.tracker.views.applyForEdit',
                                 args=['add'])
         elif self._view_name == NETWORKING:
-            url = reverse('opportunity.tracker.views.networkingView',
+            url = reverse('opportunity.tracker.views.networkingEdit',
                                 args=['add'])
         elif self._view_name == CONVERSATION:
-            url = reverse('opportunity.tracker.views.conversationView',
+            url = reverse('opportunity.tracker.views.conversationEdit',
                                 args=['add'])
         elif self._view_name == DASHBOARD:
             url = reverse('opportunity.tracker.views.dashboard')
