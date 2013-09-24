@@ -19,7 +19,7 @@ class FetchFromCrunch(unittest.TestCase):
         co = Company()
         co.name = "Solum"
         populateCompany(co)
-        self.assertEqual(co.city, "Mountain View")
+        self.assertEqual(co.city, "San Francisco")
 
     def test_encoding(self):
         '''
