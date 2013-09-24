@@ -17,49 +17,49 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
     (r'^prospect/(?P<op>existing)', 'opportunity.tracker.views.companyDispatch'),
-    (r'^prospect/(?P<op>add)', 'opportunity.tracker.views.companyView'),
-    (r'^prospect/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.companyView'),
+    (r'^prospect/(?P<op>add)', 'opportunity.tracker.views.companyEdit'),
+    (r'^prospect/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.companyEdit'),
     (r'^prospect/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.companyDelete'),
 
     (r'^contact/(?P<op>existing)', 'opportunity.tracker.views.personDispatch'),
-    (r'^contact/(?P<op>add)$', 'opportunity.tracker.views.personView'),
-    (r'^contact/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.personView'),
+    (r'^contact/(?P<op>add)$', 'opportunity.tracker.views.personEdit'),
+    (r'^contact/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.personEdit'),
     (r'^contact/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.personDelete'),
     
-    (r'^position/(?P<op>add)$', 'opportunity.tracker.views.positionView'),
+    (r'^position/(?P<op>add)$', 'opportunity.tracker.views.positionEdit'),
+    (r'^position/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.positionEdit'),
     (r'^position/(?P<op>active)/(?P<id>\d+)$', 'opportunity.tracker.views.positionActivation'),
     (r'^position/(?P<op>inactive)/(?P<id>\d+)$', 'opportunity.tracker.views.positionActivation'),
-    (r'^position/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.positionView'),
     (r'^position/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.positionDelete'),
     
     (r'^newactivity/', 'opportunity.tracker.views.newactivity'), # dispatch activity
     
-    (r'^interview/(?P<op>add)$', 'opportunity.tracker.views.interviewView'), # add 
-    (r'^interview/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.interviewView'), # edit
+    (r'^interview/(?P<op>add)$', 'opportunity.tracker.views.interviewEdit'), # add 
+    (r'^interview/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.interviewEdit'), # edit
     (r'^interview/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.interviewDelete'), # delete 
     
-    (r'^apply/(?P<op>add)$', 'opportunity.tracker.views.applyForView'), # add
-    (r'^apply/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.applyForView'), # edit
+    (r'^apply/(?P<op>add)$', 'opportunity.tracker.views.applyForEdit'), # add
+    (r'^apply/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.applyForEdit'), # edit
     (r'^apply/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.applyForDelete'), # delete
     
-    (r'^networking/(?P<op>add)$', 'opportunity.tracker.views.networkingView'), # add
-    (r'^networking/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.networkingView'), # edit
+    (r'^networking/(?P<op>add)$', 'opportunity.tracker.views.networkingEdit'), # add
+    (r'^networking/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.networkingEdit'), # edit
     (r'^networking/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.networkingDelete'), # delete
         
-    (r'^conversation/(?P<op>add)$', 'opportunity.tracker.views.conversationView'), # add
-    (r'^conversation/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.conversationView'), # edit
+    (r'^conversation/(?P<op>add)$', 'opportunity.tracker.views.conversationEdit'), # add
+    (r'^conversation/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.conversationEdit'), # edit
     (r'^conversation/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.conversationDelete'), # del
 
-    (r'^mentormeeting/(?P<op>add)$', 'opportunity.tracker.views.mentormeetingView'), # add
-    (r'^mentormeeting/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.mentormeetingView'), # edit
+    (r'^mentormeeting/(?P<op>add)$', 'opportunity.tracker.views.mentormeetingEdit'), # add
+    (r'^mentormeeting/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.mentormeetingEdit'), # edit
     (r'^mentormeeting/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.mentormeetingDelete'), # del
 
-    (r'^mentorship/(?P<op>add)$', 'opportunity.tracker.views.mentorshipView'), # add
-    (r'^mentorship/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.mentorshipView'), # edit
+    (r'^mentorship/(?P<op>add)$', 'opportunity.tracker.views.mentorshipEdit'), # add
+    (r'^mentorship/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.mentorshipEdit'), # edit
     (r'^mentorship/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.mentorshipDelete'), # del
 
-    (r'^lunch/(?P<op>add)$', 'opportunity.tracker.views.lunchView'),
-    (r'^lunch/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.lunchView'),
+    (r'^lunch/(?P<op>add)$', 'opportunity.tracker.views.lunchEdit'),
+    (r'^lunch/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.lunchEdit'),
     (r'^lunch/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.lunchDelete'),
     
     (r'^dashboard/$', 'opportunity.tracker.views.dashboard'),
@@ -72,16 +72,16 @@ urlpatterns = patterns('',
     (r'^books/$','opportunity.tracker.views.books'),
     (r'^about/$','opportunity.tracker.views.about'),
     
-    (r'^pitch/(?P<op>add)$', 'opportunity.tracker.views.pitchView'), 
-    (r'^pitch/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.pitchView'),  
+    (r'^pitch/(?P<op>add)$', 'opportunity.tracker.views.pitchEdit'), 
+    (r'^pitch/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.pitchEdit'),  
     (r'^pitch/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.pitchDelete'),  
     
-    (r'^onlinePresence/(?P<op>add)$', 'opportunity.tracker.views.onlinePresenceView'),
-    (r'^onlinePresence/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.onlinePresenceView'),
+    (r'^onlinePresence/(?P<op>add)$', 'opportunity.tracker.views.onlinePresenceEdit'),
+    (r'^onlinePresence/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.onlinePresenceEdit'),
     (r'^onlinePresence/(?P<op>del)/(?P<id>\d+)$', 'opportunity.tracker.views.onlinePresenceDelete'),
     
-    (r'^par/(?P<op>add)$', 'opportunity.tracker.views.parView'),
-    (r'^par/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.parView'),
+    (r'^par/(?P<op>add)$', 'opportunity.tracker.views.parEdit'),
+    (r'^par/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.parEdit'),
     (r'^par/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.parDelete'),
     
     (r'^login/$', 'opportunity.tracker.views.loginRequest'),

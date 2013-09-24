@@ -320,7 +320,7 @@ def companyDispatch(request, *args, **kwargs):
 
 
 @login_required
-def companyView(request, *args, **kwargs):
+def companyEdit(request, *args, **kwargs):
     """
     A form to enter information about the company.
     """
@@ -428,7 +428,7 @@ def personDispatch(request, *args, **kwargs):
 
 
 @login_required
-def personView(request, *args, **kwargs):
+def personEdit(request, *args, **kwargs):
     """
     A form to enter information about a person of interest.
     """
@@ -510,7 +510,7 @@ def personDelete(request, *args, **kwargs):
 
 
 @login_required
-def lunchView(request, *args, **kwargs):
+def lunchEdit(request, *args, **kwargs):
     """
     A form to enter information a lunch appointment.
     """
@@ -561,7 +561,7 @@ def lunchDelete(request, *args, **kwargs):
 
 
 @login_required
-def positionView(request, *args, **kwargs):
+def positionEdit(request, *args, **kwargs):
     """
     A form to enter information about a position
     """
@@ -686,7 +686,7 @@ def newactivity(request):
 
 
 @login_required
-def interviewView(request, *args, **kwargs):
+def interviewEdit(request, *args, **kwargs):
     """
     form to enter information about an interview
     """
@@ -769,7 +769,7 @@ def interviewDelete(request, *args, **kwargs):
 
 
 @login_required
-def applyForView(request, *args, **kwargs):
+def applyForEdit(request, *args, **kwargs):
     """
     A form to enter for submitting an apply
     /apply/(?P<op>add) - a new application
@@ -849,7 +849,7 @@ def applyForDelete(request, *args, **kwargs):
 
 
 @login_required
-def networkingView(request, *args, **kwargs):
+def networkingEdit(request, *args, **kwargs):
     """
     A form to document a networking event
     """
@@ -927,7 +927,7 @@ def networkingDelete(request, *args, **kwargs):
 
 
 @login_required
-def mentormeetingView(request, *args, **kwargs):
+def mentormeetingEdit(request, *args, **kwargs):
     """
     A form to setup a meeting with mentor.
     """
@@ -980,7 +980,7 @@ def mentormeetingDelete(request, *args, **kwargs):
 
 
 @login_required
-def mentorshipView(request, *args, **kwargs):
+def mentorshipEdit(request, *args, **kwargs):
     """
     A form to setup a mentorship.
     """
@@ -1044,7 +1044,7 @@ def mentorshipDelete(request, *args, **kwargs):
 
 
 @login_required
-def conversationView(request, *args, **kwargs):
+def conversationEdit(request, *args, **kwargs):
     """
     A form to setup a meeting with mentor.
     """
@@ -1121,7 +1121,7 @@ def conversationDelete(request, *args, **kwargs):
 
 
 @login_required
-def pitchView(request, *args, **kwargs):
+def pitchEdit(request, *args, **kwargs):
     """
     Record the elevator pitch.
     """
@@ -1178,7 +1178,7 @@ def pitchDelete(request, *args, **kwargs):
 
 
 @login_required
-def onlinePresenceView(request, *args, **kwargs):
+def onlinePresenceEdit(request, *args, **kwargs):
     """
     A form for Online Presence. See model for model detail.
     /onlinePresence/(?P<op>add) - add a new story
@@ -1261,7 +1261,7 @@ def parDelete(request, *args, **kwargs):
 
 
 @login_required
-def parView(request, *args, **kwargs):
+def parEdit(request, *args, **kwargs):
     """
     A form for PAR. See model for model detail. two URLs map to this function.
     /par/(?P<op>add) - add a new story
