@@ -67,6 +67,9 @@ DASHBOARD = 'dashboard'        # possible activity value
 INTERVIEW = 'interview'        # possible activity value
 NETWORKING = 'networking'      # possible activity value
 POSITION = 'position'          # possible activity value
+ADD_COMPANY = 'add_company'
+ADD_POSITION = 'add_position' 
+COMMENT = 'comment'
 
 '''
 Key names for key/value pairs. They are stored in hidden fields in form
@@ -75,7 +78,8 @@ and used to set the proper defaults for composite entities.
 ACTIVITY = 'activity'          # key to store the wiz name
 CO_ID = 'co_id'                # UID for company
 POS_ID = 'pos_id'              # UID for position
-PER_ID = 'per_id'              # UID for person(contact)
+PER_ID = 'per_id'              # UID for person (contact)
+COM_ID = 'com_id'              # UID for comment 
 
 '''
 index for tuple
@@ -152,6 +156,9 @@ class Composite(object):
         elif self._view_name == CONVERSATION:
             url = reverse('opportunity.tracker.views.conversationEdit',
                                 args=['add'])
+        elif self._view_name == COMMENT:
+            url = reverse('opportunity.tracker.views.commentEdit',
+                                args=['add'])
         elif self._view_name == DASHBOARD:
             url = reverse('opportunity.tracker.views.dashboard')
         # append params if any
@@ -202,6 +209,10 @@ class Composite(object):
             obj = Interview(view)
         elif activity == NETWORKING:
             obj = Networking(view)
+        elif activity == ADD_COMPANY:
+            obj = AddCompany(view)
+        elif activity == ADD_POSITION:
+            obj = AddPosition(view)
         return obj
 
 
@@ -209,8 +220,8 @@ class Interview(Composite):
     def __init__(self, view):
         self._activity_name = INTERVIEW
         self._title = "Interview Wizard"
-        self._expected_keys = [CO_ID, POS_ID, PER_ID]
-        self._state = [(NEW_ACTIVITY, {}, "Unk"),
+        self._expected_keys = [CO_ID, POS_ID, PER_ID, COM_ID]
+        self._state = [(NEW_ACTIVITY, {}, ""),
                        (COMPANY, {ACTIVITY: INTERVIEW},
                         "With which company are you interview?"),
                        (POSITION, {ACTIVITY: INTERVIEW, CO_ID: None},
@@ -224,6 +235,13 @@ class Interview(Composite):
                                     POS_ID: None,
                                     PER_ID: None},
                         "When is the interview?"),
+                       (COMMENT, {ACTIVITY: INTERVIEW,
+                                  CO_ID: None,
+                                  POS_ID: None,
+                                  PER_ID: None,
+                                  COM_ID: None
+                                  },
+                        "Any comments about this interview?"),
                        (DASHBOARD, {}, ""), ]
         super(Interview, self).__init__(view)
 
@@ -242,6 +260,12 @@ class Apply(Composite):
                                 CO_ID: None,
                                 POS_ID: None},
                         'When did you apply?'),
+                       (COMMENT, {ACTIVITY: APPLY,
+                                  CO_ID: None, 
+                                  POS_ID: None,
+                                  COM_ID: None
+                                  }, 
+                        "Any comments about this interview?"),
                        (DASHBOARD, {}, ""), ]
         super(Apply, self).__init__(view)
 
@@ -257,6 +281,10 @@ class Conversation(Composite):
                        (CONVERSATION, {ACTIVITY: CONVERSATION,
                                        PER_ID: None},
                         "When was the conversation?"),
+                       (COMMENT, {ACTIVITY: CONVERSATION,
+                                  PER_ID: None, 
+                                  COM_ID: None},
+                        "Any comments about this conversation?"),
                        (DASHBOARD, {}, ""), ]
         super(Conversation, self).__init__(view)
 
@@ -272,5 +300,39 @@ class Networking(Composite):
                        (NETWORKING, {ACTIVITY: NETWORKING,
                                      CO_ID: None},
                         "When and where is the event? "),
+                       (COMMENT, {ACTIVITY: NETWORKING,
+                                  CO_ID: None,
+                                  COM_ID: None}, 
+                        "Any comments about this Networking event?"),
                        (DASHBOARD, {}, ""), ]
         super(Networking, self).__init__(view)
+
+
+class AddCompany(Composite):
+    def __init__(self, view):
+        self._activity_name = ADD_COMPANY
+        self._title = 'Add Company wizard'
+        self._expected_keys = [CO_ID]
+        self._state = [(NEW_ACTIVITY, {}, ""),
+                       (COMPANY, {ACTIVITY: ADD_COMPANY},
+                        "Record pertainent information about this company."),
+                       (COMMENT, {ACTIVITY: ADD_COMPANY,
+                                     CO_ID: None},
+                        "Any comments about this company you'd like to record? "),
+                       (DASHBOARD, {}, ""), ]
+        super(AddCompany, self).__init__(view)
+
+
+class AddPosition(Composite):
+    def __init__(self, view):
+        self._activity_name = ADD_POSITION
+        self._title = 'Add Position wizard'
+        self._expected_keys = [POS_ID]
+        self._state = [(NEW_ACTIVITY, {}, ""),
+                       (POSITION, {ACTIVITY: ADD_POSITION},
+                        "Record pertainent information about this position."),
+                       (COMMENT, {ACTIVITY: ADD_POSITION,
+                                     POS_ID: None},
+                        "Any comments about this position you'd like to record? "),
+                       (DASHBOARD, {}, ""), ]
+        super(AddPosition, self).__init__(view)
