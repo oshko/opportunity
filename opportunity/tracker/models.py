@@ -438,8 +438,13 @@ class Conversation(Activity):
     tag = "conversation"
 
     def __str__(self):
-        return 'Spoke with %s %s via %s' % (
-            self.person.first_name, self.person.last_name, self.via)
+        msg =  'Spoke with {0} {1} '.format (
+            self.person.first_name, self.person.last_name)
+        if self.via == "faceToFace":
+            msg += " in person"
+        else:
+            msg += " via %s".format(METHOD_OF_COMMUNICATION[self.via])
+        return msg
 
 
 @python_2_unicode_compatible
