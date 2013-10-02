@@ -255,6 +255,67 @@ class PARForm(forms.ModelForm):
         return inst
 
 
+class PositionCommentForm(forms.ModelForm):
+    comment = forms.CharField(
+        widget=forms.Textarea(attrs={'cols': 80 } ))
+    class Meta:
+        model = PositionComment
+        fields = ('comment',)
+        
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        super(PositionCommentForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        inst = super(PositionCommentForm, self).save(commit=False)
+        inst.user = self._user
+        if commit:
+            inst.save()
+        return inst
+
+
+class CompanyCommentForm(PositionCommentForm):
+    class Meta:
+        model = CompanyComment
+        fields = ('comment',)
+
+
+class InterviewCommentForm(PositionCommentForm):
+    class Meta:
+        model = InterviewComment
+        fields = ('comment',)
+
+
+class ApplyCommentForm(PositionCommentForm):
+    class Meta:
+        model = ApplyComment
+        fields = ('comment',)
+
+
+class NetworkingCommentForm(PositionCommentForm):
+    class Meta:
+        model = NetworkingComment
+        fields = ('comment',)
+
+
+class LunchCommentForm(PositionCommentForm):
+    class Meta:
+        model = LunchComment
+        fields = ('comment',)
+
+
+class MentorMeetingCommentForm(PositionCommentForm):
+    class Meta:
+        model = MentorMeetingComment
+        fields = ('comment',)
+
+
+class ConversationCommentForm(PositionCommentForm):
+    class Meta:
+        model = ConversationComment
+        fields = ('comment',)
+
+
 class RegistrationForm(forms.ModelForm):
     username = forms.CharField(label=_('User Name'))
     first_name = forms.CharField(label=_('First name'), max_length=30)

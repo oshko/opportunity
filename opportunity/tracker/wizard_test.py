@@ -35,10 +35,11 @@ class InterviewTest(unittest.TestCase):
             '/interview/add?activity=interview&co_id=3&per_id=5&pos_id=4')
 
         obj = Composite.factory(INTERVIEW, INTERVIEW)
-        obj.set(mock_session, COM_ID, 6)
+        mock_session = {}
+        obj.set(mock_session, INT_ID, 6)
         self.assertEqual(
             obj.get_next_url(),
-            '/comment/add?activity=interview&co_id=3&com_id=6&per_id=5&pos_id=4')
+            '/comment/add?activity=interview&int_id=6')
 
         obj = Composite.factory(INTERVIEW, COMMENT)
         self.assertEqual(obj.get_next_url(),
@@ -70,9 +71,10 @@ class ApplyTest(unittest.TestCase):
             '/apply/add?activity=apply&co_id=3&pos_id=4')
 
         obj = Composite.factory(APPLY, APPLY)
-        obj.set(mock_session, COM_ID, 5)
+        mock_session = {}
+        obj.set(mock_session, APP_ID, 5)
         self.assertEqual(obj.get_next_url(),
-            '/comment/add?activity=apply&co_id=3&com_id=5&pos_id=4')
+            '/comment/add?activity=apply&app_id=5')
 
         obj = Composite.factory(APPLY, COMMENT)
         self.assertEqual(obj.get_next_url(),
@@ -99,10 +101,11 @@ class ConversationText(unittest.TestCase):
             '/conversation/add?activity=conversation&per_id=4')
 
         obj = Composite.factory(CONVERSATION, CONVERSATION)
-        obj.set(mock_session, COM_ID, 5)
+        mock_session = {}
+        obj.set(mock_session, CONV_ID, 5)
         self.assertEqual(
             obj.get_next_url(),
-            '/comment/add?activity=conversation&com_id=5&per_id=4')
+            '/comment/add?activity=conversation&conv_id=5')
 
         obj = Composite.factory(CONVERSATION, COMMENT)
         self.assertEqual(obj.get_next_url(),
@@ -128,10 +131,11 @@ class NetworkingTest(unittest.TestCase):
             '/networking/add?activity=networking&co_id=3')
 
         obj = Composite.factory(NETWORKING, NETWORKING)
-        obj.set(mock_session, COM_ID, 4)
+        mock_session = {}
+        obj.set(mock_session, NET_ID, 4)
         self.assertEqual(
             obj.get_next_url(),
-            '/comment/add?activity=networking&co_id=3&com_id=4')
+            '/comment/add?activity=networking&net_id=4')
 
         obj = Composite.factory(NETWORKING, COMMENT)
         self.assertEqual(obj.get_next_url(),

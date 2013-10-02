@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-
+from opportunity.tracker.views import PositionCommentCreate, PositionCommentUpdate, PositionCommentDelete 
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -84,6 +84,8 @@ urlpatterns = patterns('',
     (r'^par/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.parEdit'),
     (r'^par/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.parDelete'),
     
+    (r'^comment/add$', 'opportunity.tracker.views.dispatchCommentCreate'),
+
     (r'^login/$', 'opportunity.tracker.views.loginRequest'),
     (r'^logout/$', 'opportunity.tracker.views.logoutRequest'),
     (r'^register/$','opportunity.tracker.views.registration'),

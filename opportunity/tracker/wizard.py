@@ -28,22 +28,33 @@ company    /prospect/add
 position   /position/add  co_id=<d>
 contact      /contact/add   co_id=<d>, pos_id=<d>
 interview  /interview/add co_id=<d>, pos_id=<d>, per_id=<d>
+comment    /comment/add int_id=<d>
 
 Apply
 company    /prospect/add
 position   /position/add  co_id=<d>
 apply      /apply/add     co_id=<d>, pos_id=<d>
+comment    /comment/add apply_id=<d>
 
 Networking
 company    /prospect/add
 networking /networking/add co_id=<d>
+comment    /comment/add net_id=<d>
 
 Conversation
 contact       /contact/add      
-conversation /conversation/add per_id=<d>
+conversation /conversation/add per_id=<d
+comment    /comment/add conv_id=<d>
+
+Add company 
+company    /prospect/add
+comment    /comment/add co_id=<d>
+
+Add Position 
+position   /position/add  
+comment    /comment/add pos_id=<d>
 
 '''
-
 from django.utils import six
 
 import logging
@@ -67,6 +78,7 @@ DASHBOARD = 'dashboard'        # possible activity value
 INTERVIEW = 'interview'        # possible activity value
 NETWORKING = 'networking'      # possible activity value
 POSITION = 'position'          # possible activity value
+MENTORMTG = 'mentormtg'        # possible activity value
 ADD_COMPANY = 'add_company'
 ADD_POSITION = 'add_position' 
 COMMENT = 'comment'
@@ -79,7 +91,11 @@ ACTIVITY = 'activity'          # key to store the wiz name
 CO_ID = 'co_id'                # UID for company
 POS_ID = 'pos_id'              # UID for position
 PER_ID = 'per_id'              # UID for person (contact)
-COM_ID = 'com_id'              # UID for comment 
+APP_ID = 'app_id'              # UID for apply
+CONV_ID = 'conv_id'            # UID for conversation
+INT_ID = 'int_id'              # UID for interview 
+MENT_ID = 'ment_id'            # UID for mentor meeting
+NET_ID = 'net_id'              # UID for networking
 
 '''
 index for tuple
@@ -157,8 +173,7 @@ class Composite(object):
             url = reverse('opportunity.tracker.views.conversationEdit',
                                 args=['add'])
         elif self._view_name == COMMENT:
-            url = reverse('opportunity.tracker.views.commentEdit',
-                                args=['add'])
+            url = reverse('opportunity.tracker.views.dispatchCommentCreate')
         elif self._view_name == DASHBOARD:
             url = reverse('opportunity.tracker.views.dashboard')
         # append params if any
@@ -179,6 +194,17 @@ class Composite(object):
         get description of this wizard. 
         '''
         return self._state[self._state_index][DESC_INDEX]
+
+    def is_prospective(self):
+        '''
+        Sometimes we are interseted in companies as prospective
+        employers. Other times they are networking venues. Return true
+        if this activity is recording a prospective employer else false.
+        '''
+        rc = False
+        if self._activity_name in [ADD_COMPANY, ADD_POSITION, APPLY, INTERVIEW]:
+            rc = True
+        return rc
 
     def _convert_to_tuple(self, dict):
         '''
@@ -220,7 +246,7 @@ class Interview(Composite):
     def __init__(self, view):
         self._activity_name = INTERVIEW
         self._title = "Interview Wizard"
-        self._expected_keys = [CO_ID, POS_ID, PER_ID, COM_ID]
+        self._expected_keys = [CO_ID, INT_ID, POS_ID, PER_ID]
         self._state = [(NEW_ACTIVITY, {}, ""),
                        (COMPANY, {ACTIVITY: INTERVIEW},
                         "With which company are you interview?"),
@@ -236,10 +262,7 @@ class Interview(Composite):
                                     PER_ID: None},
                         "When is the interview?"),
                        (COMMENT, {ACTIVITY: INTERVIEW,
-                                  CO_ID: None,
-                                  POS_ID: None,
-                                  PER_ID: None,
-                                  COM_ID: None
+                                  INT_ID: None
                                   },
                         "Any comments about this interview?"),
                        (DASHBOARD, {}, ""), ]
@@ -250,7 +273,7 @@ class Apply(Composite):
     def __init__(self, view):
         self._activity_name = APPLY
         self._title = 'Apply Wizard'
-        self._expected_keys = [CO_ID, POS_ID]
+        self._expected_keys = [APP_ID, CO_ID, POS_ID]
         self._state = [(NEW_ACTIVITY, {}, ""),
                        (COMPANY, {ACTIVITY: APPLY},
                         'At which company did you apply?'),
@@ -261,9 +284,7 @@ class Apply(Composite):
                                 POS_ID: None},
                         'When did you apply?'),
                        (COMMENT, {ACTIVITY: APPLY,
-                                  CO_ID: None, 
-                                  POS_ID: None,
-                                  COM_ID: None
+                                  APP_ID: None
                                   }, 
                         "Any comments about this interview?"),
                        (DASHBOARD, {}, ""), ]
@@ -274,7 +295,7 @@ class Conversation(Composite):
     def __init__(self, view):
         self._activity_name = CONVERSATION
         self._title = "Conversation Wizard"
-        self._expected_keys = [PER_ID]
+        self._expected_keys = [PER_ID, CONV_ID]
         self._state = [(NEW_ACTIVITY, {}, ""),
                        (CONTACT, {ACTIVITY: CONVERSATION},
                         "With whom did you speak?"),
@@ -282,8 +303,7 @@ class Conversation(Composite):
                                        PER_ID: None},
                         "When was the conversation?"),
                        (COMMENT, {ACTIVITY: CONVERSATION,
-                                  PER_ID: None, 
-                                  COM_ID: None},
+                                  CONV_ID: None},
                         "Any comments about this conversation?"),
                        (DASHBOARD, {}, ""), ]
         super(Conversation, self).__init__(view)
@@ -293,7 +313,7 @@ class Networking(Composite):
     def __init__(self, view):
         self._activity_name = NETWORKING
         self._title = 'Networking wizard'
-        self._expected_keys = [CO_ID]
+        self._expected_keys = [CO_ID, NET_ID]
         self._state = [(NEW_ACTIVITY, {}, ""),
                        (COMPANY, {ACTIVITY: NETWORKING},
                         "Where is the newtorking venue?"),
@@ -301,12 +321,24 @@ class Networking(Composite):
                                      CO_ID: None},
                         "When and where is the event? "),
                        (COMMENT, {ACTIVITY: NETWORKING,
-                                  CO_ID: None,
-                                  COM_ID: None}, 
+                                  NET_ID: None}, 
                         "Any comments about this Networking event?"),
                        (DASHBOARD, {}, ""), ]
         super(Networking, self).__init__(view)
 
+class MentorMeeting(Composite):
+    def __init__(self, view):
+        self._activity_name = MENTORMTG
+        self._title = 'Mentor Meeting wizard'
+        self._expected_keys = [CO_ID, MENT_ID]
+        self._state = [(NEW_ACTIVITY, {}, ""),
+                       (MENTORMTG, {ACTIVITY: MENTORMTG }, 
+                        "Mentor meeting"),
+                       (COMMENT, {ACTIVITY: ADD_COMPANY,
+                                     MENT_ID: None},
+                        "Any comments about this meeting? "),
+                       (DASHBOARD, {}, ""), ]
+        super(MentorMeeting, self).__init__(view)
 
 class AddCompany(Composite):
     def __init__(self, view):
