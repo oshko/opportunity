@@ -42,16 +42,16 @@ networking /networking/add co_id=<d>
 comment    /comment/add net_id=<d>
 
 Conversation
-contact       /contact/add      
+contact       /contact/add
 conversation /conversation/add per_id=<d
 comment    /comment/add conv_id=<d>
 
-Add company 
+Add company
 company    /prospect/add
 comment    /comment/add co_id=<d>
 
-Add Position 
-position   /position/add  
+Add Position
+position   /position/add
 comment    /comment/add pos_id=<d>
 
 '''
@@ -80,7 +80,7 @@ NETWORKING = 'networking'      # possible activity value
 POSITION = 'position'          # possible activity value
 MENTORMTG = 'mentormtg'        # possible activity value
 ADD_COMPANY = 'add_company'
-ADD_POSITION = 'add_position' 
+ADD_POSITION = 'add_position'
 COMMENT = 'comment'
 
 '''
@@ -93,7 +93,7 @@ POS_ID = 'pos_id'              # UID for position
 PER_ID = 'per_id'              # UID for person (contact)
 APP_ID = 'app_id'              # UID for apply
 CONV_ID = 'conv_id'            # UID for conversation
-INT_ID = 'int_id'              # UID for interview 
+INT_ID = 'int_id'              # UID for interview
 MENT_ID = 'ment_id'            # UID for mentor meeting
 NET_ID = 'net_id'              # UID for networking
 
@@ -153,25 +153,25 @@ class Composite(object):
         url = None
         if self._view_name == COMPANY:
             url = reverse('opportunity.tracker.views.companyEdit',
-                                args=['add'])
+                          args=['add'])
         elif self._view_name == POSITION:
             url = reverse('opportunity.tracker.views.positionEdit',
-                                args=['add'])
+                          args=['add'])
         elif self._view_name == CONTACT:
             url = reverse('opportunity.tracker.views.personEdit',
-                                args=['add'])
+                          args=['add'])
         elif self._view_name == INTERVIEW:
             url = reverse('opportunity.tracker.views.interviewEdit',
-                                args=['add'])
+                          args=['add'])
         elif self._view_name == APPLY:
             url = reverse('opportunity.tracker.views.applyForEdit',
-                                args=['add'])
+                          args=['add'])
         elif self._view_name == NETWORKING:
             url = reverse('opportunity.tracker.views.networkingEdit',
-                                args=['add'])
+                          args=['add'])
         elif self._view_name == CONVERSATION:
             url = reverse('opportunity.tracker.views.conversationEdit',
-                                args=['add'])
+                          args=['add'])
         elif self._view_name == MENTORMTG:
             url = reverse('opportunity.tracker.views.mentormeetingEdit',
                           args=['add'])
@@ -183,18 +183,18 @@ class Composite(object):
         params = self._state[self._state_next_index][PARAM_INDEX]
         if params:
             url = "{0}?{1}".format(url,
-                                       urlencode(self._convert_to_tuple(params)))
+                                   urlencode(self._convert_to_tuple(params)))
         return url
 
     def get_title(self):
         '''
-        get title for this wizard. 
+        get title for this wizard.
         '''
         return self._title
 
     def get_description(self):
         '''
-        get description of this wizard. 
+        get description of this wizard.
         '''
         return self._state[self._state_index][DESC_INDEX]
 
@@ -290,7 +290,7 @@ class Apply(Composite):
                         'When did you apply?'),
                        (COMMENT, {ACTIVITY: APPLY,
                                   APP_ID: None
-                                  }, 
+                                  },
                         "Any comments about this interview?"),
                        (DASHBOARD, {}, ""), ]
         super(Apply, self).__init__(view)
@@ -326,10 +326,11 @@ class Networking(Composite):
                                      CO_ID: None},
                         "When and where is the event? "),
                        (COMMENT, {ACTIVITY: NETWORKING,
-                                  NET_ID: None}, 
+                                  NET_ID: None},
                         "Any comments about this Networking event?"),
                        (DASHBOARD, {}, ""), ]
         super(Networking, self).__init__(view)
+
 
 class MentorMeeting(Composite):
     def __init__(self, view):
@@ -337,13 +338,14 @@ class MentorMeeting(Composite):
         self._title = 'Mentor Meeting wizard'
         self._expected_keys = [CO_ID, MENT_ID]
         self._state = [(NEW_ACTIVITY, {}, ""),
-                       (MENTORMTG, {ACTIVITY: MENTORMTG }, 
+                       (MENTORMTG, {ACTIVITY: MENTORMTG},
                         "Mentor meeting"),
                        (COMMENT, {ACTIVITY: MENTORMTG,
-                                     MENT_ID: None},
+                                  MENT_ID: None},
                         "Any comments about this meeting? "),
                        (DASHBOARD, {}, ""), ]
         super(MentorMeeting, self).__init__(view)
+
 
 class AddCompany(Composite):
     def __init__(self, view):
@@ -354,7 +356,7 @@ class AddCompany(Composite):
                        (COMPANY, {ACTIVITY: ADD_COMPANY},
                         "Record pertainent information about this company."),
                        (COMMENT, {ACTIVITY: ADD_COMPANY,
-                                     CO_ID: None},
+                                  CO_ID: None},
                         "Any comments about this company you'd like to record? "),
                        (DASHBOARD, {}, ""), ]
         super(AddCompany, self).__init__(view)
@@ -369,7 +371,7 @@ class AddPosition(Composite):
                        (POSITION, {ACTIVITY: ADD_POSITION},
                         "Record pertainent information about this position."),
                        (COMMENT, {ACTIVITY: ADD_POSITION,
-                                     POS_ID: None},
+                                  POS_ID: None},
                         "Any comments about this position you'd like to record? "),
                        (DASHBOARD, {}, ""), ]
         super(AddPosition, self).__init__(view)

@@ -171,11 +171,7 @@ class MentorshipForm(forms.ModelForm):
 
     class Meta:
         model = Mentorship
-        fields = (
-            'jobseeker',
-            'mentor',
-            'startDate',
-            )
+        fields = ('jobseeker', 'mentor', 'startDate',)
 
 
 class ConversationForm(forms.ModelForm):
@@ -257,11 +253,12 @@ class PARForm(forms.ModelForm):
 
 class PositionCommentForm(forms.ModelForm):
     comment = forms.CharField(
-        widget=forms.Textarea(attrs={'cols': 80 } ))
+        widget=forms.Textarea(attrs={'cols': 80}))
+
     class Meta:
         model = PositionComment
         fields = ('comment',)
-        
+
     def __init__(self, *args, **kwargs):
         self._user = kwargs.pop('user')
         super(PositionCommentForm, self).__init__(*args, **kwargs)

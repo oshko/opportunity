@@ -130,8 +130,7 @@ def may_access_control(requester_id, target_id):
         # is there a mentorship relationship between aRequester and aTarget?
         m_rel = Mentorship.objects.filter(
             (Q(jobseeker=requester_id) & Q(mentor=target_id)) |
-            (Q(jobseeker=target_id) & Q(mentor=requester_id))
-            )
+            (Q(jobseeker=target_id) & Q(mentor=requester_id)))
         if len(m_rel) == 1:
             ret = True
     return ret
@@ -209,11 +208,10 @@ class UserProfile(models.Model):
         '''
         Given user id return mentorship or None if there isn't one.
         '''
-        
-        rc = None 
+        rc = None
         if self.is_job_seeker():
             rc = Mentorship.objects.filter(jobseeker__id=self.id)
-            if len(rc) >=1:
+            if len(rc) >= 1:
                 rc = rc[0]
         return rc
 
@@ -423,7 +421,7 @@ class Lunch (Activity):
 @python_2_unicode_compatible
 class MentorMeeting(Activity):
     """
-    Meet with Mentor. 
+    Meet with Mentor.
     """
     mentorship = models.ForeignKey(Mentorship, unique=True)
     face_to_face = models.BooleanField(default=False)
@@ -432,10 +430,10 @@ class MentorMeeting(Activity):
 
     @staticmethod
     def factory(user, mentorship):
-        rc = MentorMeeting() 
+        rc = MentorMeeting()
         rc.user = user
         rc.mentorship = mentorship
-        return rc 
+        return rc
 
     def __str__(self):
         return 'Met with %s' % (self.mentorship.mentor)
@@ -457,12 +455,12 @@ class Conversation(Activity):
     tag = "conversation"
 
     def __str__(self):
-        msg =  'Spoke with {0} {1} '.format (
+        msg = 'Spoke with {0} {1} '.format(
             self.person.first_name, self.person.last_name)
         if self.via == "faceToFace":
             msg += " in person"
         else:
-            msg += " via %s".format(METHOD_OF_COMMUNICATION[self.via])
+            msg += " via {0}".format(METHOD_OF_COMMUNICATION[self.via])
         return msg
 
 
