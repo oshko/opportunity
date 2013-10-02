@@ -172,6 +172,9 @@ class Composite(object):
         elif self._view_name == CONVERSATION:
             url = reverse('opportunity.tracker.views.conversationEdit',
                                 args=['add'])
+        elif self._view_name == MENTORMTG:
+            url = reverse('opportunity.tracker.views.mentormeetingEdit',
+                          args=['add'])
         elif self._view_name == COMMENT:
             url = reverse('opportunity.tracker.views.dispatchCommentCreate')
         elif self._view_name == DASHBOARD:
@@ -235,6 +238,8 @@ class Composite(object):
             obj = Interview(view)
         elif activity == NETWORKING:
             obj = Networking(view)
+        elif activity == MENTORMTG:
+            obj = MentorMeeting(view)
         elif activity == ADD_COMPANY:
             obj = AddCompany(view)
         elif activity == ADD_POSITION:
@@ -334,7 +339,7 @@ class MentorMeeting(Composite):
         self._state = [(NEW_ACTIVITY, {}, ""),
                        (MENTORMTG, {ACTIVITY: MENTORMTG }, 
                         "Mentor meeting"),
-                       (COMMENT, {ACTIVITY: ADD_COMPANY,
+                       (COMMENT, {ACTIVITY: MENTORMTG,
                                      MENT_ID: None},
                         "Any comments about this meeting? "),
                        (DASHBOARD, {}, ""), ]

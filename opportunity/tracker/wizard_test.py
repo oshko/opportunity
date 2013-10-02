@@ -142,6 +142,25 @@ class NetworkingTest(unittest.TestCase):
             '/dashboard/')
 
 
+class MentorMtgTest(unittest.TestCase):
+    def test_mentor_mtg_seq(self):
+        mock_session = {} 
+        obj = Composite.factory(MENTORMTG, NEW_ACTIVITY)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/mentormeeting/add?activity=mentormtg')
+
+        obj = Composite.factory(MENTORMTG, MENTORMTG)
+        obj.set(mock_session, MENT_ID, 12)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/comment/add?activity=mentormtg&ment_id=12')
+
+        obj = Composite.factory(MENTORMTG, COMMENT)
+        self.assertEqual(obj.get_next_url(),
+            '/dashboard/')
+
+
 class AddCompanyTest(unittest.TestCase):
     def test_add_company_seq(self):
         '''
