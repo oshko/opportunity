@@ -82,10 +82,12 @@ def toplevelView(request):
         return render_to_response('about.html',
                                   context_instance=RequestContext(request))
 
+
 def about(request):
     """ references to books which may help the job seeker """
-    return render_to_response('about.html', 
+    return render_to_response('about.html',
                               context_instance=RequestContext(request))
+
 
 def books(request):
     """ references to books which may help the job seeker """
@@ -142,15 +144,15 @@ def dashboard(request, *args, **kwargs):
     page = None
     page_options = {}
     society = None
-    
+
     if 'mentee_id' in request.GET:
-        try: 
-            # should always be an int. 
+        try:
+            # should always be an int.
             mentee_id = int(request.GET['mentee_id'])
         except:
             logger.error('mentee_id must be an int')
             mentee_id = None
-    
+
     page_options = perm_and_params(request.user.userprofile, mentee_id)
     position_list_active = []
     position_list_inactive = []
@@ -166,11 +168,12 @@ def dashboard(request, *args, **kwargs):
         page_options['contact_list'] = \
             Person.objects.filter(user=page_options['profile_id'])
         page_options['prospect_list'] = \
-            Company.objects.filter(user=page_options['profile_id'],is_prospective=True)
+            Company.objects.filter(user=page_options['profile_id'],
+                                   is_prospective=True)
         page_options['activity_list'] = \
             Activity.getAll(page_options['profile_id'])
         page_options['society'] = secret_society(request.user.get_profile(),
-            page_options['profile_id'])
+                                                 page_options['profile_id'])
         page_options['activity_name_list'] = prettyNames
     else:
         page = 'perm_problem.html'
@@ -189,16 +192,16 @@ def profileView(request, *args, **kwargs):
     """
     mentee_id = None
     page_options = {}
-    
+
     if 'mentee_id' in request.GET:
-        try: 
-            # should always be an int. 
+        try:
+            # should always be an int.
             mentee_id = int(request.GET['mentee_id'])
         except:
             logger.error('mentee_id must be an int')
             mentee_id = None
 
-    page_options = perm_and_params(request.user.userprofile, mentee_id) 
+    page_options = perm_and_params(request.user.userprofile, mentee_id)
 
     if page_options['perm_p']:
         page = 'profile.html'
@@ -210,9 +213,9 @@ def profileView(request, *args, **kwargs):
             PAR.objects.filter(user=page_options['profile_id'])
         page_options['society'] = \
             secret_society(
-                request.user.get_profile(), 
+                request.user.get_profile(),
                 page_options['profile_id'])
-    else: 
+    else:
         page = 'perm_problem.html'
         page_options['err_message'] = 'You do not have permission to access this page.'
     return render_to_response(page,
@@ -223,15 +226,16 @@ def profileView(request, *args, **kwargs):
 @login_required
 def membersView(request, *args, **kwargs):
     page = 'members.html'
-    page_options = {} 
+    page_options = {}
     # get list of users
     page_options['people'] = UserProfile.objects.all()
     # subtracting existing Mentorship relations
-    # mentee's 
+    # mentee's
     # mentor's
     return render_to_response(page,
                               page_options,
                               context_instance=RequestContext(request))
+
 
 def populateCompany(company_model):
     """
@@ -253,7 +257,7 @@ def populateCompany(company_model):
             # the value of 'company'. There can be multiple values.
             # Decide which one to use.
             company_data = [x for x in company_data
-                           if x['namespace'] == 'company']
+                            if x['namespace'] == 'company']
             companyAlternates = None  # a list of companies the search up.
             if not company_data:
                 # empty list. reset company_data
@@ -274,7 +278,8 @@ def populateCompany(company_model):
                         logging.error(str.format("API Error: {0} ",
                                                  err_msg['error']))
                 except ValueError:
-                    logging.error("Error message from crunchbase not json. Raw responds is...".format(err_msg))
+                    logging.error("Error message from crunchbase not json."
+                                  "Raw responds is...".format(err_msg))
         logging.warning(
             str.format("Company, {0}, not found in crunchbase."
                        "Ignoring and continuing.",
@@ -627,13 +632,14 @@ def positionEdit(request, *args, **kwargs):
                                'form': form},
                               context_instance=RequestContext(request))
 
+
 @login_required
 def positionActivation(request, *args, **kwargs):
     '''
-    When applying for a position, we do not always get it. 
-    The dashboard shows active and inactive positions on 
+    When applying for a position, we do not always get it.
+    The dashboard shows active and inactive positions on
     separate tabs. When the user toggles betwen they two, this
-    function is called. 
+    function is called.
     '''
     rc = {'id': kwargs['id'], 'divId': "unknown",
           'noElements': "No positions being tracked."}
@@ -641,22 +647,23 @@ def positionActivation(request, *args, **kwargs):
         code = 200
         obj = Position.objects.get(pk=int(kwargs['id']))
         if kwargs['op'] == 'active':
-            # remember we toggling between inactive to active. 
+            # remember we toggling between inactive to active.
             # mark it active
             obj.active = True
             obj.save()
-            # moving to active list. 
+            # moving to active list.
             rc['divId'] = "position-active-container"
         elif kwargs['op'] == 'inactive':
             # mark it inactive
             obj.active = False
             obj.save()
-            # moving to INactive list. 
+            # moving to INactive list.
             rc['divId'] = "position-inactive-container"
     except:
         code = 500
         logging.warning("unable to update active field for position")
     return HttpResponse(json.dumps(rc), status=code)
+
 
 @login_required
 def positionDelete(request, *args, **kwargs):
@@ -717,7 +724,7 @@ def interviewEdit(request, *args, **kwargs):
             if activity:
                 wiz = wizard.Composite.factory(activity, wizard.INTERVIEW)
                 if wiz:
-                    # activity completed. delete obsolete keys 
+                    # activity completed. delete obsolete keys
                     wiz.delete_keys(request.session)
                     wiz.set(request.session, wizard.INT_ID, interview.id)
                     url = wiz.get_next_url()
@@ -802,7 +809,7 @@ def applyForEdit(request, *args, **kwargs):
             if activity:
                 wiz = wizard.Composite.factory(activity, wizard.APPLY)
                 if wiz:
-                    # activity completed. delete obsolete keys 
+                    # activity completed. delete obsolete keys
                     wiz.delete_keys(request.session)
                     wiz.set(request.session, wizard.APP_ID, app.id)
                     url = wiz.get_next_url()
@@ -881,7 +888,7 @@ def networkingEdit(request, *args, **kwargs):
             if activity:
                 wiz = wizard.Composite.factory(activity, wizard.NETWORKING)
                 if wiz:
-                    # activity completed. delete obsolete keys 
+                    # activity completed. delete obsolete keys
                     wiz.delete_keys(request.session)
                     wiz.set(request.session, wizard.NET_ID, n.id)
                     url = wiz.get_next_url()
@@ -943,28 +950,41 @@ def mentormeetingEdit(request, *args, **kwargs):
     title = "Mentor Meeting"
     description = "Record information about mentor meeting."
     activity = None
+    m_mtg = None  # mentor meeting
+    user_profile = request.user.get_profile()
     if wizard.ACTIVITY in request.GET:
         activity = request.GET[wizard.ACTIVITY]
 
+    # guard: before we do anything confirm this person has a mentor.
+    mentorship = user_profile.get_mentorship()
+    if not mentorship:
+        return render_to_response('err_page.html',
+                                  {'title': "Error: no mentor",
+                                   'err_msg': "You haven't been assigned to"
+                                   "a mentor, yet."},
+                                  context_instance=RequestContext(request))
+    # now handle the http verbs.
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = MeetingMentorForm(request.POST,
                                      instance=MentorMeeting.objects.get(
                                          pk=int(kwargs['id'])),
-                                     user=request.user.get_profile())
+                                     user=user_profile)
         else:
+            m_mtg = MentorMeeting.factory(user_profile, mentorship)
             form = MeetingMentorForm(request.POST,
-                                     user=request.user.get_profile())
+                                     instance=m_mtg,
+                                     user=user_profile)
         if form.is_valid():
             m = form.save()
             url = None
             if activity:
                 wiz = wizard.Composite.factory(activity, wizard.MENTORMTG)
                 if wiz:
-                    # activity completed. delete obsolete keys 
+                    # activity completed. delete obsolete keys
                     wiz.delete_keys(request.session)
                     wiz.set(request.session, wizard.MENT_ID, m.id)
-                    url = wiz.get_next_url()                
+                    url = wiz.get_next_url()
             if not url:
                 url = reverse('opportunity.tracker.views.dashboard')
             return HttpResponseRedirect(url)
@@ -973,11 +993,14 @@ def mentormeetingEdit(request, *args, **kwargs):
             try:
                 form = MeetingMentorForm(
                     instance=MentorMeeting.objects.get(pk=int(kwargs['id'])),
-                    user=request.user.get_profile())
+                    user=user_profile)
             except:
                 return HttpResponseServerError("bad id")
         else:
-            form = MeetingMentorForm(user=request.user.get_profile())
+            mtg = MentorMeeting.factory(user_profile, mentorship)
+            form = MeetingMentorForm(
+                instance=mtg,
+                user=user_profile)
     return render_to_response('tracker_form.html',
                               {'title': title,
                                'desc': description,
@@ -1092,7 +1115,7 @@ def conversationEdit(request, *args, **kwargs):
             if activity:
                 wiz = wizard.Composite.factory(activity, wizard.CONVERSATION)
                 if wiz:
-                    # activity completed. delete obsolete keys 
+                    # activity completed. delete obsolete keys
                     wiz.delete_keys(request.session)
                     wiz.set(request.session, wizard.CONV_ID, conv.id)
                     url = wiz.get_next_url()
@@ -1345,13 +1368,13 @@ def dispatchCommentCreate(request, *args, **kwargs):
     elif activity == wizard.MENTORMTG:
         cbv = MentorMeetingCommentCreate
     elif activity == wizard.CONVERSATION:
-        cbv = ConversationCommentCreate 
+        cbv = ConversationCommentCreate
     return cbv.as_view()(request)
 
 
 class PositionCommentCreate(CreateView):
     '''
-    learning. Just create a comment via Class-based Views. 
+    learning. Just create a comment via Class-based Views.
     '''
     form_class = PositionCommentForm
     model = PositionComment
@@ -1366,26 +1389,23 @@ class PositionCommentCreate(CreateView):
 
     def get_form_kwargs(self):
         kwargs = super(PositionCommentCreate, self).get_form_kwargs()
-        kwargs.update({ 
-                'user' : self.request.user.get_profile()
-                })
+        kwargs.update(
+            {'user': self.request.user.get_profile()})
         return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(PositionCommentCreate, self).get_context_data(**kwargs)
-        context['title'] = 'Comment about this position' 
+        context['title'] = 'Comment about this position'
 
-        context['desc'] =  '''
-        This is just a comment field. When adding a position in which
-        you're interested, other job seekers have found it useful to record
-        the the job description but you can record any note you find
-        useful.
-        '''
+        context['desc'] = "This is just a comment field. When adding a"
+        " position in which you're interested, other job seekers have"
+        " found it useful to record the the job description but you can"
+        " record any note you find useful."
         return context
 
     def form_valid(self, form):
         '''
-        Before we save this comment, assign foreign keys. 
+        Before we save this comment, assign foreign keys.
         '''
         if wizard.POS_ID in self.request.GET:
             pos_id = int(self.request.GET[wizard.POS_ID])
@@ -1393,9 +1413,10 @@ class PositionCommentCreate(CreateView):
         form.instance.author = self.request.user.get_profile()
         return super(PositionCommentCreate, self).form_valid(form)
 
+
 class CompanyCommentCreate(PositionCommentCreate):
     '''
-    Subclass Position and override things to support Company. 
+    Subclass Position and override things to support Company.
     '''
     form_class = CompanyCommentForm
     model = CompanyComment
@@ -1403,16 +1424,16 @@ class CompanyCommentCreate(PositionCommentCreate):
 
     def get_context_data(self, **kwargs):
         context = super(CompanyCommentCreate, self).get_context_data(**kwargs)
-        context['title'] = 'Comment about this company' 
+        context['title'] = 'Comment about this company'
 
-        context['desc'] =  '''
-        Do you have any comments you'd like to save with respect to this company?
-        '''
+        context['desc'] = "Do you have any comments you'd like to"
+        " save with respect to this company?"
+
         return context
 
     def form_valid(self, form):
         '''
-        Before we save this comment, assign foreign keys. 
+        Before we save this comment, assign foreign keys.
         '''
         if wizard.CO_ID in self.request.GET:
             co_id = int(self.request.GET[wizard.CO_ID])
@@ -1423,7 +1444,7 @@ class CompanyCommentCreate(PositionCommentCreate):
 
 class ApplyCommentCreate(PositionCommentCreate):
     '''
-    Subclass Position and override things to support Applying for a position. 
+    Subclass Position and override things to support Applying for a position.
     '''
     form_class = ApplyCommentForm
     model = ApplyComment
@@ -1431,16 +1452,15 @@ class ApplyCommentCreate(PositionCommentCreate):
 
     def get_context_data(self, **kwargs):
         context = super(ApplyCommentCreate, self).get_context_data(**kwargs)
-        context['title'] = 'Any comments about this application' 
+        context['title'] = 'Any comments about this application'
 
-        context['desc'] =  '''
-        Do you have any comments you'd like to save with respect to this application?
-        '''
+        context['desc'] = "Do you have any comments you'd like to"
+        " save with respect to this application?"
         return context
 
     def form_valid(self, form):
         '''
-        Before we save this comment, assign foreign keys. 
+        Before we save this comment, assign foreign keys.
         '''
         if wizard.APP_ID in self.request.GET:
             app_id = int(self.request.GET[wizard.APP_ID])
@@ -1459,16 +1479,15 @@ class InterviewCommentCreate(PositionCommentCreate):
 
     def get_context_data(self, **kwargs):
         context = super(InterviewCommentCreate, self).get_context_data(**kwargs)
-        context['title'] = 'Any comments about this interview' 
+        context['title'] = 'Any comments about this interview'
 
-        context['desc'] =  '''
-        Do you have any comments you'd like to save with respect to this interview?
-        '''
+        context['desc'] = "Do you have any comments you'd like to save"
+        " with respect to this interview?"
         return context
 
     def form_valid(self, form):
         '''
-        Before we save this comment, assign foreign keys. 
+        Before we save this comment, assign foreign keys.
         '''
         if wizard.INT_ID in self.request.GET:
             int_id = int(self.request.GET[wizard.INT_ID])
@@ -1487,16 +1506,14 @@ class NetworkingCommentCreate(PositionCommentCreate):
 
     def get_context_data(self, **kwargs):
         context = super(NetworkingCommentCreate, self).get_context_data(**kwargs)
-        context['title'] = 'Any comments about this networking event' 
+        context['title'] = 'Any comments about this networking event'
 
-        context['desc'] =  '''
-        Do you have any comments you'd like to save?
-        '''
+        context['desc'] = "Do you have any comments you'd like to save?"
         return context
 
     def form_valid(self, form):
         '''
-        Before we save this comment, assign foreign keys. 
+        Before we save this comment, assign foreign keys.
         '''
         if wizard.NET_ID in self.request.GET:
             net_id = int(self.request.GET[wizard.NET_ID])
@@ -1515,16 +1532,14 @@ class MentorMeetingCommentCreate(PositionCommentCreate):
 
     def get_context_data(self, **kwargs):
         context = super(MentorMeetingCommentCreate, self).get_context_data(**kwargs)
-        context['title'] = 'Any comments about this meeting' 
+        context['title'] = 'Any comments about this meeting'
 
-        context['desc'] =  '''
-        Do you have any comments you'd like to save?
-        '''
+        context['desc'] = "Do you have any comments you'd like to save?"
         return context
 
     def form_valid(self, form):
         '''
-        Before we save this comment, assign foreign keys. 
+        Before we save this comment, assign foreign keys.
         '''
         if wizard.NET_ID in self.request.GET:
             net_id = int(self.request.GET[wizard.NET_ID])
@@ -1543,16 +1558,14 @@ class ConversationCommentCreate(PositionCommentCreate):
 
     def get_context_data(self, **kwargs):
         context = super(ConversationCommentCreate, self).get_context_data(**kwargs)
-        context['title'] = 'Any comments about this conversation' 
+        context['title'] = 'Any comments about this conversation'
 
-        context['desc'] =  '''
-        Do you have any comments you'd like to save?
-        '''
+        context['desc'] = "Do you have any comments you'd like to save?"
         return context
 
     def form_valid(self, form):
         '''
-        Before we save this comment, assign foreign keys. 
+        Before we save this comment, assign foreign keys.
         '''
         if wizard.CONV_ID in self.request.GET:
             conv_id = int(self.request.GET[wizard.CONV_ID])
@@ -1563,6 +1576,7 @@ class ConversationCommentCreate(PositionCommentCreate):
 
 class PositionCommentUpdate(UpdateView):
     pass
+
 
 class PositionCommentDelete(DeleteView):
     pass
@@ -1622,10 +1636,10 @@ def loginRequest(request):
                 return HttpResponseRedirect(reverse(view_str))
             else:
                 return render_to_response(
-                    "login.html", 
-                    {'form': form, 
-                    'err_pwd': 'Incorrect pasword or username/password mismatch',
-                    },
+                    "login.html",
+                    {'form': form,
+                     'err_pwd': 'Incorrect pasword or username/password mismatch',
+                     },
                     context_instance=RequestContext(request))
         else:
             return render_to_response("login.html", {'form': form},

@@ -205,6 +205,18 @@ class UserProfile(models.Model):
             err_msg = 'You must be a mentor to view this page'
         return rc, err_msg
 
+    def get_mentorship(self):
+        '''
+        Given user id return mentorship or None if there isn't one.
+        '''
+        
+        rc = None 
+        if self.is_job_seeker():
+            rc = Mentorship.objects.filter(jobseeker__id=self.id)
+            if len(rc) >=1:
+                rc = rc[0]
+        return rc
+
 
 # UserProfile is associated with the User table. Listen for the post_save
 # signal. Create a profile when new User added.
@@ -411,12 +423,19 @@ class Lunch (Activity):
 @python_2_unicode_compatible
 class MentorMeeting(Activity):
     """
-    Meet with Mentor. Assumption: The Mentorship should have been
+    Meet with Mentor. 
     """
     mentorship = models.ForeignKey(Mentorship, unique=True)
     face_to_face = models.BooleanField(default=False)
 
     tag = "mentormeeting"
+
+    @staticmethod
+    def factory(user, mentorship):
+        rc = MentorMeeting() 
+        rc.user = user
+        rc.mentorship = mentorship
+        return rc 
 
     def __str__(self):
         return 'Met with %s' % (self.mentorship.mentor)
