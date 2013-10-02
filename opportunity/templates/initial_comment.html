@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!--
+
+This page will be used by the wizards to add a step where the job
+seeker and add an initial comment.
+
+-->
+
+{% block page_specific_js %} 
+
+ <script>
+   $(function() {
+      $( "input[type=submit]" )
+      .button();
+  });
+
+$(function() {
+    $( "#id_comment" ).resizable({
+      handles: "se"
+    });
+  });
+ </script>
+
+{% endblock %}
+
+<h1>{{ title }}</h1>
+
+{{ desc }}
+
+    <form action="" method="post">
+      {{ form.comment }}
+      <br/>
+      <input type="submit" value="Comment">
+    </form>
+
+
+{% endblock %}
+
