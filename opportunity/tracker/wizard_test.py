@@ -161,6 +161,25 @@ class MentorMtgTest(unittest.TestCase):
                          '/dashboard/')
 
 
+class LunchTest(unittest.TestCase):
+    def test_lunch_seq(self):
+        mock_session = {}
+        obj = Composite.factory(LUNCH, NEW_ACTIVITY)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/lunch/add?activity=lunch')
+
+        obj = Composite.factory(LUNCH, LUNCH)
+        obj.set(mock_session, LUNCH_ID, 12)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/comment/add?activity=lunch&lunch_id=12')
+
+        obj = Composite.factory(LUNCH, COMMENT)
+        self.assertEqual(obj.get_next_url(),
+                         '/dashboard/')
+
+
 class AddCompanyTest(unittest.TestCase):
     def test_add_company_seq(self):
         '''

@@ -79,6 +79,7 @@ INTERVIEW = 'interview'        # possible activity value
 NETWORKING = 'networking'      # possible activity value
 POSITION = 'position'          # possible activity value
 MENTORMTG = 'mentormtg'        # possible activity value
+LUNCH = 'lunch'                # possible activity value
 ADD_COMPANY = 'add_company'
 ADD_POSITION = 'add_position'
 COMMENT = 'comment'
@@ -96,6 +97,7 @@ CONV_ID = 'conv_id'            # UID for conversation
 INT_ID = 'int_id'              # UID for interview
 MENT_ID = 'ment_id'            # UID for mentor meeting
 NET_ID = 'net_id'              # UID for networking
+LUNCH_ID = 'lunch_id'          # UID for lunch
 
 '''
 index for tuple
@@ -172,6 +174,9 @@ class Composite(object):
         elif self._view_name == CONVERSATION:
             url = reverse('opportunity.tracker.views.conversationEdit',
                           args=['add'])
+        elif self._view_name == LUNCH:
+            url = reverse('opportunity.tracker.views.lunchEdit',
+                          args=['add'])
         elif self._view_name == MENTORMTG:
             url = reverse('opportunity.tracker.views.mentormeetingEdit',
                           args=['add'])
@@ -240,6 +245,8 @@ class Composite(object):
             obj = Networking(view)
         elif activity == MENTORMTG:
             obj = MentorMeeting(view)
+        elif activity == LUNCH:
+            obj = Lunch(view)
         elif activity == ADD_COMPANY:
             obj = AddCompany(view)
         elif activity == ADD_POSITION:
@@ -345,6 +352,21 @@ class MentorMeeting(Composite):
                         "Any comments about this meeting? "),
                        (DASHBOARD, {}, ""), ]
         super(MentorMeeting, self).__init__(view)
+
+
+class Lunch(Composite):
+    def __init__(self, view):
+        self._activity_name = LUNCH
+        self._title = 'Lunch wizard'
+        self._expected_keys = [CO_ID, LUNCH_ID]
+        self._state = [(NEW_ACTIVITY, {}, ""),
+                       (LUNCH, {ACTIVITY: LUNCH},
+                        "Lunch meeting"),
+                       (COMMENT, {ACTIVITY: LUNCH,
+                                  LUNCH_ID: None},
+                        "Any comments? "),
+                       (DASHBOARD, {}, ""), ]
+        super(Lunch, self).__init__(view)
 
 
 class AddCompany(Composite):

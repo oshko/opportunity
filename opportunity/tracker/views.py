@@ -525,6 +525,10 @@ def lunchEdit(request, *args, **kwargs):
     """
     A form to enter information a lunch appointment.
     """
+    activity = None
+    if wizard.ACTIVITY in request.GET:
+        activity = request.GET[wizard.ACTIVITY]
+
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = LunchForm(request.POST,
@@ -534,9 +538,16 @@ def lunchEdit(request, *args, **kwargs):
             form = LunchForm(request.POST,
                              user=request.user.get_profile())
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(
-                reverse('opportunity.tracker.views.dashboard'))
+            lunch = form.save()
+            url = None
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.LUNCH)
+                if wiz:
+                    wiz.set(request.session, wizard.LUNCH_ID, lunch.id)
+                    url = wiz.get_next_url()
+            if not url: 
+                url = reverse('opportunity.tracker.views.dashboard')
+            return HttpResponseRedirect(url)
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -1369,6 +1380,8 @@ def dispatchCommentCreate(request, *args, **kwargs):
         cbv = MentorMeetingCommentCreate
     elif activity == wizard.CONVERSATION:
         cbv = ConversationCommentCreate
+    elif activity == wizard.LUNCH:
+        cbv = LunchCommentCreate
     return cbv.as_view()(request)
 
 
@@ -1572,6 +1585,32 @@ class ConversationCommentCreate(PositionCommentCreate):
             form.instance.activity = Conversation.objects.get(pk=conv_id)
         form.instance.author = self.request.user.get_profile()
         return super(ConversationCommentCreate, self).form_valid(form)
+
+
+class LunchCommentCreate(PositionCommentCreate):
+    '''
+    Subclass Position and override things to support conversation
+    '''
+    form_class = LunchCommentForm
+    model = LunchComment
+    template_name = 'initial_comment.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LunchCommentCreate, self).get_context_data(**kwargs)
+        context['title'] = 'Comments'
+
+        context['desc'] = "Do you have any comments you'd like to save?"
+        return context
+
+    def form_valid(self, form):
+        '''
+        Before we save this comment, assign foreign keys.
+        '''
+        if wizard.LUNCH_ID in self.request.GET:
+            lunch_id = int(self.request.GET[wizard.LUNCH_ID])
+            form.instance.activity = Lunch.objects.get(pk=lunch_id)
+        form.instance.author = self.request.user.get_profile()
+        return super(LunchCommentCreate, self).form_valid(form)
 
 
 class PositionCommentUpdate(UpdateView):
