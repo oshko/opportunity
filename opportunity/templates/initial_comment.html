@@ -12,7 +12,7 @@ seeker and add an initial comment.
 
  <script>
    $(function() {
-      $( "input[type=submit]" )
+      $( "a#skip, input[type=submit]" )
       .button();
   });
 
@@ -32,7 +32,8 @@ $(function() {
     <form action="" method="post">
       {{ form.comment }}
       <br/>
-      <input type="submit" value="Comment">
+      <input type="submit" value="Comment" />
+      <a id="skip" href="/dashboard/">Skip</a>
     </form>
 
 
