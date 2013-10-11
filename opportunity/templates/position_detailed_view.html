@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!--
+
+Display a detailed view of companies, positions or activities. It presents...
+
+- the position, company or activity with links to job post, company, etc.
+- allows the user to delete or edit the object using existing facility.
+- a pretty print list of existing comments.
+- provide a widget to enter a new comment.
+
+-->
+
+{% block page_specific_js %} 
+
+ <script>
+   $(function() {
+      $( "a#skip, input[type=submit]" )
+      .button();
+  });
+
+$(function() {
+    $( "#id_comment" ).resizable({
+      handles: "se"
+    });
+  });
+ </script>
+
+{% endblock %}
+
+
+<h1>{{ title }}</h1>
+
+{% if page_owner_p %}
+(<a href="/position/edit/{{ position.id }}">edit</a> | <a href=javascript:deleteEntry("/position/del/{{ position.id }}/position")>delete</a>)
+{% endif %}
+<a href="{{ position.website }}">{{ position.title }}</a> at 
+<a href="{{ position.company.website }}"  target="_blank">{{ position.company.name }}</a> in {{ position.company.city }}, {{ position.company.state_province }}  
+
+{% for c in comment_list %}
+<hr/> 
+<span class='comment'> {{ c.comment }} </span> -- <span class='author'> {{ c.author }} </span>
+(<span class='mod-date'> {{ c.modified }} </span>) 
+
+{% endfor %}
+
+<hr/>
+Add another comment: 
+    <form action="" method="post">
+      {{ form.comment }}
+      <br/>
+      <input type="submit" value="Comment" />
+      <a id="skip" href="/dashboard/">Skip</a>
+    </form>
+
+
+{% endblock %}

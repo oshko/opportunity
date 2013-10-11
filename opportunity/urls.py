@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from opportunity.tracker.views import PositionCommentCreate, PositionCommentUpdate, PositionCommentDelete 
+from opportunity.tracker.views import PositionCommentCreate, PositionCommentDetail
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -28,6 +28,8 @@ urlpatterns = patterns('',
     
     (r'^position/(?P<op>add)$', 'opportunity.tracker.views.positionEdit'),
     (r'^position/(?P<op>edit)/(?P<id>\d+)$', 'opportunity.tracker.views.positionEdit'),
+    (r'^position/(?P<op>detail)/(?P<id>\d+)$', PositionCommentDetail.as_view()),
+    (r'^position/(?P<op>detail)/(?P<id>\d+)/(?P<mentee_id>\d+)$', PositionCommentDetail.as_view()),
     (r'^position/(?P<op>active)/(?P<id>\d+)$', 'opportunity.tracker.views.positionActivation'),
     (r'^position/(?P<op>inactive)/(?P<id>\d+)$', 'opportunity.tracker.views.positionActivation'),
     (r'^position/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.positionDelete'),
@@ -85,6 +87,7 @@ urlpatterns = patterns('',
     (r'^par/(?P<op>del)/(?P<id>\d+)/(?P<divId>\w+)$', 'opportunity.tracker.views.parDelete'),
     
     (r'^comment/add$', 'opportunity.tracker.views.dispatchCommentCreate'),
+    (r'^comment/position/add$', PositionCommentCreate.as_view() ),
 
     (r'^login/$', 'opportunity.tracker.views.loginRequest'),
     (r'^logout/$', 'opportunity.tracker.views.logoutRequest'),

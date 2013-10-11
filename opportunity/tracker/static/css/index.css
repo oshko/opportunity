@@ -74,3 +74,19 @@ li {
   background-color: lightgray;
   margin-right: 100px; 
 }
+
+/* comments */ 
+
+.comment {
+    color: black;
+}
+
+.author {
+    color: sienna;
+    font-size: medium;
+}
+
+.mod-date {
+    color: black;
+    font-size: small;
+}

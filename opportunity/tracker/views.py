@@ -1387,7 +1387,7 @@ def dispatchCommentCreate(request, *args, **kwargs):
 
 class PositionCommentCreate(CreateView):
     '''
-    learning. Just create a comment via Class-based Views.
+    Just create a comment via Class-based Views.
     '''
     form_class = PositionCommentForm
     model = PositionComment
@@ -1425,6 +1425,52 @@ class PositionCommentCreate(CreateView):
             form.instance.position = Position.objects.get(pk=pos_id)
         form.instance.author = self.request.user.get_profile()
         return super(PositionCommentCreate, self).form_valid(form)
+
+class PositionCommentDetail(PositionCommentCreate):
+    '''
+    Provide data to the template which will present a detailed view of
+    a position.
+    '''
+    template_name = 'position_detailed_view.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PositionCommentDetail, self).get_context_data(**kwargs)
+        context['title'] = 'Detailed view of position'
+        del context['desc']  # set key by parent but is not applicable to this class.
+        mentee_id = None
+        if 'mentee_id' in self.request.GET:
+            try:
+                # should always be an int.
+                mentee_id = int(request.GET['mentee_id'])
+            except:
+                logger.error('mentee_id must be an int')
+        # update context dictionary containing permission params.
+        context.update(
+            perm_and_params(self.request.user.get_profile(), mentee_id))
+        # Retrieve position
+        try: 
+            if 'profile_id' in context:
+                context['position'] = Position.objects.get(
+                    pk=int(self.kwargs['id']))
+        except:
+            context['position'] = None
+       # Get the comments about this position
+        try:
+            context['comment_list'] = []
+            context['comment_list'].extend(
+                PositionComment.objects.filter(position=context['position']))
+        except PositionComment.DoesNotExist:
+            context['comment_list'] = None
+        return context
+
+    def form_valid(self, form):
+        '''
+        Before we save this comment, assign foreign keys.
+        '''
+        form.instance.position = Position.objects.get(
+            pk=int(self.kwargs['id']))
+        form.instance.author = self.request.user.get_profile()
+        return super(PositionCommentDetail, self).form_valid(form)
 
 
 class CompanyCommentCreate(PositionCommentCreate):
