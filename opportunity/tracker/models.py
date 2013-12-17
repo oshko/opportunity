@@ -324,12 +324,15 @@ class Activity(models.Model):
     comment = models.CharField(max_length=256, blank=True, null=True)
     user = models.ForeignKey(UserProfile)
 
-    """
-    Since Activity is abstract, there is no manager object (ie, objects).
-    However we want a complete list of all activities.
-    """
+    def __str__(self):
+        return 'generic activity '
+
     @staticmethod
     def getAll(profile_id):
+        """
+        Since Activity is abstract, there is no manager object (ie, objects).
+        However we want a complete list of all activities.
+        """
         rc = []
         rc.extend(Interview.objects.filter(user=profile_id))
         rc.extend(Apply.objects.filter(user=profile_id))
