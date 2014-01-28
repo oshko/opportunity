@@ -1,9 +1,9 @@
 Cython==0.19.1
-Django==1.5.4
+Django==1.6.1
 dj-database-url==0.2.1
 gunicorn==18.0
 psycopg2==2.5.1
-python-dateutil==1.5
+python-dateutil==2.2
 virtualenv==1.8.4
 wsgiref==0.1.2
 south==0.8.1
