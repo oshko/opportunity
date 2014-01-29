@@ -33,6 +33,7 @@
                         <li><a href="/profile/">{% trans "profile" %}</a></li> |
                     {% endif %} 
 						<li><a href="/books/">{% trans "books" %}</a></li> | 
+						<li><a href="/venues/">{% trans "venues" %}</a></li> | 
 						<li><a href="/about/">{% trans "about" %}</a></li> |
 					{% if user.is_authenticated %} 
 						<li>{{ user.username }} (<a href="/logout/">{% trans "logout" %}</a>)</li>

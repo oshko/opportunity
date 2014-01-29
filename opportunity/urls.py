@@ -70,6 +70,7 @@ urlpatterns = patterns('',
     (r'^$','opportunity.tracker.views.toplevelView'),
     (r'^coordinator/$','opportunity.tracker.views.coordinatorView'),
     (r'^books/$','opportunity.tracker.views.books'),
+    (r'^venues/$','opportunity.tracker.views.venues'),
     (r'^about/$','opportunity.tracker.views.about'),
     
     (r'^pitch/(?P<op>add)$', 'opportunity.tracker.views.pitchView'), 

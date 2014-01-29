@@ -87,6 +87,12 @@ def about(request):
     return render_to_response('about.html', 
                               context_instance=RequestContext(request))
 
+def venues(request):
+    """ references to books which may help the job seeker """
+    return render_to_response('venues.html', 
+                              context_instance=RequestContext(request))
+
+
 def books(request):
     """ references to books which may help the job seeker """
     return render_to_response('books.html',
