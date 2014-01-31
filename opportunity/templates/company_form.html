@@ -37,8 +37,8 @@ new model/form, that is the place to start.
     <div style="text-align: center;font-size: large"> Or </div>
 {% endif %}
     <fieldset>
-      <legend>New:</legend>
-	
+      <legend>{{ legend }}</legend>
+
       {% if form.errors %}
       <p style="color: red;">
         Please correct the error{{ form.errors|pluralize }} below.

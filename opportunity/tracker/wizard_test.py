@@ -14,24 +14,34 @@ class InterviewTest(unittest.TestCase):
         obj = Composite.factory(INTERVIEW, NEW_ACTIVITY)
         # user selected interview from dashboard
         self.assertEqual(obj.get_next_url(),
-            '/prospect/add?activity=interview')
+                         '/prospect/add?activity=interview')
 
         obj = Composite.factory(INTERVIEW, COMPANY)
         obj.set(mock_session, CO_ID, 3)
-        self.assertEqual(obj.get_next_url(),
-                         '/position/add?activity=interview&co_id=3')
+        self.assertEqual(
+            obj.get_next_url(),
+            '/position/add?activity=interview&co_id=3')
 
         obj = Composite.factory(INTERVIEW, POSITION)
         obj.set(mock_session, POS_ID, 4)
-        self.assertEqual(obj.get_next_url(),
-                         '/contact/add?activity=interview&co_id=3&pos_id=4')
+        self.assertEqual(
+            obj.get_next_url(),
+            '/contact/add?activity=interview&co_id=3&pos_id=4')
 
         obj = Composite.factory(INTERVIEW, CONTACT)
         obj.set(mock_session, PER_ID, 5)
-        self.assertEqual(obj.get_next_url(),
-                         '/interview/add?activity=interview&co_id=3&per_id=5&pos_id=4')
+        self.assertEqual(
+            obj.get_next_url(),
+            '/interview/add?activity=interview&co_id=3&per_id=5&pos_id=4')
 
         obj = Composite.factory(INTERVIEW, INTERVIEW)
+        mock_session = {}
+        obj.set(mock_session, INT_ID, 6)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/comment/add?activity=interview&int_id=6')
+
+        obj = Composite.factory(INTERVIEW, COMMENT)
         self.assertEqual(obj.get_next_url(),
                          '/dashboard/')
 
@@ -48,21 +58,27 @@ class ApplyTest(unittest.TestCase):
         obj = Composite.factory(APPLY, NEW_ACTIVITY)
         # user selected interview from dashboard
         self.assertEqual(obj.get_next_url(),
-            '/prospect/add?activity=apply')
+                         '/prospect/add?activity=apply')
 
         obj = Composite.factory(APPLY, COMPANY)
         obj.set(mock_session, CO_ID, 3)
         self.assertEqual(obj.get_next_url(),
-            '/position/add?activity=apply&co_id=3')
+                         '/position/add?activity=apply&co_id=3')
 
         obj = Composite.factory(APPLY, POSITION)
         obj.set(mock_session, POS_ID, 4)
         self.assertEqual(obj.get_next_url(),
-            '/apply/add?activity=apply&co_id=3&pos_id=4')
+                         '/apply/add?activity=apply&co_id=3&pos_id=4')
 
         obj = Composite.factory(APPLY, APPLY)
+        mock_session = {}
+        obj.set(mock_session, APP_ID, 5)
         self.assertEqual(obj.get_next_url(),
-            '/dashboard/')
+                         '/comment/add?activity=apply&app_id=5')
+
+        obj = Composite.factory(APPLY, COMMENT)
+        self.assertEqual(obj.get_next_url(),
+                         '/dashboard/')
 
 
 class ConversationText(unittest.TestCase):
@@ -77,16 +93,23 @@ class ConversationText(unittest.TestCase):
         obj = Composite.factory(CONVERSATION, NEW_ACTIVITY)
         # user selected interview from dashboard
         self.assertEqual(obj.get_next_url(),
-            '/contact/add?activity=conversation')
+                         '/contact/add?activity=conversation')
 
         obj = Composite.factory(CONVERSATION, CONTACT)
         obj.set(mock_session, PER_ID, 4)
         self.assertEqual(obj.get_next_url(),
-            '/conversation/add?activity=conversation&per_id=4')
+                         '/conversation/add?activity=conversation&per_id=4')
 
         obj = Composite.factory(CONVERSATION, CONVERSATION)
+        mock_session = {}
+        obj.set(mock_session, CONV_ID, 5)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/comment/add?activity=conversation&conv_id=5')
+
+        obj = Composite.factory(CONVERSATION, COMMENT)
         self.assertEqual(obj.get_next_url(),
-            '/dashboard/')
+                         '/dashboard/')
 
 
 class NetworkingTest(unittest.TestCase):
@@ -100,17 +123,105 @@ class NetworkingTest(unittest.TestCase):
         obj = Composite.factory(NETWORKING, NEW_ACTIVITY)
         # user selected interview from dashboard
         self.assertEqual(obj.get_next_url(),
-            '/prospect/add?activity=networking')
+                         '/prospect/add?activity=networking')
 
         obj = Composite.factory(NETWORKING, COMPANY)
         obj.set(mock_session, CO_ID, 3)
         self.assertEqual(obj.get_next_url(),
-            '/networking/add?activity=networking&co_id=3')
+                         '/networking/add?activity=networking&co_id=3')
 
         obj = Composite.factory(NETWORKING, NETWORKING)
-        self.assertEqual(obj.get_next_url(),
-            '/dashboard/')
+        mock_session = {}
+        obj.set(mock_session, NET_ID, 4)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/comment/add?activity=networking&net_id=4')
 
+        obj = Composite.factory(NETWORKING, COMMENT)
+        self.assertEqual(obj.get_next_url(),
+                         '/dashboard/')
+
+
+class MentorMtgTest(unittest.TestCase):
+    def test_mentor_mtg_seq(self):
+        mock_session = {}
+        obj = Composite.factory(MENTORMTG, NEW_ACTIVITY)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/mentormeeting/add?activity=mentormtg')
+
+        obj = Composite.factory(MENTORMTG, MENTORMTG)
+        obj.set(mock_session, MENT_ID, 12)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/comment/add?activity=mentormtg&ment_id=12')
+
+        obj = Composite.factory(MENTORMTG, COMMENT)
+        self.assertEqual(obj.get_next_url(),
+                         '/dashboard/')
+
+
+class LunchTest(unittest.TestCase):
+    def test_lunch_seq(self):
+        mock_session = {}
+        obj = Composite.factory(LUNCH, NEW_ACTIVITY)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/lunch/add?activity=lunch')
+
+        obj = Composite.factory(LUNCH, LUNCH)
+        obj.set(mock_session, LUNCH_ID, 12)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/comment/add?activity=lunch&lunch_id=12')
+
+        obj = Composite.factory(LUNCH, COMMENT)
+        self.assertEqual(obj.get_next_url(),
+                         '/dashboard/')
+
+
+class AddCompanyTest(unittest.TestCase):
+    def test_add_company_seq(self):
+        '''
+        A wizard for adding a company with comment.
+        '''
+        mock_session = {}
+        obj = Composite.factory(ADD_COMPANY, NEW_ACTIVITY)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/prospect/add?activity=add_company')
+
+        obj = Composite.factory(ADD_COMPANY, COMPANY)
+        obj.set(mock_session, CO_ID, 8)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/comment/add?activity=add_company&co_id=8')
+
+        obj = Composite.factory(ADD_COMPANY, COMMENT)
+        self.assertEqual(obj.get_next_url(),
+                         '/dashboard/')
+
+
+class AddPositionText(unittest.TestCase):
+    def test_add_position_seq(self):
+        '''
+        A wizard for adding a position with comment.
+        '''
+        mock_session = {}
+        obj = Composite.factory(ADD_POSITION, NEW_ACTIVITY)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/position/add?activity=add_position')
+
+        obj = Composite.factory(ADD_POSITION, POSITION)
+        obj.set(mock_session, POS_ID, 8)
+        self.assertEqual(
+            obj.get_next_url(),
+            '/comment/add?activity=add_position&pos_id=8')
+
+        obj = Composite.factory(ADD_POSITION, COMMENT)
+        self.assertEqual(obj.get_next_url(),
+                         '/dashboard/')
 
 if __name__ == '__main__':
     unittest.main()

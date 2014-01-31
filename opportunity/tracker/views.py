@@ -1,9 +1,7 @@
 '''
-
 As always with django this defines the views for the application.
 Wizards (or a sequence of forms) is more complex. See the wizard
 module for more detail.
-
 '''
 
 from django.utils.translation import ugettext as _
@@ -15,8 +13,10 @@ from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse
 from django.utils import six
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 import json
 import logging
@@ -82,19 +82,19 @@ def toplevelView(request):
         return render_to_response('about.html',
                                   context_instance=RequestContext(request))
 
+
 def about(request):
-    """ references to books which may help the job seeker """
-    return render_to_response('about.html', 
+    """ Talks about the motivation for this website """
+    return render_to_response('about.html',
                               context_instance=RequestContext(request))
 
 def venues(request):
-    """ references to books which may help the job seeker """
+    """ List of networking venues which may help the job seeker """
     return render_to_response('venues.html', 
                               context_instance=RequestContext(request))
 
-
 def books(request):
-    """ references to books which may help the job seeker """
+    """ References to books which may help the job seeker """
     return render_to_response('books.html',
                               context_instance=RequestContext(request))
 
@@ -148,15 +148,15 @@ def dashboard(request, *args, **kwargs):
     page = None
     page_options = {}
     society = None
-    
+
     if 'mentee_id' in request.GET:
-        try: 
-            # should always be an int. 
+        try:
+            # should always be an int.
             mentee_id = int(request.GET['mentee_id'])
         except:
             logger.error('mentee_id must be an int')
             mentee_id = None
-    
+
     page_options = perm_and_params(request.user.userprofile, mentee_id)
     position_list_active = []
     position_list_inactive = []
@@ -172,11 +172,12 @@ def dashboard(request, *args, **kwargs):
         page_options['contact_list'] = \
             Person.objects.filter(user=page_options['profile_id'])
         page_options['prospect_list'] = \
-            Company.objects.filter(user=page_options['profile_id'],is_prospective=True)
+            Company.objects.filter(user=page_options['profile_id'],
+                                   is_prospective=True)
         page_options['activity_list'] = \
             Activity.getAll(page_options['profile_id'])
         page_options['society'] = secret_society(request.user.get_profile(),
-            page_options['profile_id'])
+                                                 page_options['profile_id'])
         page_options['activity_name_list'] = prettyNames
     else:
         page = 'perm_problem.html'
@@ -195,16 +196,16 @@ def profileView(request, *args, **kwargs):
     """
     mentee_id = None
     page_options = {}
-    
+
     if 'mentee_id' in request.GET:
-        try: 
-            # should always be an int. 
+        try:
+            # should always be an int.
             mentee_id = int(request.GET['mentee_id'])
         except:
             logger.error('mentee_id must be an int')
             mentee_id = None
 
-    page_options = perm_and_params(request.user.userprofile, mentee_id) 
+    page_options = perm_and_params(request.user.userprofile, mentee_id)
 
     if page_options['perm_p']:
         page = 'profile.html'
@@ -216,9 +217,9 @@ def profileView(request, *args, **kwargs):
             PAR.objects.filter(user=page_options['profile_id'])
         page_options['society'] = \
             secret_society(
-                request.user.get_profile(), 
+                request.user.get_profile(),
                 page_options['profile_id'])
-    else: 
+    else:
         page = 'perm_problem.html'
         page_options['err_message'] = 'You do not have permission to access this page.'
     return render_to_response(page,
@@ -229,19 +230,20 @@ def profileView(request, *args, **kwargs):
 @login_required
 def membersView(request, *args, **kwargs):
     page = 'members.html'
-    page_options = {} 
+    page_options = {}
     # get list of users
     page_options['people'] = UserProfile.objects.all()
     # subtracting existing Mentorship relations
-    # mentee's 
+    # mentee's
     # mentor's
     return render_to_response(page,
                               page_options,
                               context_instance=RequestContext(request))
 
+
 def populateCompany(company_model):
     """
-    Populate a Company model. It is factored out of the companyView()
+    Populate a Company model. It is factored out of the companyEdit()
     method to make it easier to test.
     """
     company_data = {}
@@ -259,7 +261,7 @@ def populateCompany(company_model):
             # the value of 'company'. There can be multiple values.
             # Decide which one to use.
             company_data = [x for x in company_data
-                           if x['namespace'] == 'company']
+                            if x['namespace'] == 'company']
             companyAlternates = None  # a list of companies the search up.
             if not company_data:
                 # empty list. reset company_data
@@ -274,10 +276,14 @@ def populateCompany(company_model):
                                      e.code, http_responses[e.code]))
             err_msg = e.read()
             if err_msg:
-                err_msg = json.loads(err_msg)
-                if 'error' in err_msg:
-                    logging.error(str.format("API Error: {0} ",
-                                             err_msg['error']))
+                try:
+                    err_msg = json.loads(err_msg)
+                    if 'error' in err_msg:
+                        logging.error(str.format("API Error: {0} ",
+                                                 err_msg['error']))
+                except ValueError:
+                    logging.error("Error message from crunchbase not json."
+                                  "Raw responds is...".format(err_msg))
         logging.warning(
             str.format("Company, {0}, not found in crunchbase."
                        "Ignoring and continuing.",
@@ -328,12 +334,13 @@ def companyDispatch(request, *args, **kwargs):
 
 
 @login_required
-def companyView(request, *args, **kwargs):
+def companyEdit(request, *args, **kwargs):
     """
     A form to enter information about the company.
     """
     title = "Company"
     description = "Record information about a prospective employer."
+    legend_label = "New:"
     activity = None
     companies = None
     if wizard.ACTIVITY in request.GET:
@@ -351,12 +358,13 @@ def companyView(request, *args, **kwargs):
             c = form.save()
             url = None
             if activity:
-                c.is_prospective = False
-                c.save()
                 wiz = wizard.Composite.factory(activity, wizard.COMPANY)
                 if wiz:
                     wiz.set(request.session, wizard.CO_ID, c.id)
                     url = wiz.get_next_url()
+                    if not wiz.is_prospective():
+                        c.is_prospective = False
+                        c.save()
             if not url:
                 url = reverse('opportunity.tracker.views.dashboard')
             return HttpResponseRedirect(url)
@@ -366,6 +374,7 @@ def companyView(request, *args, **kwargs):
                 form = CompanyForm(
                     instance=Company.objects.get(pk=int(kwargs['id'])),
                     user=request.user.get_profile())
+                legend_label = "Update:"
             except:
                 return HttpResponseServerError("bad id")
         else:
@@ -388,6 +397,7 @@ def companyView(request, *args, **kwargs):
     return render_to_response('company_form.html',
                               {'title': title,
                                'desc': description,
+                               'legend': legend_label,
                                'company_list': companies,
                                'activity_name_list': prettyNames,
                                'activity': activity,
@@ -433,12 +443,13 @@ def personDispatch(request, *args, **kwargs):
 
 
 @login_required
-def personView(request, *args, **kwargs):
+def personEdit(request, *args, **kwargs):
     """
     A form to enter information about a person of interest.
     """
     title = "Person"
     description = "Record a contact you met on the job hunt."
+    legend_label = "New:"
     activity = None
     if wizard.ACTIVITY in request.GET:
         activity = request.GET[wizard.ACTIVITY]
@@ -469,6 +480,7 @@ def personView(request, *args, **kwargs):
                 form = PersonForm(
                     instance=Person.objects.get(pk=int(kwargs['id'])),
                     user=request.user.get_profile())
+                legend_label = "Update:"
             except:
                 return HttpResponseServerError("bad id")
         else:
@@ -489,6 +501,7 @@ def personView(request, *args, **kwargs):
     return render_to_response('person_form.html',
                               {'title': title,
                                'desc': description,
+                               'legend': legend_label,
                                'people_list': people,
                                'activity': activity,
                                'form': form},
@@ -512,10 +525,14 @@ def personDelete(request, *args, **kwargs):
 
 
 @login_required
-def lunchView(request, *args, **kwargs):
+def lunchEdit(request, *args, **kwargs):
     """
     A form to enter information a lunch appointment.
     """
+    activity = None
+    if wizard.ACTIVITY in request.GET:
+        activity = request.GET[wizard.ACTIVITY]
+
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = LunchForm(request.POST,
@@ -525,9 +542,16 @@ def lunchView(request, *args, **kwargs):
             form = LunchForm(request.POST,
                              user=request.user.get_profile())
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(
-                reverse('opportunity.tracker.views.dashboard'))
+            lunch = form.save()
+            url = None
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.LUNCH)
+                if wiz:
+                    wiz.set(request.session, wizard.LUNCH_ID, lunch.id)
+                    url = wiz.get_next_url()
+            if not url: 
+                url = reverse('opportunity.tracker.views.dashboard')
+            return HttpResponseRedirect(url)
     else:
         if kwargs['op'] == 'edit':
             try:
@@ -563,7 +587,7 @@ def lunchDelete(request, *args, **kwargs):
 
 
 @login_required
-def positionView(request, *args, **kwargs):
+def positionEdit(request, *args, **kwargs):
     """
     A form to enter information about a position
     """
@@ -623,13 +647,14 @@ def positionView(request, *args, **kwargs):
                                'form': form},
                               context_instance=RequestContext(request))
 
+
 @login_required
 def positionActivation(request, *args, **kwargs):
     '''
-    When applying for a position, we do not always get it. 
-    The dashboard shows active and inactive positions on 
+    When applying for a position, we do not always get it.
+    The dashboard shows active and inactive positions on
     separate tabs. When the user toggles betwen they two, this
-    function is called. 
+    function is called.
     '''
     rc = {'id': kwargs['id'], 'divId': "unknown",
           'noElements': "No positions being tracked."}
@@ -637,22 +662,23 @@ def positionActivation(request, *args, **kwargs):
         code = 200
         obj = Position.objects.get(pk=int(kwargs['id']))
         if kwargs['op'] == 'active':
-            # remember we toggling between inactive to active. 
+            # remember we toggling between inactive to active.
             # mark it active
             obj.active = True
             obj.save()
-            # moving to active list. 
+            # moving to active list.
             rc['divId'] = "position-active-container"
         elif kwargs['op'] == 'inactive':
             # mark it inactive
             obj.active = False
             obj.save()
-            # moving to INactive list. 
+            # moving to INactive list.
             rc['divId'] = "position-inactive-container"
     except:
         code = 500
         logging.warning("unable to update active field for position")
     return HttpResponse(json.dumps(rc), status=code)
+
 
 @login_required
 def positionDelete(request, *args, **kwargs):
@@ -688,7 +714,7 @@ def newactivity(request):
 
 
 @login_required
-def interviewView(request, *args, **kwargs):
+def interviewEdit(request, *args, **kwargs):
     """
     form to enter information about an interview
     """
@@ -708,13 +734,14 @@ def interviewView(request, *args, **kwargs):
             form = InterviewForm(request.POST,
                                  user=request.user.get_profile())
         if form.is_valid():
-            form.save()
+            interview = form.save()
             url = None
             if activity:
                 wiz = wizard.Composite.factory(activity, wizard.INTERVIEW)
                 if wiz:
-                    # no need to call wiz.set() because this is the last
-                    # in the sequence.
+                    # activity completed. delete obsolete keys
+                    wiz.delete_keys(request.session)
+                    wiz.set(request.session, wizard.INT_ID, interview.id)
                     url = wiz.get_next_url()
             if not url:
                 url = reverse('opportunity.tracker.views.dashboard')
@@ -771,7 +798,7 @@ def interviewDelete(request, *args, **kwargs):
 
 
 @login_required
-def applyForView(request, *args, **kwargs):
+def applyForEdit(request, *args, **kwargs):
     """
     A form to enter for submitting an apply
     /apply/(?P<op>add) - a new application
@@ -792,13 +819,14 @@ def applyForView(request, *args, **kwargs):
             form = ApplyForm(request.POST,
                              user=request.user.get_profile())
         if form.is_valid():
-            form.save()
+            app = form.save()
             url = None
             if activity:
                 wiz = wizard.Composite.factory(activity, wizard.APPLY)
                 if wiz:
-                    # no need to call wiz.set() because this is the last
-                    # in the sequence.
+                    # activity completed. delete obsolete keys
+                    wiz.delete_keys(request.session)
+                    wiz.set(request.session, wizard.APP_ID, app.id)
                     url = wiz.get_next_url()
             if not url:
                 url = reverse('opportunity.tracker.views.dashboard')
@@ -851,7 +879,7 @@ def applyForDelete(request, *args, **kwargs):
 
 
 @login_required
-def networkingView(request, *args, **kwargs):
+def networkingEdit(request, *args, **kwargs):
     """
     A form to document a networking event
     """
@@ -871,12 +899,13 @@ def networkingView(request, *args, **kwargs):
             form = NetworkingForm(request.POST,
                                   user=request.user.get_profile())
         if form.is_valid():
-            form.save()
+            n = form.save()
             if activity:
                 wiz = wizard.Composite.factory(activity, wizard.NETWORKING)
                 if wiz:
-                    # no need to call wiz.set() because this is the last
-                    # in the sequence.
+                    # activity completed. delete obsolete keys
+                    wiz.delete_keys(request.session)
+                    wiz.set(request.session, wizard.NET_ID, n.id)
                     url = wiz.get_next_url()
             if not url:
                 url = reverse('opportunity.tracker.views.dashboard')
@@ -929,37 +958,67 @@ def networkingDelete(request, *args, **kwargs):
 
 
 @login_required
-def mentormeetingView(request, *args, **kwargs):
+def mentormeetingEdit(request, *args, **kwargs):
     """
     A form to setup a meeting with mentor.
     """
+    title = "Mentor Meeting"
+    description = "Record information about mentor meeting."
+    activity = None
+    m_mtg = None  # mentor meeting
+    user_profile = request.user.get_profile()
+    if wizard.ACTIVITY in request.GET:
+        activity = request.GET[wizard.ACTIVITY]
+
+    # guard: before we do anything confirm this person has a mentor.
+    mentorship = user_profile.get_mentorship()
+    if not mentorship:
+        return render_to_response('err_page.html',
+                                  {'title': "Error: no mentor",
+                                   'err_msg': "You haven't been assigned to"
+                                   "a mentor, yet."},
+                                  context_instance=RequestContext(request))
+    # now handle the http verbs.
     if request.method == 'POST':
         if kwargs['op'] == 'edit':
             form = MeetingMentorForm(request.POST,
                                      instance=MentorMeeting.objects.get(
                                          pk=int(kwargs['id'])),
-                                     user=request.user.get_profile())
+                                     user=user_profile)
         else:
+            m_mtg = MentorMeeting.factory(user_profile, mentorship)
             form = MeetingMentorForm(request.POST,
-                                     user=request.user.get_profile())
+                                     instance=m_mtg,
+                                     user=user_profile)
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(
-                reverse('opportunity.tracker.views.dashboard'))
+            m = form.save()
+            url = None
+            if activity:
+                wiz = wizard.Composite.factory(activity, wizard.MENTORMTG)
+                if wiz:
+                    # activity completed. delete obsolete keys
+                    wiz.delete_keys(request.session)
+                    wiz.set(request.session, wizard.MENT_ID, m.id)
+                    url = wiz.get_next_url()
+            if not url:
+                url = reverse('opportunity.tracker.views.dashboard')
+            return HttpResponseRedirect(url)
     else:
         if kwargs['op'] == 'edit':
             try:
                 form = MeetingMentorForm(
                     instance=MentorMeeting.objects.get(pk=int(kwargs['id'])),
-                    user=request.user.get_profile())
+                    user=user_profile)
             except:
                 return HttpResponseServerError("bad id")
         else:
-            form = MeetingMentorForm(user=request.user.get_profile())
+            mtg = MentorMeeting.factory(user_profile, mentorship)
+            form = MeetingMentorForm(
+                instance=mtg,
+                user=user_profile)
     return render_to_response('tracker_form.html',
-                              {'title': _("Mentor Meeting"),
-                               'desc': _("A form to record a"
-                                         " meeting with mentor."),
+                              {'title': title,
+                               'desc': description,
                                'activity_name_list': prettyNames,
                                'form': form},
                               context_instance=RequestContext(request))
@@ -982,7 +1041,7 @@ def mentormeetingDelete(request, *args, **kwargs):
 
 
 @login_required
-def mentorshipView(request, *args, **kwargs):
+def mentorshipEdit(request, *args, **kwargs):
     """
     A form to setup a mentorship.
     """
@@ -1046,7 +1105,7 @@ def mentorshipDelete(request, *args, **kwargs):
 
 
 @login_required
-def conversationView(request, *args, **kwargs):
+def conversationEdit(request, *args, **kwargs):
     """
     A form to setup a meeting with mentor.
     """
@@ -1066,13 +1125,14 @@ def conversationView(request, *args, **kwargs):
             form = ConversationForm(request.POST,
                                     user=request.user.get_profile())
         if form.is_valid():
-            form.save()
+            conv = form.save()
             url = None
             if activity:
                 wiz = wizard.Composite.factory(activity, wizard.CONVERSATION)
                 if wiz:
-                    # no need to call wiz.set() because this is the last
-                    # in the sequence.
+                    # activity completed. delete obsolete keys
+                    wiz.delete_keys(request.session)
+                    wiz.set(request.session, wizard.CONV_ID, conv.id)
                     url = wiz.get_next_url()
             if not url:
                 url = reverse('opportunity.tracker.views.dashboard')
@@ -1123,7 +1183,7 @@ def conversationDelete(request, *args, **kwargs):
 
 
 @login_required
-def pitchView(request, *args, **kwargs):
+def pitchEdit(request, *args, **kwargs):
     """
     Record the elevator pitch.
     """
@@ -1180,7 +1240,7 @@ def pitchDelete(request, *args, **kwargs):
 
 
 @login_required
-def onlinePresenceView(request, *args, **kwargs):
+def onlinePresenceEdit(request, *args, **kwargs):
     """
     A form for Online Presence. See model for model detail.
     /onlinePresence/(?P<op>add) - add a new story
@@ -1263,7 +1323,7 @@ def parDelete(request, *args, **kwargs):
 
 
 @login_required
-def parView(request, *args, **kwargs):
+def parEdit(request, *args, **kwargs):
     """
     A form for PAR. See model for model detail. two URLs map to this function.
     /par/(?P<op>add) - add a new story
@@ -1300,6 +1360,315 @@ def parView(request, *args, **kwargs):
                                'activity_name_list': prettyNames,
                                'form': form},
                               context_instance=RequestContext(request))
+
+
+def dispatchCommentCreate(request, *args, **kwargs):
+    '''
+    Comment model(tables) are specific to another model(position,
+    company or activity). This function dispatches the call based on
+    value of the 'activity'.
+    '''
+    activity = request.GET['activity']
+    cbv = None
+    if activity == wizard.ADD_POSITION:
+        cbv = PositionCommentCreate
+    elif activity == wizard.ADD_COMPANY:
+        cbv = CompanyCommentCreate
+    elif activity == wizard.APPLY:
+        cbv = ApplyCommentCreate
+    elif activity == wizard.INTERVIEW:
+        cbv = InterviewCommentCreate
+    elif activity == wizard.NETWORKING:
+        cbv = NetworkingCommentCreate
+    elif activity == wizard.MENTORMTG:
+        cbv = MentorMeetingCommentCreate
+    elif activity == wizard.CONVERSATION:
+        cbv = ConversationCommentCreate
+    elif activity == wizard.LUNCH:
+        cbv = LunchCommentCreate
+    return cbv.as_view()(request)
+
+
+class PositionCommentCreate(CreateView):
+    '''
+    Just create a comment via Class-based Views.
+    '''
+    form_class = PositionCommentForm
+    model = PositionComment
+    template_name = 'initial_comment.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(PositionCommentCreate, self).dispatch(*args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('opportunity.tracker.views.dashboard')
+
+    def get_form_kwargs(self):
+        kwargs = super(PositionCommentCreate, self).get_form_kwargs()
+        kwargs.update(
+            {'user': self.request.user.get_profile()})
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(PositionCommentCreate, self).get_context_data(**kwargs)
+        context['title'] = 'Comment about this position'
+
+        context['desc'] = "This is just a comment field. When adding a"
+        " position in which you're interested, other job seekers have"
+        " found it useful to record the the job description but you can"
+        " record any note you find useful."
+        return context
+
+    def form_valid(self, form):
+        '''
+        Before we save this comment, assign foreign keys.
+        '''
+        if wizard.POS_ID in self.request.GET:
+            pos_id = int(self.request.GET[wizard.POS_ID])
+            form.instance.position = Position.objects.get(pk=pos_id)
+        form.instance.author = self.request.user.get_profile()
+        return super(PositionCommentCreate, self).form_valid(form)
+
+class PositionCommentDetail(PositionCommentCreate):
+    '''
+    Provide data to the template which will present a detailed view of
+    a position.
+    '''
+    template_name = 'position_detailed_view.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PositionCommentDetail, self).get_context_data(**kwargs)
+        context['title'] = 'Detailed view of position'
+        del context['desc']  # set key by parent but is not applicable to this class.
+        mentee_id = None
+        if 'mentee_id' in self.request.GET:
+            try:
+                # should always be an int.
+                mentee_id = int(request.GET['mentee_id'])
+            except:
+                logger.error('mentee_id must be an int')
+        # update context dictionary containing permission params.
+        context.update(
+            perm_and_params(self.request.user.get_profile(), mentee_id))
+        # Retrieve position
+        try: 
+            if 'profile_id' in context:
+                context['position'] = Position.objects.get(
+                    pk=int(self.kwargs['id']))
+        except:
+            context['position'] = None
+       # Get the comments about this position
+        try:
+            context['comment_list'] = []
+            context['comment_list'].extend(
+                PositionComment.objects.filter(position=context['position']))
+        except PositionComment.DoesNotExist:
+            context['comment_list'] = None
+        return context
+
+    def form_valid(self, form):
+        '''
+        Before we save this comment, assign foreign keys.
+        '''
+        form.instance.position = Position.objects.get(
+            pk=int(self.kwargs['id']))
+        form.instance.author = self.request.user.get_profile()
+        return super(PositionCommentDetail, self).form_valid(form)
+
+
+class CompanyCommentCreate(PositionCommentCreate):
+    '''
+    Subclass Position and override things to support Company.
+    '''
+    form_class = CompanyCommentForm
+    model = CompanyComment
+    template_name = 'initial_comment.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CompanyCommentCreate, self).get_context_data(**kwargs)
+        context['title'] = 'Comment about this company'
+
+        context['desc'] = "Do you have any comments you'd like to"
+        " save with respect to this company?"
+
+        return context
+
+    def form_valid(self, form):
+        '''
+        Before we save this comment, assign foreign keys.
+        '''
+        if wizard.CO_ID in self.request.GET:
+            co_id = int(self.request.GET[wizard.CO_ID])
+            form.instance.company = Company.objects.get(pk=co_id)
+        form.instance.author = self.request.user.get_profile()
+        return super(CompanyCommentCreate, self).form_valid(form)
+
+
+class ApplyCommentCreate(PositionCommentCreate):
+    '''
+    Subclass Position and override things to support Applying for a position.
+    '''
+    form_class = ApplyCommentForm
+    model = ApplyComment
+    template_name = 'initial_comment.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplyCommentCreate, self).get_context_data(**kwargs)
+        context['title'] = 'Any comments about this application'
+
+        context['desc'] = "Do you have any comments you'd like to"
+        " save with respect to this application?"
+        return context
+
+    def form_valid(self, form):
+        '''
+        Before we save this comment, assign foreign keys.
+        '''
+        if wizard.APP_ID in self.request.GET:
+            app_id = int(self.request.GET[wizard.APP_ID])
+            form.instance.activity = Apply.objects.get(pk=app_id)
+        form.instance.author = self.request.user.get_profile()
+        return super(ApplyCommentCreate, self).form_valid(form)
+
+
+class InterviewCommentCreate(PositionCommentCreate):
+    '''
+    Subclass Position and override things to support interviews
+    '''
+    form_class = InterviewCommentForm
+    model = InterviewComment
+    template_name = 'initial_comment.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(InterviewCommentCreate, self).get_context_data(**kwargs)
+        context['title'] = 'Any comments about this interview'
+
+        context['desc'] = "Do you have any comments you'd like to save"
+        " with respect to this interview?"
+        return context
+
+    def form_valid(self, form):
+        '''
+        Before we save this comment, assign foreign keys.
+        '''
+        if wizard.INT_ID in self.request.GET:
+            int_id = int(self.request.GET[wizard.INT_ID])
+            form.instance.activity = Interview.objects.get(pk=int_id)
+        form.instance.author = self.request.user.get_profile()
+        return super(InterviewCommentCreate, self).form_valid(form)
+
+
+class NetworkingCommentCreate(PositionCommentCreate):
+    '''
+    Subclass Position and override things to support netorking
+    '''
+    form_class = NetworkingCommentForm
+    model = NetworkingComment
+    template_name = 'initial_comment.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(NetworkingCommentCreate, self).get_context_data(**kwargs)
+        context['title'] = 'Any comments about this networking event'
+
+        context['desc'] = "Do you have any comments you'd like to save?"
+        return context
+
+    def form_valid(self, form):
+        '''
+        Before we save this comment, assign foreign keys.
+        '''
+        if wizard.NET_ID in self.request.GET:
+            net_id = int(self.request.GET[wizard.NET_ID])
+            form.instance.activity = Networking.objects.get(pk=net_id)
+        form.instance.author = self.request.user.get_profile()
+        return super(NetworkingCommentCreate, self).form_valid(form)
+
+
+class MentorMeetingCommentCreate(PositionCommentCreate):
+    '''
+    Subclass Position and override things to support meeting your mentor
+    '''
+    form_class = MentorMeetingCommentForm
+    model = MentorMeetingComment
+    template_name = 'initial_comment.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(MentorMeetingCommentCreate, self).get_context_data(**kwargs)
+        context['title'] = 'Any comments about this meeting'
+
+        context['desc'] = "Do you have any comments you'd like to save?"
+        return context
+
+    def form_valid(self, form):
+        '''
+        Before we save this comment, assign foreign keys.
+        '''
+        if wizard.NET_ID in self.request.GET:
+            net_id = int(self.request.GET[wizard.NET_ID])
+            form.instance.activity = Networking.objects.get(pk=net_id)
+        form.instance.author = self.request.user.get_profile()
+        return super(NetworkingCommentCreate, self).form_valid(form)
+
+
+class ConversationCommentCreate(PositionCommentCreate):
+    '''
+    Subclass Position and override things to support conversation
+    '''
+    form_class = ConversationCommentForm
+    model = ConversationComment
+    template_name = 'initial_comment.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ConversationCommentCreate, self).get_context_data(**kwargs)
+        context['title'] = 'Any comments about this conversation'
+
+        context['desc'] = "Do you have any comments you'd like to save?"
+        return context
+
+    def form_valid(self, form):
+        '''
+        Before we save this comment, assign foreign keys.
+        '''
+        if wizard.CONV_ID in self.request.GET:
+            conv_id = int(self.request.GET[wizard.CONV_ID])
+            form.instance.activity = Conversation.objects.get(pk=conv_id)
+        form.instance.author = self.request.user.get_profile()
+        return super(ConversationCommentCreate, self).form_valid(form)
+
+
+class LunchCommentCreate(PositionCommentCreate):
+    '''
+    Subclass Position and override things to support conversation
+    '''
+    form_class = LunchCommentForm
+    model = LunchComment
+    template_name = 'initial_comment.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LunchCommentCreate, self).get_context_data(**kwargs)
+        context['title'] = 'Comments'
+
+        context['desc'] = "Do you have any comments you'd like to save?"
+        return context
+
+    def form_valid(self, form):
+        '''
+        Before we save this comment, assign foreign keys.
+        '''
+        if wizard.LUNCH_ID in self.request.GET:
+            lunch_id = int(self.request.GET[wizard.LUNCH_ID])
+            form.instance.activity = Lunch.objects.get(pk=lunch_id)
+        form.instance.author = self.request.user.get_profile()
+        return super(LunchCommentCreate, self).form_valid(form)
+
+
+class PositionCommentUpdate(UpdateView):
+    pass
+
+
+class PositionCommentDelete(DeleteView):
+    pass
 
 
 def registration(request):
@@ -1356,10 +1725,10 @@ def loginRequest(request):
                 return HttpResponseRedirect(reverse(view_str))
             else:
                 return render_to_response(
-                    "login.html", 
-                    {'form': form, 
-                    'err_pwd': 'Incorrect pasword or username/password mismatch',
-                    },
+                    "login.html",
+                    {'form': form,
+                     'err_pwd': 'Incorrect pasword or username/password mismatch',
+                     },
                     context_instance=RequestContext(request))
         else:
             return render_to_response("login.html", {'form': form},

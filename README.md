@@ -27,5 +27,5 @@ these python modules.
 To populate the database....      
 
 	./manage.py syncdb 
-	./manage.py migrate
+	./manage.py migrate tracker
 	./manage.py runserver

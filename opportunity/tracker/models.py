@@ -13,46 +13,51 @@ from django.utils import six
 
 logger = logging.getLogger(__name__)
 
+
 def secret_society(user_profile, veiwing_profile_id):
     '''
-    Given the UserProfile for the current user, compute a list of UserProfiles which
-    are either mentors to and job seekers supported by this user.  
-    
+    Given the UserProfile for the current user, compute a list of
+    UserProfiles which are either mentors to and job seekers supported
+    by this user.
+
     viewing_profile_id used to determine which page is being viewed and set
-    the selectors default. 
+    the selectors default.
     '''
-    ret = [('self', user_profile.id, 
-        True if user_profile.id == veiwing_profile_id else False)]
-    # Retrieves all mentorships in which the current user is either 
-    # a jobseeker or mentor? 
-    m_list = Mentorship.objects.filter(Q(jobseeker=user_profile)|Q(mentor=user_profile))
-   
+    ret = [('self', user_profile.id,
+            True if user_profile.id == veiwing_profile_id else False)]
+    # Retrieves all mentorships in which the current user is either
+    # a jobseeker or mentor?
+    m_list = Mentorship.objects.filter(
+        Q(jobseeker=user_profile) | Q(mentor=user_profile))
+
     for m in m_list:
         if m.jobseeker != user_profile:
-            ret.append( (m.jobseeker.user.first_name.strip() 
+            ret.append((m.jobseeker.user.first_name.strip()
                         + ' ' + m.jobseeker.user.last_name.strip(),
                         m.jobseeker.id,
-                        True if m.jobseeker.id == veiwing_profile_id else False) )
+                        True if m.jobseeker.id == veiwing_profile_id else False))
         else:
-            ret.append((m.mentor.user.first_name.strip() 
-                        + ' ' + m.mentor.user.last_name.strip(), 
+            ret.append((m.mentor.user.first_name.strip()
+                        + ' ' + m.mentor.user.last_name.strip(),
                         m.mentor.id,
                         True if m.mentor.id == veiwing_profile_id else False))
     return ret
 
+
 def perm_and_params(requester, target_id):
     '''
-    Given a UserProfile and a target uid, return a dict which contains 
-    permission and parameters with respect to whether the requestion can 
-    view the page. 
-    'perm_p' - boolean - can requester view this page? 
-    'page_owner_p' - boolean - Who owns the page ? 
-    'page_owner_name' - What is the name of the page owner? 
-    'profile_id' - What is the uid of the content to display? 
-    'warning_message' - Warning message to display if any ? 
+    Given a UserProfile and a target uid, return a dict which contains
+    permission and parameters with respect to whether the requestion
+    can view the page.
+
+    'perm_p' - boolean - can requester view this page?
+    'page_owner_p' - boolean - Who owns the page ?
+    'page_owner_name' - What is the name of the page owner?
+    'profile_id' - What is the uid of the content to display?
+    'warning_message' - Warning message to display if any ?
     '''
     page_options = {}
-    page_options['perm_p']  = False
+    page_options['perm_p'] = False
     page_options['page_owner_p'] = False
     page_options['page_owner_name'] = 'Unauthorized'
     page_options['profile_id'] = -1
@@ -67,10 +72,10 @@ def perm_and_params(requester, target_id):
             if target_id == requester.id:
                 page_options['profile_id'] = requester.id
                 page_options['page_owner_p'] = True
-                page_options['page_owner_name'] = 'My'        
+                page_options['page_owner_name'] = 'My'
                 page_options['perm_p'] = True
             else:
-                page_options['profile_id']  = target_id
+                page_options['profile_id'] = target_id
                 mentee = UserProfile.objects.get(pk=target_id)
                 page_options['page_owner_name'] = mentee.user.username.strip() + "'s"
                 page_options['perm_p'] = True
@@ -79,26 +84,26 @@ def perm_and_params(requester, target_id):
         # perm_p is false by default. Coordinator should always
         # be associated mentee id. if not, the default generates an error.
         if requester.is_job_seeker():
-                page_options['profile_id']  = requester.id
+                page_options['profile_id'] = requester.id
                 page_options['page_owner_p'] = True
-                page_options['page_owner_name'] = 'My'        
+                page_options['page_owner_name'] = 'My'
                 page_options['perm_p'] = True
         elif requester.is_mentor():
             mentee_id, err_message = requester.has_mentee()
-            if mentee_id and may_access_control(requester.id,
-                                            mentee_id):
-                page_options['profile_id']  = mentee_id
+            if mentee_id and may_access_control(requester.id, mentee_id):
+                page_options['profile_id'] = mentee_id
                 mentee = UserProfile.objects.get(pk=mentee_id)
                 page_options['page_owner_name'] = mentee.user.username.strip() + "'s"
                 page_options['perm_p'] = True
-            else: 
-                # mentor is logged in but has no mentee. 
-                page_options['profile_id']  = requester.id
+            else:
+                # mentor is logged in but has no mentee.
+                page_options['profile_id'] = requester.id
                 page_options['page_owner_p'] = True
-                page_options['page_owner_name'] = 'My'        
+                page_options['page_owner_name'] = 'My'
                 page_options['perm_p'] = True
-                warning_message='No mentee assigned, yet.'
+                warning_message = 'No mentee assigned, yet.'
     return page_options
+
 
 def may_access_control(requester_id, target_id):
     '''
@@ -109,7 +114,7 @@ def may_access_control(requester_id, target_id):
 
     '''
     ret = False
-    # urls pass ints as strings. What if someone forgets to convert them? 
+    # urls pass ints as strings. What if someone forgets to convert them?
     if not (isinstance(requester_id, int) and isinstance(target_id, int)):
         logger.error('mentor ids must be ints')
         return False
@@ -124,9 +129,8 @@ def may_access_control(requester_id, target_id):
     else:
         # is there a mentorship relationship between aRequester and aTarget?
         m_rel = Mentorship.objects.filter(
-            (Q(jobseeker=requester_id)&Q(mentor=target_id)) |
-            (Q(jobseeker=target_id)&Q(mentor=requester_id))
-            )
+            (Q(jobseeker=requester_id) & Q(mentor=target_id)) |
+            (Q(jobseeker=target_id) & Q(mentor=requester_id)))
         if len(m_rel) == 1:
             ret = True
     return ret
@@ -157,13 +161,13 @@ class UserProfile(models.Model):
 
     def is_coordinator(self):
         '''
-        Is a coordinator? 
+        Is a coordinator?
         '''
         return self.role == self.COORDINATOR
 
     def is_job_seeker(self):
         '''
-        is a job seeker? 
+        is a job seeker?
         '''
         return self.role == self.JOB_SEEKER
 
@@ -175,7 +179,7 @@ class UserProfile(models.Model):
 
     def is_mentor_of(self, js_id):
         '''
-        Is this user the mentor of id? 
+        Is this user the mentor of id?
         '''
         if js_id:
             rc = True if may_access_control(self.id, js_id) else False
@@ -191,7 +195,7 @@ class UserProfile(models.Model):
         rc = None
         err_msg = None
         if self.is_mentor():
-            m_rel = Mentorship.objects.filter(mentor__id = self.id)
+            m_rel = Mentorship.objects.filter(mentor__id=self.id)
             if len(m_rel) >= 1:
                 rc = m_rel[0].jobseeker_id
             else:
@@ -199,6 +203,17 @@ class UserProfile(models.Model):
         else:
             err_msg = 'You must be a mentor to view this page'
         return rc, err_msg
+
+    def get_mentorship(self):
+        '''
+        Given user id return mentorship or None if there isn't one.
+        '''
+        rc = None
+        if self.is_job_seeker():
+            rc = Mentorship.objects.filter(jobseeker__id=self.id)
+            if len(rc) >= 1:
+                rc = rc[0]
+        return rc
 
 
 # UserProfile is associated with the User table. Listen for the post_save
@@ -270,10 +285,8 @@ class Company(models.Model):
     zipCode = models.CharField(
         _('Zip'), max_length=16, blank=True, null=True)
     website = models.URLField(_('Website'))
-    comment = models.CharField(
-        _('Comment'), max_length=256, blank=True, null=True)
     user = models.ForeignKey(UserProfile)
-    # is this company a prospective employer or simply a networking venue? 
+    # is this company a prospective employer or simply a networking venue?
     is_prospective = models.BooleanField(default=True)
 
     def __str__(self):
@@ -303,7 +316,6 @@ class Position(models.Model):
     company = models.ForeignKey(Company)
     title = models.CharField(max_length=64)
     website = models.URLField()
-    comment = models.CharField(max_length=256, blank=True, null=True)
     user = models.ForeignKey(UserProfile)
     active = models.BooleanField(default=True)
 
@@ -313,6 +325,7 @@ class Position(models.Model):
     class Meta:
         ordering = ['title']
 
+
 @python_2_unicode_compatible
 class Activity(models.Model):
     """
@@ -321,7 +334,6 @@ class Activity(models.Model):
     """
     when = models.DateField()
     time = models.TimeField()
-    comment = models.CharField(max_length=256, blank=True, null=True)
     user = models.ForeignKey(UserProfile)
 
     def __str__(self):
@@ -340,8 +352,8 @@ class Activity(models.Model):
         rc.extend(Conversation.objects.filter(user=profile_id))
         rc.extend(MentorMeeting.objects.filter(user=profile_id))
         rc.extend(Lunch.objects.filter(user=profile_id))
-        rc = sorted(rc, key=lambda act: act.time,reverse=True) # 2nd - time
-        rc = sorted(rc, key=lambda act: act.when,reverse=True) # primary - date
+        rc = sorted(rc, key=lambda act: act.time, reverse=True)  # 2nd - time
+        rc = sorted(rc, key=lambda act: act.when, reverse=True)  # primary - date
         return rc
 
     class Meta:
@@ -412,12 +424,19 @@ class Lunch (Activity):
 @python_2_unicode_compatible
 class MentorMeeting(Activity):
     """
-    Meet with Mentor. Assumption: The Mentorship should have been
+    Meet with Mentor.
     """
     mentorship = models.ForeignKey(Mentorship, unique=True)
     face_to_face = models.BooleanField(default=False)
 
     tag = "mentormeeting"
+
+    @staticmethod
+    def factory(user, mentorship):
+        rc = MentorMeeting()
+        rc.user = user
+        rc.mentorship = mentorship
+        return rc
 
     def __str__(self):
         return 'Met with %s' % (self.mentorship.mentor)
@@ -439,8 +458,13 @@ class Conversation(Activity):
     tag = "conversation"
 
     def __str__(self):
-        return 'Spoke with %s %s via %s' % (
-            self.person.first_name, self.person.last_name, self.via)
+        msg = 'Spoke with {0} {1} '.format(
+            self.person.first_name, self.person.last_name)
+        if self.via == "faceToFace":
+            msg += " in person"
+        else:
+            msg += " via {0}".format(METHOD_OF_COMMUNICATION[self.via])
+        return msg
 
 
 @python_2_unicode_compatible
@@ -484,3 +508,54 @@ class PAR(models.Model):
 
     class Meta:
         ordering = ['question']
+
+
+class TimeStampedModel(models.Model):
+    '''
+    The book Two Scoops recommends creating a ABC for time stamps.
+    '''
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class Comment(TimeStampedModel):
+    author = models.ForeignKey(UserProfile)
+    comment = models.CharField(_('Comment'), max_length=1024)
+
+    class Meta:
+        abstract = True
+
+
+class PositionComment(Comment):
+    position = models.ForeignKey(Position)
+
+
+class CompanyComment(Comment):
+    company = models.ForeignKey(Company)
+
+
+class InterviewComment(Comment):
+    activity = models.ForeignKey(Interview)
+
+
+class ApplyComment(Comment):
+    activity = models.ForeignKey(Apply)
+
+
+class NetworkingComment(Comment):
+    activity = models.ForeignKey(Networking)
+
+
+class LunchComment(Comment):
+    activity = models.ForeignKey(Lunch)
+
+
+class MentorMeetingComment(Comment):
+    activity = models.ForeignKey(MentorMeeting)
+
+
+class ConversationComment(Comment):
+    activity = models.ForeignKey(Conversation)
