@@ -1,0 +1,13 @@
+.navbar {
+	border-radius: 0;
+}
+
+.navbar-brand {
+	line-height: 14px;
+	margin: 0;
+}
+
+body {
+	padding-bottom: 70px; 
+}
+
