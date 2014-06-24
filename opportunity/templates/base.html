@@ -1,9 +1,12 @@
 <!doctype html>
 {% load i18n %}
+{% load crispy_forms_tags %}
+
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		
+	<!-- Fonts -->	
+	<link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,600' rel='stylesheet' type='text/css'>
 
 	<!-- Bootstrap 3.1.1 compiled and minified CSS -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -27,6 +30,7 @@
 		<title>{% trans "Opportunity" %}</title>
 	</head>
 	<body>
+		
 		<header class="navbar navbar-default" role="navigation">
 			<nav class="container">
 				<a href="/about/" class="navbar-brand">

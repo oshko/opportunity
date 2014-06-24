@@ -1,24 +1,44 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 {% block content %}
-Welcome. Please login. 
-	<form action="" method="post">
-	{% csrf_token %}
-        {% if err_pwd %}
-            <p style="color: red;">
-            {{ err_pwd }} 
-            </p>
-        {% endif %} 
-		{% if form.errors %}
-			<p style="color: red;">
-				Please correct the error{{ form.errors|pluralize }} below.
-			</p>
-		{% endif %}
-		<table>
-			{{ form.as_table }}
-		</table>
-		<input type="submit" value="Submit">
-	</form>
-Don't have an account? <a href="/register/">Create one now</a>. <br/>
-Forgot your password? <a href="/resetpassword/">Reset it!</a>
+<section class="row">
+	<div class="col-md-offset-3 col-md-5">
+		<div class="panel panel-default">
+			<p class="panel-heading">Welcome! Please login. </p>
+			<div class="panel-body">
+				
+				{% csrf_token %}
+				{% if err_pwd %}
+					<p class="alert alert-warning">  {{ err_pwd }} </p>
+				{% endif %} 
+				{% if form.errors %}
+					<p class="alert alert-warning">	Please correct the error{{ form.errors|pluralize }} below.</p>
+				{% endif %}
+				{% crispy form %}
+				<!--
+				<form class="form-horizontal"action="" method="post">				
+			
+				{% csrf_token %}
+				{% if err_pwd %}
+					<p class="alert alert-warning">  {{ err_pwd }} </p>
+				{% endif %} 
+				{% if form.errors %}
+					<p class="bg-warning">	Please correct the error{{ form.errors|pluralize }} below.</p>
+				{% endif %}
+					<table>
+						{{ form.as_table }}
+					</table>					
+					<input class="btn btn-default"type="submit" value="Submit">
+				</form>
+				-->
+			</div>
+			<div class="panel-footer">
+				<p class="text-muted">Don't have an account? <a href="/register/">Create one now</a></p>
+				<p class="text-muted">Forgot your password? <a href="/resetpassword/">Reset it!</a></p>
+			</div>
+		</div>
+	</div>
+</section>
+
 {% endblock %}
 

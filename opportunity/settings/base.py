@@ -131,6 +131,8 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.dirname(__file__),'..', 'templates').replace('\\','/'),
 )
 
+CRISPY_TEMPLATE_PACK='bootstrap3'
+
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
@@ -141,6 +143,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'opportunity.tracker',
+    'crispy_forms',
     'south',
 )
 

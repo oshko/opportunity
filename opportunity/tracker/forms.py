@@ -2,6 +2,11 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+
+
+
 from .models import *
 
 
@@ -317,5 +322,8 @@ class RegistrationForm(forms.ModelForm):
 
 class LoginForm(forms.Form):
     username = forms.CharField(label=_('User Name'))
-    password = forms.CharField(label=_('Password'),
-                               widget=forms.PasswordInput(render_value=False))
+    password = forms.CharField(label=_('Password'), widget = forms.PasswordInput(render_value=False))
+    remember= forms.BooleanField(label= _('Remember me?'), required=False)
+    helper = FormHelper()
+    helper.form_method = 'POST'
+    helper.add_input(Submit('login', 'Login', css_btn='btn btn-default'))
