@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-
+from crispy_forms.layout import Submit, Layout, Field, ButtonHolder, Fieldset
+from crispy_forms.bootstrap import FormActions, PrependedText
 
 
 from .models import *
@@ -323,7 +323,17 @@ class RegistrationForm(forms.ModelForm):
 class LoginForm(forms.Form):
     username = forms.CharField(label=_('User Name'))
     password = forms.CharField(label=_('Password'), widget = forms.PasswordInput(render_value=False))
-    remember= forms.BooleanField(label= _('Remember me?'), required=False)
+    remember_me = forms.BooleanField(label= _('Remember me?'), required=False)
+    
     helper = FormHelper()
     helper.form_method = 'POST'
-    helper.add_input(Submit('login', 'Login', css_btn='btn btn-default'))
+    helper.form_class = 'form-horizontal'
+    helper.label_class = 'col-lg-3'
+    helper.field_class = 'col-lg-8'
+    helper.layout = Layout(
+	Field('username', placeholder='Please enter your user name'),
+	Field('password', placeholder='Please enter your password'),
+	Field('remember_me', css_class='checkbox'),
+	FormActions(Submit('login', 'Login', css_class='btn btn-default col-lg-offset-3'))
+    )
+    
